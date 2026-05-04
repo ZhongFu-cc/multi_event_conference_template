@@ -35,7 +35,7 @@ public class MybatisPlusGeneratedBusinessReplenish {
 	/**
 	 * jdbc 路径(自行替換)
 	 */
-	private static final String URL = "jdbc:mariadb://192.168.56.1:3306/ticbcs2026_international_conferenct";
+	private static final String URL = "jdbc:mariadb://192.168.56.1:3306/multi_event_conference";
 
 	/**
 	 * 数据库账号(自行替換)
@@ -60,7 +60,7 @@ public class MybatisPlusGeneratedBusinessReplenish {
 	/**
 	 * 包名(自行替換,通常三層中取前兩層,例:com.example.demo,取前兩層)
 	 */
-	private static final String PARENT = "tw.com.ticbcs";
+	private static final String PARENT = "tw.com.conference";
 
 	/**
 	 * 业务名(自行替換,通常三層中取最後一層,代表某個業務功能)
@@ -124,7 +124,7 @@ public class MybatisPlusGeneratedBusinessReplenish {
 				// 策略配置
 				.strategyConfig(builder -> {
 					// 设置需要生成的表名,排除system類的table
-					builder.addInclude("temp_workspace").addTablePrefix() // 设置过滤表前缀, sys_user設置成 user表,一般不用寫
+					builder.addInclude("event","event_bundle","event_bundle_item","event_bundle_rule","pricing_rule").addTablePrefix() // 设置过滤表前缀, sys_user設置成 user表,一般不用寫
 
 							.controllerBuilder().enableRestStyle().enableHyphenStyle().enableFileOverride() // controller層
 																											// 原檔案覆蓋
