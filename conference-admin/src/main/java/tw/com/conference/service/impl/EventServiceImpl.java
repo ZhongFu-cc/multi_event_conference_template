@@ -37,9 +37,10 @@ public class EventServiceImpl extends ServiceImpl<EventMapper, Event> implements
 	}
 
 	@Override
-	public void create(AddEventDTO addEventDTO) {
+	public Event create(AddEventDTO addEventDTO) {
 		Event event = eventConvert.addDTOToEntity(addEventDTO);
 		baseMapper.insert(event);
+		return event;
 	}
 
 	@Override

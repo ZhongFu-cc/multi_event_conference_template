@@ -33,7 +33,7 @@ public interface EventService extends IService<Event> {
 	 * 新增活動事件
 	 * @param addEventDTO
 	 */
-	void create(AddEventDTO addEventDTO); 
+	Event create(AddEventDTO addEventDTO); 
 	
 	/**
 	 * 修改活動事件

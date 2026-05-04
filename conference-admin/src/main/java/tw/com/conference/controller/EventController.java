@@ -43,7 +43,7 @@ public class EventController {
 	private final EventPriceRuleManager eventPriceRuleManager;
 	private final EventService eventService;
 	
-	@GetMapping("exist-any-event")
+	@GetMapping("exist-any")
 	@Operation(summary = "是否存在任何活動事件")
 	@Parameters({
 		@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
