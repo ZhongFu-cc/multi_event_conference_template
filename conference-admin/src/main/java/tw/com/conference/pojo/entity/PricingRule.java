@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -54,10 +55,12 @@ public class PricingRule implements Serializable {
 
     @Schema(description = "價格適用起始日")
     @TableField("date_from")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateFrom;
 
     @Schema(description = "優惠適用結束日")
     @TableField("date_to")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateTo;
 
     @Schema(description = "金額")
@@ -70,6 +73,7 @@ public class PricingRule implements Serializable {
 
     @Schema(description = "創建時間")
     @TableField(value = "create_date", fill = FieldFill.INSERT)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createDate;
 
     @Schema(description = "最後修改者")
@@ -78,6 +82,7 @@ public class PricingRule implements Serializable {
 
     @Schema(description = "最後修改時間")
     @TableField(value = "update_date", fill = FieldFill.UPDATE)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateDate;
 
     @Schema(description = "邏輯刪除,預設為0活耀,1為刪除")

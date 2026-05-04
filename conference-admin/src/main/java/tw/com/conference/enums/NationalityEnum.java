@@ -14,12 +14,12 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum NationalityEnum {
 
-	DOMESTIC("domestic", "本國籍"), INTERNATIONAL("international", "外國籍"), ALL("all", "無論國籍");
+	DOMESTIC("domestic", "本國籍"), INTERNATIONAL("international", "外國籍");
 
 	@EnumValue
+	@JsonValue // JSON 輸出用
 	private final String value;
 
-	@JsonValue // JSON 輸出用
 	private final String label;
 
 	/**

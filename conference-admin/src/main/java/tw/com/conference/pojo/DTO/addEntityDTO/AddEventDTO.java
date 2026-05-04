@@ -2,6 +2,8 @@ package tw.com.conference.pojo.DTO.addEntityDTO;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -21,12 +23,14 @@ public class AddEventDTO {
 	@Schema(description = "活動描述")
 	private String description;
 
-	@NotBlank
+	@NotNull
 	@Schema(description = "活動開始時間")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime startAt;
 
-	@NotBlank
+	@NotNull
 	@Schema(description = "活動結束時間")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime endAt;
 
 	@NotBlank

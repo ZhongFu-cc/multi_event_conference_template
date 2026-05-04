@@ -20,7 +20,7 @@ public interface PricingRuleMapper extends BaseMapper<PricingRule> {
      * 判斷 價格規則 表內是否有任何資料<br>
      * 使用 MySQL 的 EXISTS 語法，只要找到第一筆就會停止掃描，效能最優。
      */
-    @Select("SELECT EXISTS(SELECT 1 FROM event LIMIT 1)")
+    @Select("SELECT EXISTS(SELECT 1 FROM pricing_rule WHERE is_deleted = 0 LIMIT 1)")
     boolean existAnyPricingRule();
 	
 }

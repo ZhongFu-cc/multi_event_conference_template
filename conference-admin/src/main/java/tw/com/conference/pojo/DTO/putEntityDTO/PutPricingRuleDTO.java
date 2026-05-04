@@ -3,6 +3,8 @@ package tw.com.conference.pojo.DTO.putEntityDTO;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -32,10 +34,12 @@ public class PutPricingRuleDTO {
 
 	@NotNull
 	@Schema(description = "價格適用起始日")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private LocalDate dateFrom;
 
 	@NotNull
 	@Schema(description = "優惠適用結束日")
+    @JsonFormat(pattern = "yyyy-MM-dd")
 	private LocalDate dateTo;
 
 	@NotNull
