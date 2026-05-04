@@ -1,17 +1,20 @@
 package tw.com.conference.pojo.entity;
 
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
+import tw.com.conference.enums.NationalityEnum;
 
 /**
  * <p>
@@ -47,7 +50,7 @@ public class PricingRule implements Serializable {
 
     @Schema(description = "國籍，影響價格維度之一")
     @TableField("nationality")
-    private String nationality;
+    private NationalityEnum nationality;
 
     @Schema(description = "價格適用起始日")
     @TableField("date_from")

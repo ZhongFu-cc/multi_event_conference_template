@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import tw.com.conference.manager.CategoryPriceRuleManager;
+import tw.com.conference.manager.CategoryPricingRuleManager;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddMemberTypeDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutMemberTypeDTO;
 import tw.com.conference.pojo.entity.MemberType;
@@ -40,7 +40,7 @@ import tw.com.conference.utils.R;
 public class MemberTypeController {
 
 	private final MemberTypeService memberTypeService;
-	private final CategoryPriceRuleManager categoryPriceRuleManager;
+	private final CategoryPricingRuleManager categoryPriceRuleManager;
 
 	@GetMapping("exist-any")
 	@Operation(summary = "是否存在任何會員身分類別")

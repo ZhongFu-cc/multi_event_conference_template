@@ -7,7 +7,7 @@ import tw.com.conference.service.MemberTypeService;
 
 @Component
 @RequiredArgsConstructor
-public class CategoryPriceRuleManager {
+public class CategoryPricingRuleManager {
 
 	private final MemberTypeService memberTypeService;
 
