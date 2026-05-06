@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import cn.dev33.satoken.annotation.SaCheckRole;
@@ -19,8 +20,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import tw.com.conference.manager.CategoryPricingRuleManager;
+import tw.com.conference.manager.EventPriceRuleManager;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddPricingRuleDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutPricingRuleDTO;
+import tw.com.conference.pojo.VO.PriceDashboardVO;
 import tw.com.conference.pojo.entity.PricingRule;
 import tw.com.conference.service.PricingRuleService;
 import tw.com.conference.utils.R;
@@ -41,6 +44,7 @@ import tw.com.conference.utils.R;
 public class PricingRuleController {
 
 	private final PricingRuleService pricingRuleService;
+	private final EventPriceRuleManager eventPriceRuleManager;
 	private final CategoryPricingRuleManager categoryPriceRuleManager;
 
 	@GetMapping("exist-any")
@@ -51,6 +55,16 @@ public class PricingRuleController {
 	public R<Boolean> existAnyPricingRule() {
 		boolean existAny = pricingRuleService.existAny();
 		return R.ok(existAny);
+	}
+
+	@GetMapping("table")
+	@Operation(summary = "獲取價格規則表格")
+	@Parameters({
+			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
+	@SaCheckRole("super-admin")
+	public R<PriceDashboardVO> getPricingTable(@RequestParam("eventId") Long eventId) {
+		PriceDashboardVO priceDashboard = eventPriceRuleManager.getPriceDashboard(eventId);
+		return R.ok(priceDashboard);
 	}
 
 	@GetMapping("{id}")
@@ -90,5 +104,5 @@ public class PricingRuleController {
 		categoryPriceRuleManager.removeCategory(pricingRuleId);
 		return R.ok();
 	}
-	
+
 }

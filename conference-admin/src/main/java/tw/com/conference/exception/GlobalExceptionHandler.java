@@ -40,7 +40,21 @@ public class GlobalExceptionHandler {
 	//	}
 
 	/**
-	 * 跟自定義表單相關的業務邏輯錯誤
+	 * 定價規則的業務邏輯錯誤
+	 * 
+	 * @param exception
+	 * @return
+	 */
+	@ResponseBody
+	@ResponseStatus(HttpStatus.CONFLICT)
+	@ExceptionHandler(value = PricingRuleException.class)
+	public R<Map<String, Object>> pricingRuleException(PricingRuleException exception) {
+		String message = exception.getMessage();
+		return R.fail(409, message);
+	}
+
+	/**
+	 * 自定義表單相關的業務邏輯錯誤
 	 * 
 	 * @param exception
 	 * @return
@@ -78,7 +92,7 @@ public class GlobalExceptionHandler {
 		String message = exception.getMessage();
 		return R.fail(500, message);
 	}
-	
+
 	/**
 	 * 處理稿件 公文檔案 相關的異常
 	 * 
@@ -319,17 +333,18 @@ public class GlobalExceptionHandler {
 		ex.printStackTrace();
 		return R.fail(400, ex.getMessage());
 	}
-	
-	
+
 	/**
 	 * 處理必要參數遺失異常
+	 * 
 	 * @param exception
 	 * @return
 	 */
 	@ResponseBody
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(value = MissingServletRequestParameterException.class)
-	public R<Map<String, Object>> missingServletRequestParameterHandler(MissingServletRequestParameterException exception) {
+	public R<Map<String, Object>> missingServletRequestParameterHandler(
+			MissingServletRequestParameterException exception) {
 		exception.printStackTrace();
 		log.error(exception.getMessage());
 		return R.fail(400, "請求格式錯誤，請檢查內容");
@@ -362,9 +377,9 @@ public class GlobalExceptionHandler {
 		exception.printStackTrace();
 		log.error(exception.getMessage());
 		// 取得第一個錯誤訊息,但這樣返回給前端的錯誤信息太明確 , 先不使用
-	    String message = exception.getBindingResult().getAllErrors().get(0).getDefaultMessage();
+		String message = exception.getBindingResult().getAllErrors().get(0).getDefaultMessage();
 
-//	    return R.fail(400, message);
+		//	    return R.fail(400, message);
 		return R.fail(400, "Parameter verification exception");
 	}
 

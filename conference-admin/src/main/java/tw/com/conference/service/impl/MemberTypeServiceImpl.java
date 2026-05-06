@@ -1,5 +1,7 @@
 package tw.com.conference.service.impl;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -35,6 +37,11 @@ public class MemberTypeServiceImpl extends ServiceImpl<MemberTypeMapper, MemberT
 	public MemberType get(Long memberTypeId) {
 		MemberType memberType = baseMapper.selectById(memberTypeId);
 		return memberType;
+	}
+
+	@Override
+	public List<MemberType> list() {
+		return baseMapper.selectList(null);
 	}
 
 	@Override

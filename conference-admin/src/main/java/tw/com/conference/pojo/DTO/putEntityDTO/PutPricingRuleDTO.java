@@ -28,7 +28,7 @@ public class PutPricingRuleDTO {
 	@Schema(description = "會員身份ID，NULL = 適用所有身分")
 	private Long memberTypeId;
 
-	@NotBlank
+	@NotNull
 	@Schema(description = "國籍，影響價格維度之一")
 	private NationalityEnum nationality;
 

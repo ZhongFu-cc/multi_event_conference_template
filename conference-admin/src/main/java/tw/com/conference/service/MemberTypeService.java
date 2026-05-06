@@ -1,5 +1,7 @@
 package tw.com.conference.service;
 
+import java.util.List;
+
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import tw.com.conference.pojo.DTO.addEntityDTO.AddMemberTypeDTO;
@@ -29,6 +31,11 @@ public interface MemberTypeService extends IService<MemberType> {
 	 */
 	MemberType get(Long memberTypeId);
 
+	/**
+	 * 獲取所有會員類別
+	 */
+	List<MemberType> list();
+	
 	/**
 	 * 新增會員身份類別
 	 * @param addMemberTypeDTO
