@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,23 +19,23 @@ import lombok.Setter;
  * </p>
  *
  * @author Joey
- * @since 2026-05-04
+ * @since 2026-05-06
  */
 @Getter
 @Setter
-@TableName("event_bundle_rule")
-@Schema(name = "EventBundleRule", description = "活動組合優惠 - 規則")
-public class EventBundleRule implements Serializable {
+@TableName("discount_package_rule")
+@Schema(name = "DiscountPackageRule", description = "活動組合優惠 - 規則")
+public class DiscountPackageRule implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "主鍵ID")
-    @TableId("event_bundle_rule_id")
-    private Long eventBundleRuleId;
+    @TableId("discount_package_rule_id")
+    private Long discountPackageRuleId;
 
     @Schema(description = "組合優惠ID")
-    @TableField("event_bundle_id")
-    private Long eventBundleId;
+    @TableField("discount_package_id")
+    private Long discountPackageId;
 
     @Schema(description = "規則名稱")
     @TableField("name")
@@ -61,6 +63,7 @@ public class EventBundleRule implements Serializable {
 
     @Schema(description = "創建時間")
     @TableField(value = "create_date", fill = FieldFill.INSERT)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createDate;
 
     @Schema(description = "最後修改者")
@@ -69,10 +72,11 @@ public class EventBundleRule implements Serializable {
 
     @Schema(description = "最後修改時間")
     @TableField(value = "update_date", fill = FieldFill.UPDATE)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateDate;
 
     @Schema(description = "邏輯刪除,預設為0活耀,1為刪除")
     @TableField("is_deleted")
     @TableLogic
-    private Integer isDeleted;
+    private Byte isDeleted;
 }

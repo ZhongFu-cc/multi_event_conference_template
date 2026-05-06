@@ -14,23 +14,23 @@ import lombok.Setter;
  * </p>
  *
  * @author Joey
- * @since 2026-05-04
+ * @since 2026-05-06
  */
 @Getter
 @Setter
-@TableName("event_bundle_item")
-@Schema(name = "EventBundleItem", description = "活動組合優惠 - 適用活動場次")
-public class EventBundleItem implements Serializable {
+@TableName("discount_package_item")
+@Schema(name = "DiscountPackageItem", description = "活動組合優惠 - 適用活動場次")
+public class DiscountPackageItem implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "主鍵ID")
-    @TableId("event_bundle_item_id")
-    private Long eventBundleItemId;
+    @TableId("discount_package_item_id")
+    private Long discountPackageItemId;
 
     @Schema(description = "組合優惠ID")
-    @TableField("event_bundle_id")
-    private Long eventBundleId;
+    @TableField("discount_package_id")
+    private Long discountPackageId;
 
     @Schema(description = "活動ID")
     @TableField("event_id")
