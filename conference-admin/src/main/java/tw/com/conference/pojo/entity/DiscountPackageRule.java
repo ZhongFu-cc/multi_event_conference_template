@@ -47,7 +47,7 @@ public class DiscountPackageRule implements Serializable {
 
     @Schema(description = "折扣值 ; percent 填 15 表示 15%，amount 填折抵金額")
     @TableField("discount_value")
-    private Long discountValue;
+    private Integer discountValue;
 
     @Schema(description = "從群組中選中幾個event時觸發")
     @TableField("required_count")
