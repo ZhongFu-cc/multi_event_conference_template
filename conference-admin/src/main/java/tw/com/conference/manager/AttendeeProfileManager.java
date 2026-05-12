@@ -24,8 +24,8 @@ import com.google.zxing.WriterException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import tw.com.conference.convert.AttendeesConvert;
-import tw.com.conference.handler.AttendeesVOHandler;
+import tw.com.conference.convert.AttendeeConvert;
+import tw.com.conference.handler.AttendeeVOHandler;
 import tw.com.conference.helper.TagAssignmentHelper;
 import tw.com.conference.pojo.BO.CheckinInfoBO;
 import tw.com.conference.pojo.BO.PresenceStatsBO;
@@ -35,13 +35,13 @@ import tw.com.conference.pojo.VO.AttendeesStatsVO;
 import tw.com.conference.pojo.VO.AttendeesVO;
 import tw.com.conference.pojo.VO.CheckinRecordVO;
 import tw.com.conference.pojo.VO.ImportResultVO;
-import tw.com.conference.pojo.entity.Attendees;
+import tw.com.conference.pojo.entity.Attendee;
 import tw.com.conference.pojo.entity.Member;
 import tw.com.conference.pojo.excelPojo.AttendeesExcel;
 import tw.com.conference.pojo.excelPojo.AttendeesUpdateExcel;
 import tw.com.conference.service.AsyncService;
-import tw.com.conference.service.AttendeesService;
-import tw.com.conference.service.AttendeesTagService;
+import tw.com.conference.service.AttendeeService;
+import tw.com.conference.service.AttendeeTagService;
 import tw.com.conference.service.CheckinRecordService;
 import tw.com.conference.service.MemberService;
 import tw.com.conference.service.MemberTagService;
@@ -51,12 +51,12 @@ import tw.com.conference.service.TagService;
 import tw.com.conference.utils.QrcodeUtil;
 
 /**
- * AttendeesProfileManager，處理與會者個人資料相關的管理
+ * AttendeeProfileManager，處理與會者個人資料相關的管理
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class AttendeesProfileManager {
+public class AttendeeProfileManager {
 
 	@Value("${project.name}")
 	private String PROJECT_NAME;
@@ -67,16 +67,16 @@ public class AttendeesProfileManager {
 	private final TagAssignmentHelper tagAssignmentHelper;
 	private final MemberService memberService;
 	private final MemberTagService memberTagService;
-	private final AttendeesService attendeesService;
-	private final AttendeesTagService attendeesTagService;
-	private final AttendeesConvert attendeesConvert;
+	private final AttendeeService attendeesService;
+	private final AttendeeTagService attendeesTagService;
+	private final AttendeeConvert attendeesConvert;
 	private final OrdersService ordersService;
 	private final CheckinRecordService checkinRecordService;
 	private final TagService tagService;
 	private final NotificationService notificationService;
 	private final AsyncService asyncService;
 
-	private final AttendeesVOHandler attendeesVOHandler;
+	private final AttendeeVOHandler attendeesVOHandler;
 
 	/**
 	 * 根據 attendeesId 獲取 與會者完整資訊
@@ -95,7 +95,7 @@ public class AttendeesProfileManager {
 	 */
 	public List<AttendeesVO> getAttendeesVOList() {
 		// 1.獲取所有與會者資料
-		List<Attendees> attendeesList = attendeesService.getAttendeesList();
+		List<Attendee> attendeesList = attendeesService.getAttendeesList();
 
 		// 2.轉換並返回VOList
 		return attendeesVOHandler.getAttendeesVOsByAttendeesList(attendeesList);
@@ -108,9 +108,9 @@ public class AttendeesProfileManager {
 	 * @param page
 	 * @return
 	 */
-	public IPage<AttendeesVO> getAttendeesVOPage(Page<Attendees> page) {
+	public IPage<AttendeesVO> getAttendeesVOPage(Page<Attendee> page) {
 		// 1.獲取與會者分頁對象
-		IPage<Attendees> attendeesPage = attendeesService.getAttendeesPage(page);
+		IPage<Attendee> attendeesPage = attendeesService.getAttendeesPage(page);
 		// 2.轉換並返回VOList
 		List<AttendeesVO> attendeesVOList = attendeesVOHandler
 				.getAttendeesVOsByAttendeesList(attendeesPage.getRecords());
@@ -166,22 +166,22 @@ public class AttendeesProfileManager {
 				tagService::getOrCreateMemberGroupTag, memberTagService::addMemberTag);
 
 		// 4.由後台新增的Member , 自動付款完成，新增進與會者名單
-		Attendees attendees = attendeesService.addAttendees(member);
+		Attendee attendees = attendeesService.addAttendees(member);
 
 		// 5.獲取當下與會者群體的Index,進行與會者標籤分組
-		tagAssignmentHelper.assignTag(attendees.getAttendeesId(), attendeesService::getAttendeesGroupIndex,
+		tagAssignmentHelper.assignTag(attendees.getAttendeeId(), attendeesService::getAttendeesGroupIndex,
 				tagService::getOrCreateAttendeesGroupTag, attendeesTagService::addAttendeesTag);
 
 		// 6.獲取AttendeesVO
-		AttendeesVO attendeesVO = this.getAttendeesVO(attendees.getAttendeesId());
+		AttendeesVO attendeesVO = this.getAttendeesVO(attendees.getAttendeeId());
 
 		// 7.產生簽到記錄並組裝返回VO
-		CheckinRecordVO checkinRecordVO = checkinRecordService.walkInRegistration(attendees.getAttendeesId());
+		CheckinRecordVO checkinRecordVO = checkinRecordService.walkInRegistration(attendees.getAttendeeId());
 		checkinRecordVO.setAttendeesVO(attendeesVO);
 
 		// 8.產生現場註冊的信件,包含QRcode信息
 		EmailBodyContent walkInRegistrationContent = notificationService
-				.generateWalkInRegistrationContent(attendees.getAttendeesId(), BANNER_PHOTO_URL);
+				.generateWalkInRegistrationContent(attendees.getAttendeeId(), BANNER_PHOTO_URL);
 
 		// 9.透過異步工作去寄送郵件，因為使用了事務，在事務提交後才執行寄信的異步操作，安全做法
 		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
@@ -241,7 +241,7 @@ public class AttendeesProfileManager {
 		Map<Long, Member> memberMap = memberService.getMemberMap();
 
 		// 3.高效獲取所有attendees
-		List<Attendees> attendeesList = attendeesService.getAttendeesEfficiently();
+		List<Attendee> attendeesList = attendeesService.getAttendeesEfficiently();
 
 		// 4.資料轉換成Excel
 		List<AttendeesExcel> excelData = attendeesList.stream().map(attendees -> {
@@ -253,7 +253,7 @@ public class AttendeesProfileManager {
 
 			// 4-2 獲取與會者的簡易簽到記錄
 			CheckinInfoBO checkinInfoBO = checkinRecordService
-					.getLastCheckinRecordByAttendeesId(attendees.getAttendeesId());
+					.getLastCheckinRecordByAttendeesId(attendees.getAttendeeId());
 			attendeesExcel.setFirstCheckinTime(checkinInfoBO.getCheckinTime());
 			attendeesExcel.setLastCheckoutTime(checkinInfoBO.getCheckoutTime());
 
@@ -298,7 +298,7 @@ public class AttendeesProfileManager {
 			// 批次數量
 			private static final int BATCH_COUNT = 500;
 			// 更新暫存列表
-			private List<Attendees> cachedDataList = new ArrayList<>();
+			private List<Attendee> cachedDataList = new ArrayList<>();
 
 			// 每讀取到一行就執行invoke函數
 			@Override
@@ -318,7 +318,7 @@ public class AttendeesProfileManager {
 
 					//轉換資料
 					AttendeesUpdateExcel excelToUpdatePojo = attendeesConvert.excelToUpdatePojo(row);
-					Attendees attendee = attendeesConvert.updatePojoToEntity(excelToUpdatePojo);
+					Attendee attendee = attendeesConvert.updatePojoToEntity(excelToUpdatePojo);
 					cachedDataList.add(attendee);
 
 					if (cachedDataList.size() >= BATCH_COUNT) {
@@ -348,10 +348,10 @@ public class AttendeesProfileManager {
 						// 批次失敗直接記錄所有行為失敗
 						int rowStart = result.getTotalCount() - cachedDataList.size() + 1;
 						for (int i = 0; i < cachedDataList.size(); i++) {
-							Attendees attendee = cachedDataList.get(i);
+							Attendee attendee = cachedDataList.get(i);
 							int rowNumber = rowStart + i;
-							String attendeesIdBatch = attendee.getAttendeesId() != null
-									? attendee.getAttendeesId().toString()
+							String attendeesIdBatch = attendee.getAttendeeId() != null
+									? attendee.getAttendeeId().toString()
 									: "unknown";
 							String messageBatch = String.format("主鍵ID=%s, %s", attendeesIdBatch, e.getMessage());
 

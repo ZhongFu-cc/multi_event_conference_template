@@ -14,6 +14,7 @@ import tw.com.conference.pojo.VO.PriceDashboardVO.PriceRowVO;
 import tw.com.conference.pojo.VO.PriceDashboardVO.PriceTableVO;
 import tw.com.conference.pojo.entity.MemberType;
 import tw.com.conference.pojo.entity.PricingRule;
+import tw.com.conference.service.DiscountPackageItemService;
 import tw.com.conference.service.EventService;
 import tw.com.conference.service.MemberTypeService;
 import tw.com.conference.service.PricingRuleService;
@@ -25,6 +26,7 @@ public class EventPriceRuleManager {
 	private final EventService eventService;
 	private final MemberTypeService memberTypeService;
 	private final PricingRuleService pricingRuleService;
+	private final DiscountPackageItemService discountPackageItemService;
 
 	/**
 	 * 構建價格表
@@ -107,11 +109,18 @@ public class EventPriceRuleManager {
 
 	};
 
+	/**
+	 * 刪除活動事件，包含相關的組合優惠、價格策略等...
+	 * 
+	 * @param eventId
+	 */
 	public void removeEvent(Long eventId) {
 
 		// 刪除事件活動 相關的 組合優惠
+		discountPackageItemService.removeByEventId(eventId);
 
 		// 刪除事件活動 相關的 價格策略
+		pricingRuleService.removeByEventId(eventId);
 
 		// 刪除事件活動 本身
 		eventService.remove(eventId);

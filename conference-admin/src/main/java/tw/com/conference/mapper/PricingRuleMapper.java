@@ -76,4 +76,15 @@ public interface PricingRuleMapper extends BaseMapper<PricingRule> {
 	@Select("SELECT EXISTS(SELECT 1 FROM pricing_rule WHERE is_deleted = 0 LIMIT 1)")
 	boolean existAnyPricingRule();
 
+	/**
+	 * 根據 EventId 刪除符合的項目
+	 * 
+	 * @param eventId
+	 */
+	default void deleteByEventId(Long eventId) {
+		LambdaQueryWrapper<PricingRule> queryWrapper = new LambdaQueryWrapper<>();
+		queryWrapper.eq(PricingRule::getEventId, eventId);
+		this.delete(queryWrapper);
+	};
+
 }

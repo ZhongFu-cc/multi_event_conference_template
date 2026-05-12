@@ -23,15 +23,15 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@TableName("attendees")
-@Schema(name = "Attendees", description = "參加者表，在註冊並實際繳完註冊費後，會進入這張表中，用做之後發送QRcdoe使用")
-public class Attendees implements Serializable {
+@TableName("attendee")
+@Schema(name = "Attendee", description = "參加者表，在註冊並實際繳完註冊費後，會進入這張表中，用做之後發送QRcdoe使用")
+public class Attendee implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@Schema(description = "主鍵ID")
-	@TableId("attendees_id")
-	private Long attendeesId;
+	@TableId("attendee_id")
+	private Long attendeeId;
 
 	@Schema(description = "會員ID")
 	@TableField("member_id")

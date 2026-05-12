@@ -23,10 +23,10 @@ import tw.com.conference.pojo.DTO.AddGroupMemberDTO;
 import tw.com.conference.pojo.DTO.AddMemberForAdminDTO;
 import tw.com.conference.pojo.DTO.GroupRegistrationDTO;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddMemberDTO;
-import tw.com.conference.pojo.entity.Attendees;
+import tw.com.conference.pojo.entity.Attendee;
 import tw.com.conference.pojo.entity.Member;
-import tw.com.conference.service.AttendeesService;
-import tw.com.conference.service.AttendeesTagService;
+import tw.com.conference.service.AttendeeService;
+import tw.com.conference.service.AttendeeTagService;
 import tw.com.conference.service.InvitedSpeakerService;
 import tw.com.conference.service.MemberService;
 import tw.com.conference.service.MemberTagService;
@@ -58,10 +58,10 @@ public class MemberRegistrationManager {
 	private final TagAssignmentHelper tagAssignmentHelper;
 	private final MemberService memberService;
 	private final OrdersService ordersService;
-	private final AttendeesService attendeesService;
+	private final AttendeeService attendeesService;
 	private final TagService tagService;
 	private final MemberTagService memberTagService;
-	private final AttendeesTagService attendeesTagService;
+	private final AttendeeTagService attendeesTagService;
 	private final SettingService settingService;
 	private final InvitedSpeakerService invitedSpeakerService;
 
@@ -181,10 +181,10 @@ public class MemberRegistrationManager {
 				tagService::getOrCreateMemberCategoryGroupTag, memberTagService::addMemberTag);
 
 		// 5.由後台新增的Member , 自動付款完成，新增進與會者名單
-		Attendees attendees = attendeesService.addAttendees(member);
+		Attendee attendees = attendeesService.addAttendees(member);
 
 		// 6.獲取當下與會者群體的Index,進行與會者標籤分組
-		tagAssignmentHelper.assignTag(attendees.getAttendeesId(), attendeesService::getAttendeesGroupIndex,
+		tagAssignmentHelper.assignTag(attendees.getAttendeeId(), attendeesService::getAttendeesGroupIndex,
 				tagService::getOrCreateAttendeesGroupTag, attendeesTagService::addAttendeesTag);
 		
 		// 7.如果是講者身分,則新增到invited-speaker, 這個也再考慮, 可能違反SRP

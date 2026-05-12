@@ -13,7 +13,7 @@ import tw.com.conference.pojo.BO.PresenceStatsBO;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddCheckinRecordDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutCheckinRecordDTO;
 import tw.com.conference.pojo.VO.CheckinRecordVO;
-import tw.com.conference.pojo.entity.Attendees;
+import tw.com.conference.pojo.entity.Attendee;
 import tw.com.conference.pojo.entity.CheckinRecord;
 
 /**
@@ -88,7 +88,7 @@ public interface CheckinRecordService extends IService<CheckinRecord> {
 	 * @param attendeesList
 	 * @return attendeesId 為key , List<CheckinRecord>為value的 Map對象
 	 */
-	public Map<Long, List<CheckinRecord>> getCheckinMapByAttendeesList(Collection<Attendees> attendeesList) ;
+	public Map<Long, List<CheckinRecord>> getCheckinMapByAttendeesList(Collection<Attendee> attendeesList) ;
 	
 	/**
 	 * 透過 與會者ID 和 簽到記錄的映射，再創建一個與會者與最後簽到狀態的映射

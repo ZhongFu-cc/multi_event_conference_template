@@ -20,7 +20,7 @@ import tw.com.conference.pojo.DTO.putEntityDTO.PutMemberDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutMemberForAdminDTO;
 import tw.com.conference.pojo.VO.MemberOrderVO;
 import tw.com.conference.pojo.VO.MemberTagVO;
-import tw.com.conference.pojo.entity.Attendees;
+import tw.com.conference.pojo.entity.Attendee;
 import tw.com.conference.pojo.entity.Member;
 import tw.com.conference.pojo.entity.Orders;
 
@@ -240,7 +240,7 @@ public interface MemberService extends IService<Member> {
 	 * @param attendeesList
 	 * @return 獲得以 memberId為key , Member為value的 Map對象
 	 */
-	Map<Long, Member> getMemberMapByAttendeesList(Collection<Attendees> attendeesList);
+	Map<Long, Member> getMemberMapByAttendeesList(Collection<Attendee> attendeesList);
 
 	/**
 	 * 獲取所有會員資料,並產生成Map映射對象

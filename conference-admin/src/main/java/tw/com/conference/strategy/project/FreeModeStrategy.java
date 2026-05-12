@@ -7,12 +7,12 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 import tw.com.conference.pojo.DTO.EmailBodyContent;
-import tw.com.conference.pojo.entity.Attendees;
+import tw.com.conference.pojo.entity.Attendee;
 import tw.com.conference.pojo.entity.Member;
 import tw.com.conference.pojo.entity.Tag;
 import tw.com.conference.service.AsyncService;
-import tw.com.conference.service.AttendeesService;
-import tw.com.conference.service.AttendeesTagService;
+import tw.com.conference.service.AttendeeService;
+import tw.com.conference.service.AttendeeTagService;
 import tw.com.conference.service.NotificationService;
 import tw.com.conference.service.OrdersService;
 import tw.com.conference.service.TagService;
@@ -31,9 +31,9 @@ public class FreeModeStrategy implements ProjectModeStrategy {
 	private int GROUP_SIZE;
 
 	private final OrdersService ordersService;
-	private final AttendeesService attendeesService;
+	private final AttendeeService attendeesService;
 	private final TagService tagService;
-	private final AttendeesTagService attendeesTagService;
+	private final AttendeeTagService attendeesTagService;
 	private final NotificationService notificationService;
 	private final AsyncService asyncService;
 
@@ -52,15 +52,15 @@ public class FreeModeStrategy implements ProjectModeStrategy {
 				registrationSuccessContent.getHtmlContent(), registrationSuccessContent.getPlainTextContent());
 
 		// 4.新增進與會者名單
-		Attendees attendees = attendeesService.addAttendees(member);
+		Attendee attendees = attendeesService.addAttendees(member);
 
-		// 5.獲取當下 Attendees 群體的Index,用於後續標籤分組
+		// 5.獲取當下 Attendee 群體的Index,用於後續標籤分組
 		int attendeesGroupIndex = attendeesService.getAttendeesGroupIndex(GROUP_SIZE);
 
 		// 6.與會者標籤分組
 		// 拿到 Tag（不存在則新增Tag）
 		Tag attendeesGroupTag = tagService.getOrCreateAttendeesGroupTag(attendeesGroupIndex);
-		// 關聯 Attendees 與 Tag
+		// 關聯 Attendee 與 Tag
 		attendeesTagService.addAttendeesTag(attendees.getAttendeesId(), attendeesGroupTag.getTagId());
 
 	}
@@ -81,15 +81,15 @@ public class FreeModeStrategy implements ProjectModeStrategy {
 				groupRegistrationSuccessContent.getPlainTextContent());
 
 		// 4.新增進與會者名單
-		Attendees attendees = attendeesService.addAttendees(member);
+		Attendee attendees = attendeesService.addAttendees(member);
 
-		// 5.獲取當下 Attendees 群體的Index,用於後續標籤分組
+		// 5.獲取當下 Attendee 群體的Index,用於後續標籤分組
 		int attendeesGroupIndex = attendeesService.getAttendeesGroupIndex(GROUP_SIZE);
 
 		// 6.與會者標籤分組
 		// 拿到 Tag（不存在則新增Tag）
 		Tag attendeesGroupTag = tagService.getOrCreateAttendeesGroupTag(attendeesGroupIndex);
-		// 關聯 Attendees 與 Tag
+		// 關聯 Attendee 與 Tag
 		attendeesTagService.addAttendeesTag(attendees.getAttendeesId(), attendeesGroupTag.getTagId());
 
 	}

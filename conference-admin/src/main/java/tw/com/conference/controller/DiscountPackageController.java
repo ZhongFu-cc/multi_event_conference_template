@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import tw.com.conference.manager.DiscountPackageManager;
+import tw.com.conference.pojo.DTO.AssignEvent2PackageDTO;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddDiscountPackageDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutDiscountPackageDTO;
 import tw.com.conference.pojo.entity.DiscountPackage;
@@ -88,6 +89,17 @@ public class DiscountPackageController {
 	@SaCheckRole("super-admin")
 	public R<Void> deleteDiscountPackage(@PathVariable("id") Long discountPackageId) {
 		discountPackageManager.removeDiscountPackage(discountPackageId);
+		return R.ok();
+	}
+	
+	@PostMapping("assign-event")
+	@Operation(summary = "為組合優惠 分配 適用的活動事件")
+	@Parameters({
+			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
+	@SaCheckRole("super-admin")
+	public R<Void> assignEvent2Package(@RequestBody @Valid AssignEvent2PackageDTO assignEvent2PackageDTO) {
+		discountPackageManager.assignEvent2Package(assignEvent2PackageDTO);
+		
 		return R.ok();
 	}
 

@@ -21,9 +21,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import tw.com.conference.exception.ImportExcelException;
 import tw.com.conference.mapper.AttendeesHistoryMapper;
-import tw.com.conference.pojo.entity.AttendeesHistory;
+import tw.com.conference.pojo.entity.AttendeeHistory;
 import tw.com.conference.pojo.excelPojo.AttendeesHistoryImportExcel;
-import tw.com.conference.service.AttendeesHistoryService;
+import tw.com.conference.service.AttendeeHistoryService;
 
 /**
  * <p>
@@ -35,38 +35,38 @@ import tw.com.conference.service.AttendeesHistoryService;
  */
 @Service
 @RequiredArgsConstructor
-public class AttendeesHistoryServiceImpl extends ServiceImpl<AttendeesHistoryMapper, AttendeesHistory> implements AttendeesHistoryService {
+public class AttendeeHistoryServiceImpl extends ServiceImpl<AttendeesHistoryMapper, AttendeeHistory> implements AttendeeHistoryService {
 	@Override
-	public AttendeesHistory getAttendeesHistory(Long attendeesHistoryId) {
-		AttendeesHistory attendeesHistory = baseMapper.selectById(attendeesHistoryId);
+	public AttendeeHistory getAttendeesHistory(Long attendeesHistoryId) {
+		AttendeeHistory attendeesHistory = baseMapper.selectById(attendeesHistoryId);
 		return attendeesHistory;
 	}
 
 	@Override
-	public List<AttendeesHistory> getAttendeesHistoryList() {
-		List<AttendeesHistory> attendeesHistoryList = baseMapper.selectList(null);
+	public List<AttendeeHistory> getAttendeesHistoryList() {
+		List<AttendeeHistory> attendeesHistoryList = baseMapper.selectList(null);
 		return attendeesHistoryList;
 	}
 
 	@Override
-	public IPage<AttendeesHistory> getAttendeesHistoryPage(Page<AttendeesHistory> page) {
-		Page<AttendeesHistory> attendeesHistoryPage = baseMapper.selectPage(page, null);
+	public IPage<AttendeeHistory> getAttendeesHistoryPage(Page<AttendeeHistory> page) {
+		Page<AttendeeHistory> attendeesHistoryPage = baseMapper.selectPage(page, null);
 		return attendeesHistoryPage;
 	}
 
 	@Override
 	public Boolean existsAttendeesHistory(Integer year, String idCard, String email) {
-		LambdaQueryWrapper<AttendeesHistory> wrapper = new LambdaQueryWrapper<>();
-		wrapper.eq(AttendeesHistory::getYear, year);
+		LambdaQueryWrapper<AttendeeHistory> wrapper = new LambdaQueryWrapper<>();
+		wrapper.eq(AttendeeHistory::getYear, year);
 
 		if (idCard != null && !idCard.isBlank()) {
-			wrapper.eq(AttendeesHistory::getIdCard, idCard);
+			wrapper.eq(AttendeeHistory::getIdCard, idCard);
 		} else {
-			wrapper.eq(AttendeesHistory::getEmail, email);
+			wrapper.eq(AttendeeHistory::getEmail, email);
 		}
 
 		// 有可能為null 有可能查詢有值
-		AttendeesHistory result = baseMapper.selectOne(wrapper);
+		AttendeeHistory result = baseMapper.selectOne(wrapper);
 
 		// 回傳 true：資料庫有符合條件的紀錄 (result 不為 null)
 		// 回傳 false：資料庫無符合條件的紀錄 (result 為 null)
@@ -104,7 +104,7 @@ public class AttendeesHistoryServiceImpl extends ServiceImpl<AttendeesHistoryMap
 				.sheet()
 				.doReadSync();
 
-		List<AttendeesHistory> entities = dataList.stream().map(row -> {
+		List<AttendeeHistory> entities = dataList.stream().map(row -> {
 
 			// 確保年份和email都要存在
 			if (row.getYear() == null || row.getEmail() == null) {
@@ -112,7 +112,7 @@ public class AttendeesHistoryServiceImpl extends ServiceImpl<AttendeesHistoryMap
 				throw new ImportExcelException("年份 和 Email 為必填項目");
 			}
 
-			AttendeesHistory entity = new AttendeesHistory();
+			AttendeeHistory entity = new AttendeeHistory();
 			entity.setYear(row.getYear()); // 年份補1月1日
 			entity.setIdCard(row.getIdCard());
 			entity.setEmail(row.getEmail());
@@ -121,7 +121,7 @@ public class AttendeesHistoryServiceImpl extends ServiceImpl<AttendeesHistoryMap
 		}).toList();
 
 		// 先收集所有匯入的 Email
-		Set<String> emailSet = entities.stream().map(AttendeesHistory::getEmail).collect(Collectors.toSet());
+		Set<String> emailSet = entities.stream().map(AttendeeHistory::getEmail).collect(Collectors.toSet());
 
 		// 檢查是否有重複的 Email
 		if (emailSet.size() != entities.size()) {
@@ -129,7 +129,7 @@ public class AttendeesHistoryServiceImpl extends ServiceImpl<AttendeesHistoryMap
 		}
 
 		// 確認沒問題將資料新增進資料庫
-		for (AttendeesHistory entity : entities) {
+		for (AttendeeHistory entity : entities) {
 			baseMapper.insert(entity);
 		}
 

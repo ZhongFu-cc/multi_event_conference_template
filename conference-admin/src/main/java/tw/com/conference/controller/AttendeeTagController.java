@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2025-05-14
  */
 @RestController
-@RequestMapping("/attendees-tag")
-public class AttendeesTagController {
+@RequestMapping("/attendee-tag")
+public class AttendeeTagController {
 
 }

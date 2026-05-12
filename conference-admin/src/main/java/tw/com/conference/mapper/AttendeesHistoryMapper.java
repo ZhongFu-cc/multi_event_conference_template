@@ -4,7 +4,7 @@ import org.apache.ibatis.annotations.Update;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
-import tw.com.conference.pojo.entity.AttendeesHistory;
+import tw.com.conference.pojo.entity.AttendeeHistory;
 
 /**
  * <p>
@@ -14,7 +14,7 @@ import tw.com.conference.pojo.entity.AttendeesHistory;
  * @author Joey
  * @since 2025-05-14
  */
-public interface AttendeesHistoryMapper extends BaseMapper<AttendeesHistory> {
+public interface AttendeesHistoryMapper extends BaseMapper<AttendeeHistory> {
 
 	/**
 	 * 快速清空整張表,因為舊資料通常是別人匯進來的,所以沒什麼關係

@@ -14,26 +14,26 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Sets;
 
 import lombok.RequiredArgsConstructor;
-import tw.com.conference.convert.AttendeesConvert;
+import tw.com.conference.convert.AttendeeConvert;
 import tw.com.conference.enums.CheckinActionTypeEnum;
 import tw.com.conference.pojo.VO.AttendeesTagVO;
-import tw.com.conference.pojo.entity.Attendees;
+import tw.com.conference.pojo.entity.Attendee;
 import tw.com.conference.pojo.entity.CheckinRecord;
 import tw.com.conference.pojo.entity.Member;
 import tw.com.conference.pojo.entity.Tag;
-import tw.com.conference.service.AttendeesService;
-import tw.com.conference.service.AttendeesTagService;
+import tw.com.conference.service.AttendeeService;
+import tw.com.conference.service.AttendeeTagService;
 import tw.com.conference.service.CheckinRecordService;
 import tw.com.conference.service.MemberService;
 
 @Component
 @RequiredArgsConstructor
-public class AttendeesTagManager {
+public class AttendeeTagManager {
 
 	private final MemberService memberService;
-	private final AttendeesService attendeesService;
-	private final AttendeesTagService attendeesTagService;
-	private final AttendeesConvert attendeesConvert;
+	private final AttendeeService attendeesService;
+	private final AttendeeTagService attendeesTagService;
+	private final AttendeeConvert attendeesConvert;
 	private final CheckinRecordService checkinRecordService;
 
 	/**
@@ -44,7 +44,7 @@ public class AttendeesTagManager {
 	 */
 	public AttendeesTagVO getAttendeesTagVO(Long attendeesId) {
 		// 1.獲取attendees 資料並轉換成 attendeesTagVO
-		Attendees attendees = attendeesService.getAttendees(attendeesId);
+		Attendee attendees = attendeesService.getAttendees(attendeesId);
 		AttendeesTagVO attendeesTagVO = attendeesConvert.entityToAttendeesTagVO(attendees);
 
 		// 2.查詢attendees 的基本資料，並放入Member屬性
@@ -78,7 +78,7 @@ public class AttendeesTagManager {
 	 * @param attendeesPage
 	 * @return
 	 */
-	private List<AttendeesTagVO> buildAttendeesTagVO(IPage<Attendees> attendeesPage) {
+	private List<AttendeesTagVO> buildAttendeesTagVO(IPage<Attendee> attendeesPage) {
 		// 2.獲取 會員 映射對象
 		Map<Long, Member> memberMap = memberService.getMemberMapByAttendeesList(attendeesPage.getRecords());
 
@@ -97,9 +97,9 @@ public class AttendeesTagManager {
 		List<AttendeesTagVO> attendeesTagVOList = attendeesPage.getRecords().stream().map(attendees -> {
 			AttendeesTagVO vo = attendeesConvert.entityToAttendeesTagVO(attendees);
 			vo.setMember(memberMap.get(attendees.getMemberId()));
-			vo.setCheckinRecordList(checkinMap.getOrDefault(attendees.getAttendeesId(), Collections.emptyList()));
-			vo.setIsCheckedIn(checkinStatusMap.getOrDefault(attendees.getAttendeesId(), false));
-			vo.setTagList(tagMapByAttendeesId.getOrDefault(attendees.getAttendeesId(), Collections.emptyList()));
+			vo.setCheckinRecordList(checkinMap.getOrDefault(attendees.getAttendeeId(), Collections.emptyList()));
+			vo.setIsCheckedIn(checkinStatusMap.getOrDefault(attendees.getAttendeeId(), false));
+			vo.setTagList(tagMapByAttendeesId.getOrDefault(attendees.getAttendeeId(), Collections.emptyList()));
 
 			return vo;
 		}).toList();
@@ -116,7 +116,7 @@ public class AttendeesTagManager {
 	 * @param queryText
 	 * @return
 	 */
-	public IPage<AttendeesTagVO> getAttendeesTagVOPageByQuery(Page<Attendees> pageInfo, String queryText) {
+	public IPage<AttendeesTagVO> getAttendeesTagVOPageByQuery(Page<Attendee> pageInfo, String queryText) {
 
 		// 初始化分頁對象
 		IPage<AttendeesTagVO> voPage = new Page<>(pageInfo.getCurrent(), pageInfo.getSize());
@@ -129,7 +129,7 @@ public class AttendeesTagManager {
 		}
 
 		// 2.獲取與會者分頁對象
-		IPage<Attendees> attendeesPage = attendeesService.getAttendeesPageByMemberList(pageInfo, memberList);
+		IPage<Attendee> attendeesPage = attendeesService.getAttendeesPageByMemberList(pageInfo, memberList);
 
 		// 3.組裝AttendeesTagVOList
 		List<AttendeesTagVO> attendeesTagVOList = this.buildAttendeesTagVO(attendeesPage);

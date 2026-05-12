@@ -25,6 +25,11 @@ import tw.com.conference.service.DiscountPackageRuleService;
 public class DiscountPackageRuleServiceImpl extends ServiceImpl<DiscountPackageRuleMapper, DiscountPackageRule>
 		implements DiscountPackageRuleService {
 
+	/**
+	 * 預設的優先級，數字越大優先級越大
+	 */
+	private final static int DEFAULT_PRIORITY = 20;
+
 	private final DiscountPackageRuleConvert discountPackageRuleConvert;
 
 	@Override
@@ -35,6 +40,10 @@ public class DiscountPackageRuleServiceImpl extends ServiceImpl<DiscountPackageR
 	@Override
 	public DiscountPackageRule create(AddDiscountPackageRuleDTO addDiscountPackageRuleDTO) {
 		DiscountPackageRule discountPackageRule = discountPackageRuleConvert.addDTOToEntity(addDiscountPackageRuleDTO);
+		// 如果沒有給優先級 , 給他預設的優先級 , 數字越大優先級越大 
+		if (discountPackageRule.getPriority() == null) {
+			discountPackageRule.setPriority(DEFAULT_PRIORITY);
+		}
 		baseMapper.insert(discountPackageRule);
 		return discountPackageRule;
 	}
@@ -42,17 +51,21 @@ public class DiscountPackageRuleServiceImpl extends ServiceImpl<DiscountPackageR
 	@Override
 	public void update(PutDiscountPackageRuleDTO putDiscountPackageRuleDTO) {
 		DiscountPackageRule discountPackageRule = discountPackageRuleConvert.putDTOToEntity(putDiscountPackageRuleDTO);
+		// 如果沒有給優先級 , 給他預設的優先級 , 數字越大優先級越大 
+		if (discountPackageRule.getPriority() == null) {
+			discountPackageRule.setPriority(DEFAULT_PRIORITY);
+		}
 		baseMapper.updateById(discountPackageRule);
 	}
 
 	@Override
 	public void remove(Long discountPackageRuleId) {
-		baseMapper.deleteById(discountPackageRuleId); 
+		baseMapper.deleteById(discountPackageRuleId);
 	}
 
 	@Override
 	public void removeByDiscountPackageId(Long discountPackageId) {
-		baseMapper.deleteByDiscountPackageId(discountPackageId);		
+		baseMapper.deleteByDiscountPackageId(discountPackageId);
 	}
 
 }

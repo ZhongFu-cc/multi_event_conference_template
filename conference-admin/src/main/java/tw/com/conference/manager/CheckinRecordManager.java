@@ -16,19 +16,19 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import tw.com.conference.convert.AttendeesConvert;
+import tw.com.conference.convert.AttendeeConvert;
 import tw.com.conference.convert.CheckinRecordConvert;
 import tw.com.conference.enums.CheckinActionTypeEnum;
-import tw.com.conference.handler.AttendeesVOHandler;
+import tw.com.conference.handler.AttendeeVOHandler;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddCheckinRecordDTO;
 import tw.com.conference.pojo.VO.AttendeesVO;
 import tw.com.conference.pojo.VO.CheckinRecordVO;
-import tw.com.conference.pojo.entity.Attendees;
+import tw.com.conference.pojo.entity.Attendee;
 import tw.com.conference.pojo.entity.CheckinRecord;
 import tw.com.conference.pojo.entity.Member;
 import tw.com.conference.pojo.excelPojo.AttendeesExcel;
 import tw.com.conference.pojo.excelPojo.CheckinRecordExcel;
-import tw.com.conference.service.AttendeesService;
+import tw.com.conference.service.AttendeeService;
 import tw.com.conference.service.CheckinRecordService;
 import tw.com.conference.service.MemberService;
 
@@ -39,9 +39,9 @@ public class CheckinRecordManager {
 	private final MemberService memberService;
 	private final CheckinRecordService checkinRecordService;
 	private final CheckinRecordConvert checkinRecordConvert;
-	private final AttendeesService attendeesService;
-	private final AttendeesConvert attendeesConvert;
-	private final AttendeesVOHandler attendeesVOHandler;
+	private final AttendeeService attendeesService;
+	private final AttendeeConvert attendeesConvert;
+	private final AttendeeVOHandler attendeesVOHandler;
 
 	/**
 	 * 獲得此筆簽到退資料 及 簽到者身分
@@ -169,7 +169,7 @@ public class CheckinRecordManager {
 		Map<Long, Member> memberMap = memberService.getMemberMap();
 
 		// 4.高效獲取所有與會者資料映射
-		Map<Long, Attendees> attendeesMap = attendeesService.getAttendeesMap();
+		Map<Long, Attendee> attendeesMap = attendeesService.getAttendeesMap();
 
 		// 資料轉換成Excel
 		List<CheckinRecordExcel> excelData = checkinRecordList.stream().map(checkinRecord -> {

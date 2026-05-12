@@ -24,8 +24,8 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import tw.com.conference.pojo.entity.AttendeesHistory;
-import tw.com.conference.service.AttendeesHistoryService;
+import tw.com.conference.pojo.entity.AttendeeHistory;
+import tw.com.conference.service.AttendeeHistoryService;
 import tw.com.conference.utils.R;
 
 /**
@@ -40,15 +40,15 @@ import tw.com.conference.utils.R;
 @Validated
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/attendees-history")
+@RequestMapping("/attendee-history")
 public class AttendeesHistoryController {
 
-	private final AttendeesHistoryService attendeesHistoryService;
+	private final AttendeeHistoryService attendeesHistoryService;
 
 	@GetMapping("{id}")
 	@Operation(summary = "查詢單一過往與會者")
-	public R<AttendeesHistory> getAttendeesHistory(@PathVariable("id") Long attendeesHistoryId) {
-		AttendeesHistory attendeesHistoryVO = attendeesHistoryService.getAttendeesHistory(attendeesHistoryId);
+	public R<AttendeeHistory> getAttendeesHistory(@PathVariable("id") Long attendeesHistoryId) {
+		AttendeeHistory attendeesHistoryVO = attendeesHistoryService.getAttendeesHistory(attendeesHistoryId);
 		return R.ok(attendeesHistoryVO);
 	}
 
@@ -57,8 +57,8 @@ public class AttendeesHistoryController {
 	@Parameters({
 			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
 	@SaCheckRole("super-admin")
-	public R<List<AttendeesHistory>> getAttendeesHistoryList() {
-		List<AttendeesHistory> attendeesHistoryList = attendeesHistoryService.getAttendeesHistoryList();
+	public R<List<AttendeeHistory>> getAttendeesHistoryList() {
+		List<AttendeeHistory> attendeesHistoryList = attendeesHistoryService.getAttendeesHistoryList();
 		return R.ok(attendeesHistoryList);
 	}
 
@@ -67,9 +67,9 @@ public class AttendeesHistoryController {
 	@Parameters({
 			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
 	@SaCheckRole("super-admin")
-	public R<IPage<AttendeesHistory>> getAttendeesHistoryPage(@RequestParam Integer page, @RequestParam Integer size) {
-		Page<AttendeesHistory> pageable = new Page<AttendeesHistory>(page, size);
-		IPage<AttendeesHistory> attendeesHistoryPage = attendeesHistoryService.getAttendeesHistoryPage(pageable);
+	public R<IPage<AttendeeHistory>> getAttendeesHistoryPage(@RequestParam Integer page, @RequestParam Integer size) {
+		Page<AttendeeHistory> pageable = new Page<AttendeeHistory>(page, size);
+		IPage<AttendeeHistory> attendeesHistoryPage = attendeesHistoryService.getAttendeesHistoryPage(pageable);
 		return R.ok(attendeesHistoryPage);
 	}
 

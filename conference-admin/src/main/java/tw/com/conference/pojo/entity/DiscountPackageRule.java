@@ -1,5 +1,8 @@
 package tw.com.conference.pojo.entity;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -7,11 +10,10 @@ import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
+import tw.com.conference.enums.DiscountTypeEnum;
 
 /**
  * <p>
@@ -43,7 +45,7 @@ public class DiscountPackageRule implements Serializable {
 
     @Schema(description = "折扣類型 ; percent=百分比折扣 amount=固定折抵")
     @TableField("discount_type")
-    private String discountType;
+    private DiscountTypeEnum discountType;
 
     @Schema(description = "折扣值 ; percent 填 15 表示 15%，amount 填折抵金額")
     @TableField("discount_value")

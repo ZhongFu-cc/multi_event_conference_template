@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import tw.com.conference.enums.DiscountTypeEnum;
 
 @Data
 public class PutDiscountPackageRuleDTO {
@@ -20,9 +21,9 @@ public class PutDiscountPackageRuleDTO {
 	@Schema(description = "規則名稱")
 	private String name;
 
-	@NotBlank
+	@NotNull
 	@Schema(description = "折扣類型 ; percent=百分比折扣 amount=固定折抵")
-	private String discountType;
+	private DiscountTypeEnum discountType;
 
 	@NotNull
 	@Schema(description = "折扣值 ; percent 填 15 表示 15%，amount 填折抵金額")

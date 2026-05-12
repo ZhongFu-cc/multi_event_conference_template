@@ -2,7 +2,7 @@ package tw.com.conference.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
-import tw.com.conference.pojo.entity.AttendeesTag;
+import tw.com.conference.pojo.entity.AttendeeTag;
 
 /**
  * <p>
@@ -12,6 +12,6 @@ import tw.com.conference.pojo.entity.AttendeesTag;
  * @author Joey
  * @since 2025-05-14
  */
-public interface AttendeesTagMapper extends BaseMapper<AttendeesTag> {
+public interface AttendeeTagMapper extends BaseMapper<AttendeeTag> {
 
 }

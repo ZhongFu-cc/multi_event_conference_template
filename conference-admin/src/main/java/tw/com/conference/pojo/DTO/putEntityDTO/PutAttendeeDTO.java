@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-public class PutAttendeesDTO {
+public class PutAttendeeDTO {
 
 	@Schema(description = "主鍵ID")
 	private Long attendeesId;

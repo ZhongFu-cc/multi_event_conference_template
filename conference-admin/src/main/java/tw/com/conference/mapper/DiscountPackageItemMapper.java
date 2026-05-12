@@ -18,7 +18,19 @@ import tw.com.conference.pojo.entity.DiscountPackageItem;
  */
 public interface DiscountPackageItemMapper extends BaseMapper<DiscountPackageItem> {
 
-	
+	/**
+	 * 根據 packageId 查詢符合 Item
+	 * 
+	 * @param packageIds
+	 * @return
+	 */
+	default List<DiscountPackageItem> selectByPackageId(Long packageId) {
+		LambdaQueryWrapper<DiscountPackageItem> queryWrapper = new LambdaQueryWrapper<>();
+		queryWrapper.eq(DiscountPackageItem::getDiscountPackageId, packageId);
+		return this.selectList(queryWrapper);
+
+	}
+
 	/**
 	 * 根據 packageIds 查詢符合 Item
 	 * 
@@ -31,7 +43,7 @@ public interface DiscountPackageItemMapper extends BaseMapper<DiscountPackageIte
 		return this.selectList(queryWrapper);
 
 	}
-	
+
 	/**
 	 * 根據 eventIds 查詢符合 Item
 	 * 
@@ -70,5 +82,27 @@ public interface DiscountPackageItemMapper extends BaseMapper<DiscountPackageIte
 				.in(DiscountPackageItem::getDiscountPackageId, packageIds);
 		this.delete(queryWrapper);
 	}
+
+	/**
+	 * 刪除符合 DiscountPackageId 的item
+	 * 
+	 * @param packageId
+	 */
+	default void deleteByPackageId(Long packageId) {
+		LambdaQueryWrapper<DiscountPackageItem> queryWrapper = new LambdaQueryWrapper<>();
+		queryWrapper.eq(DiscountPackageItem::getDiscountPackageId, packageId);
+		this.delete(queryWrapper);
+	}
+
+	/**
+	 * 刪除符合 EventId 的item
+	 * 
+	 * @param eventId
+	 */
+	default void deleteByEventId(Long eventId) {
+		LambdaQueryWrapper<DiscountPackageItem> queryWrapper = new LambdaQueryWrapper<>();
+		queryWrapper.eq(DiscountPackageItem::getEventId, eventId);
+		this.delete(queryWrapper);
+	};
 
 }

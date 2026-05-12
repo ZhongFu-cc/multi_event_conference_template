@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Select;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
-import tw.com.conference.pojo.entity.Attendees;
+import tw.com.conference.pojo.entity.Attendee;
 
 /**
  * <p>
@@ -16,14 +16,14 @@ import tw.com.conference.pojo.entity.Attendees;
  * @author Joey
  * @since 2025-04-24
  */
-public interface AttendeesMapper extends BaseMapper<Attendees> {
+public interface AttendeeMapper extends BaseMapper<Attendee> {
 
 
 	@Select("SELECT MAX(sequence_no) FROM attendees")
 	Integer selectMaxSequenceNo();
 
 	@Select("SELECT * FROM attendees WHERE is_deleted = 0")
-	List<Attendees> selectAttendees();
+	List<Attendee> selectAttendees();
 
 	/**
 	 * 查詢應到人數

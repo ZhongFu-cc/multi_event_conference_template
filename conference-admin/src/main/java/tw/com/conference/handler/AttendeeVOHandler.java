@@ -9,22 +9,22 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
-import tw.com.conference.convert.AttendeesConvert;
+import tw.com.conference.convert.AttendeeConvert;
 import tw.com.conference.pojo.VO.AttendeesVO;
-import tw.com.conference.pojo.entity.Attendees;
+import tw.com.conference.pojo.entity.Attendee;
 import tw.com.conference.pojo.entity.Member;
-import tw.com.conference.service.AttendeesHistoryService;
-import tw.com.conference.service.AttendeesService;
+import tw.com.conference.service.AttendeeHistoryService;
+import tw.com.conference.service.AttendeeService;
 import tw.com.conference.service.MemberService;
 
 @Component
 @RequiredArgsConstructor
-public class AttendeesVOHandler {
+public class AttendeeVOHandler {
 
 	private final MemberService memberService;
-	private final AttendeesService attendeesService;
-	private final AttendeesConvert attendeesConvert;
-	private final AttendeesHistoryService attendeesHistoryService;
+	private final AttendeeService attendeesService;
+	private final AttendeeConvert attendeesConvert;
+	private final AttendeeHistoryService attendeesHistoryService;
 
 	/**
 	 * 根據 attendeesId 獲取 與會者完整資訊
@@ -34,7 +34,7 @@ public class AttendeesVOHandler {
 	 */
 	public AttendeesVO getAttendeesVO(Long attendeesId) {
 		// 1.查詢到與會者資訊
-		Attendees attendees = attendeesService.getAttendees(attendeesId);
+		Attendee attendees = attendeesService.getAttendees(attendeesId);
 		// 2.查詢此與會者的基本資料
 		Member member = memberService.getMember(attendees.getMemberId());
 		// 3.attendees 轉換成 VO
@@ -56,7 +56,7 @@ public class AttendeesVOHandler {
 	 * @param attendeesList
 	 * @return
 	 */
-	public List<AttendeesVO> getAttendeesVOsByAttendeesList(Collection<Attendees> attendeesList) {
+	public List<AttendeesVO> getAttendeesVOsByAttendeesList(Collection<Attendee> attendeesList) {
 
 		// 1.根據與會者列表對應的memberId 整合成List,並拿到memberList 
 		Map<Long, Member> memberMap = memberService.getMemberMapByAttendeesList(attendeesList);
@@ -80,7 +80,7 @@ public class AttendeesVOHandler {
 	 */
 	public List<AttendeesVO> getAttendeesVOsByAttendeesIds(Collection<Long> ids) {
 		// 1.根據ids 查詢與會者列表
-		List<Attendees> attendeesList = attendeesService.getAttendeesListByIds(ids);
+		List<Attendee> attendeesList = attendeesService.getAttendeesListByIds(ids);
 
 		// 2.根據與會者列表對應的memberId 整合成List,並拿到memberList 
 		Map<Long, Member> memberMap = memberService.getMemberMapByAttendeesList(attendeesList);

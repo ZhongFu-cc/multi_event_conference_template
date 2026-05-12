@@ -10,7 +10,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import jakarta.servlet.http.HttpServletResponse;
-import tw.com.conference.pojo.entity.AttendeesHistory;
+import tw.com.conference.pojo.entity.AttendeeHistory;
 
 /**
  * <p>
@@ -20,21 +20,21 @@ import tw.com.conference.pojo.entity.AttendeesHistory;
  * @author Joey
  * @since 2025-05-14
  */
-public interface AttendeesHistoryService extends IService<AttendeesHistory> {
+public interface AttendeeHistoryService extends IService<AttendeeHistory> {
 	/**
 	 * 根據 attendeesHistoryId 獲取過往與會者
 	 * 
 	 * @param attendeesHistoryId
 	 * @return
 	 */
-	AttendeesHistory getAttendeesHistory(Long attendeesHistoryId);
+	AttendeeHistory getAttendeesHistory(Long attendeesHistoryId);
 
 	/**
 	 * 查詢所有過往與會者
 	 * 
 	 * @return
 	 */
-	List<AttendeesHistory> getAttendeesHistoryList();
+	List<AttendeeHistory> getAttendeesHistoryList();
 
 	/**
 	 * 查詢所有過往與會者(分頁)
@@ -42,7 +42,7 @@ public interface AttendeesHistoryService extends IService<AttendeesHistory> {
 	 * @param page
 	 * @return
 	 */
-	IPage<AttendeesHistory> getAttendeesHistoryPage(Page<AttendeesHistory> page);
+	IPage<AttendeeHistory> getAttendeesHistoryPage(Page<AttendeeHistory> page);
 
 	/**
 	 * 根據年份 和 (ID card 或者 email)查詢往年與會者

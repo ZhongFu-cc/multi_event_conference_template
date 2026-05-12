@@ -15,22 +15,22 @@ import org.springframework.stereotype.Component;
 import com.google.common.base.Strings;
 
 import lombok.RequiredArgsConstructor;
-import tw.com.conference.convert.AttendeesConvert;
+import tw.com.conference.convert.AttendeeConvert;
 import tw.com.conference.exception.EmailException;
 import tw.com.conference.pojo.DTO.SendEmailDTO;
 import tw.com.conference.pojo.VO.AttendeesVO;
-import tw.com.conference.pojo.entity.Attendees;
-import tw.com.conference.pojo.entity.AttendeesTag;
+import tw.com.conference.pojo.entity.Attendee;
+import tw.com.conference.pojo.entity.AttendeeTag;
 import tw.com.conference.pojo.entity.Member;
 import tw.com.conference.service.AsyncService;
-import tw.com.conference.service.AttendeesService;
-import tw.com.conference.service.AttendeesTagService;
+import tw.com.conference.service.AttendeeService;
+import tw.com.conference.service.AttendeeTagService;
 import tw.com.conference.service.MemberService;
 import tw.com.conference.service.ScheduleEmailTaskService;
 
 @Component
 @RequiredArgsConstructor
-public class AttendeesMailStrategy implements MailStrategy {
+public class AttendeeMailStrategy implements MailStrategy {
 
 	@Value("${project.domain}")
 	private String PROJECT_DOMAIN;
@@ -39,9 +39,9 @@ public class AttendeesMailStrategy implements MailStrategy {
 	private final RedissonClient redissonClient;
 
 	private static final String DAILY_EMAIL_QUOTA_KEY = "email:dailyQuota";
-	private final AttendeesConvert attendeesConvert;
-	private final AttendeesService attendeesService;
-	private final AttendeesTagService attendeesTagService;
+	private final AttendeeConvert attendeesConvert;
+	private final AttendeeService attendeesService;
+	private final AttendeeTagService attendeesTagService;
 	private final AsyncService asyncService;
 	private final ScheduleEmailTaskService scheduleEmailTaskService;
 	private final MemberService memberService;
@@ -81,7 +81,7 @@ public class AttendeesMailStrategy implements MailStrategy {
 			}
 
 			// 如果attendeesIdSet 至少有一個，則開始搜尋Attendees
-			attendeesCount = attendeesService.lambdaQuery().in(Attendees::getAttendeesId, attendeesIdSet).count();
+			attendeesCount = attendeesService.lambdaQuery().in(Attendee::getAttendeesId, attendeesIdSet).count();
 
 		}
 
@@ -131,10 +131,10 @@ public class AttendeesMailStrategy implements MailStrategy {
 		}
 
 		// 2.透過 tag 找到符合的 attendees 關聯
-		List<AttendeesTag> attendeesTagList = attendeesTagService.getAttendeesTagByTagIds(tagIdList);
+		List<AttendeeTag> attendeesTagList = attendeesTagService.getAttendeesTagByTagIds(tagIdList);
 
 		// 3.從關聯中取出 attendeesId，並使用 Set 去重
-		return attendeesTagList.stream().map(AttendeesTag::getAttendeesId).collect(Collectors.toSet());
+		return attendeesTagList.stream().map(AttendeeTag::getAttendeesId).collect(Collectors.toSet());
 	}
 
 	/**
@@ -144,11 +144,11 @@ public class AttendeesMailStrategy implements MailStrategy {
 	 * @return
 	 */
 	private List<AttendeesVO> buildAttendeesVOList(Set<Long> attendeesIdSet) {
-		List<Attendees> attendeesList;
+		List<Attendee> attendeesList;
 		if (attendeesIdSet == null || attendeesIdSet.isEmpty()) {
 			attendeesList = attendeesService.lambdaQuery().list();
 		} else {
-			attendeesList = attendeesService.lambdaQuery().in(Attendees::getAttendeesId, attendeesIdSet).list();
+			attendeesList = attendeesService.lambdaQuery().in(Attendee::getAttendeesId, attendeesIdSet).list();
 		}
 
 		Map<Long, Member> memberMap = memberService.getMemberMapByAttendeesList(attendeesList);

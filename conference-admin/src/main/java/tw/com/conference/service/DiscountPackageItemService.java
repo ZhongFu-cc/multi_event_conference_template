@@ -21,6 +21,14 @@ import tw.com.conference.pojo.entity.Event;
 public interface DiscountPackageItemService extends IService<DiscountPackageItem> {
 
 	/**
+	 * 查詢當前 活動組合 適用的活動事件關聯
+	 * 
+	 * @param packageId
+	 * @return
+	 */
+	List<DiscountPackageItem> findPackageItemByPackageId(Long packageId);
+
+	/**
 	 * 根據 packageIds 獲取符合的event , 以packageId為鍵,eventList為值的方式返回值
 	 * 
 	 * @param packageIds
@@ -68,6 +76,20 @@ public interface DiscountPackageItemService extends IService<DiscountPackageItem
 	 */
 	void addPackagesToEvent(Long eventId, Collection<Long> packagesToAdd);
 
+	/**
+	 * 刪除包含此 優惠組合 所有的關聯
+	 * 
+	 * @param packageId
+	 */
+	void removeByPackageId(Long packageId);
+	
+	/**
+	 * 刪除包含此 活動事件 所有的關聯
+	 * 
+	 * @param eventId
+	 */
+	void removeByEventId(Long eventId);
+	
 	/**
 	 * 根據優惠組合 ID 刪除多個優惠價格規則關聯
 	 * 

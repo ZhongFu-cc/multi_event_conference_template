@@ -40,6 +40,11 @@ public class DiscountPackageItemServiceImpl extends ServiceImpl<DiscountPackageI
 	private final DiscountPackageMapper discountPackageMapper;
 
 	@Override
+	public List<DiscountPackageItem> findPackageItemByPackageId(Long packageId) {
+		return baseMapper.selectByPackageId(packageId);
+	}
+
+	@Override
 	public Map<Long, List<Event>> groupEventsByPackageId(Collection<Long> packageIds) {
 		// 空值判斷
 		if (packageIds != null && packageIds.isEmpty()) {
@@ -124,6 +129,16 @@ public class DiscountPackageItemServiceImpl extends ServiceImpl<DiscountPackageI
 		// 2.批量新增
 		this.saveBatch(discountPackageItems);
 
+	}
+
+	@Override
+	public void removeByPackageId(Long packageId) {
+		baseMapper.deleteByPackageId(packageId);
+	}
+
+	@Override
+	public void removeByEventId(Long eventId) {
+		baseMapper.deleteByEventId(eventId);
 	}
 
 	@Override

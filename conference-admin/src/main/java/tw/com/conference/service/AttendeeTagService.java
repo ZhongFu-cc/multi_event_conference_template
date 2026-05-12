@@ -7,8 +7,8 @@ import java.util.Set;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 
-import tw.com.conference.pojo.entity.Attendees;
-import tw.com.conference.pojo.entity.AttendeesTag;
+import tw.com.conference.pojo.entity.Attendee;
+import tw.com.conference.pojo.entity.AttendeeTag;
 import tw.com.conference.pojo.entity.Tag;
 
 /**
@@ -19,7 +19,7 @@ import tw.com.conference.pojo.entity.Tag;
  * @author Joey
  * @since 2025-05-14
  */
-public interface AttendeesTagService extends IService<AttendeesTag> {
+public interface AttendeeTagService extends IService<AttendeeTag> {
 
 	
 	/**
@@ -36,7 +36,7 @@ public interface AttendeesTagService extends IService<AttendeesTag> {
 	 * @param attendeesId
 	 * @return
 	 */
-	List<AttendeesTag> getAttendeesTagByAttendeesId(Long attendeesId);
+	List<AttendeeTag> getAttendeesTagByAttendeesId(Long attendeesId);
 	
 	
 	
@@ -61,7 +61,7 @@ public interface AttendeesTagService extends IService<AttendeesTag> {
 	 * @param attendeesList
 	 * @return 獲得以attendeesId為key , List<Tag> 為值的 映射對象
 	 */
-	Map<Long, List<Tag>> getTagMapByAttendeesId(Collection<Attendees> attendeesList);
+	Map<Long, List<Tag>> getTagMapByAttendeesId(Collection<Attendee> attendeesList);
 	
 	/**
 	 * 根據 tagId 查詢與之有關的所有Attendees關聯
@@ -69,7 +69,7 @@ public interface AttendeesTagService extends IService<AttendeesTag> {
 	 * @param tagId
 	 * @return
 	 */
-	List<AttendeesTag> getAttendeesTagByTagId(Long tagId);
+	List<AttendeeTag> getAttendeesTagByTagId(Long tagId);
 
 	/**
 	 * 根據複數 attendeesId 查詢與之有關的所有Tag關聯
@@ -77,7 +77,7 @@ public interface AttendeesTagService extends IService<AttendeesTag> {
 	 * @param attendeesIds
 	 * @return
 	 */
-	List<AttendeesTag> getAttendeesTagByAttendeesIds(Collection<Long> attendeesIds);
+	List<AttendeeTag> getAttendeesTagByAttendeesIds(Collection<Long> attendeesIds);
 
 	/**
 	 * 根據複數 tagId 查詢與之有關的所有Tag關聯
@@ -85,14 +85,14 @@ public interface AttendeesTagService extends IService<AttendeesTag> {
 	 * @param tagIds
 	 * @return
 	 */
-	List<AttendeesTag> getAttendeesTagByTagIds(Collection<Long> tagIds);
+	List<AttendeeTag> getAttendeesTagByTagIds(Collection<Long> tagIds);
 
 	/**
 	 * 為一個tag和attendees新增關聯
 	 * 
 	 * @param attendeesTag
 	 */
-	void addAttendeesTag(AttendeesTag attendeesTag);
+	void addAttendeesTag(AttendeeTag attendeesTag);
 	
 	/**
 	 * 透過與會者ID 和 標籤ID 建立關聯

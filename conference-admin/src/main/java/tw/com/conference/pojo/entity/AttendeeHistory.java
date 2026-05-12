@@ -23,15 +23,15 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@TableName("attendees_history")
-@Schema(name = "AttendeesHistory", description = "往年與會者名單")
-public class AttendeesHistory implements Serializable {
+@TableName("attendee_history")
+@Schema(name = "AttendeeHistory", description = "往年與會者名單")
+public class AttendeeHistory implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "主鍵ID")
-    @TableId("attendees_history_id")
-    private Long attendeesHistoryId;
+    @TableId("attendee_history_id")
+    private Long attendeeHistoryId;
 
     @Schema(description = "參與時的年份")
     @TableField("year")

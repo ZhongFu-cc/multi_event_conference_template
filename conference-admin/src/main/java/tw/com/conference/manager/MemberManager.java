@@ -36,11 +36,11 @@ import tw.com.conference.enums.OrderStatusEnum;
 import tw.com.conference.enums.RegistrationPhaseEnum;
 import tw.com.conference.exception.CheckinRecordException;
 import tw.com.conference.exception.MemberException;
-import tw.com.conference.pojo.entity.Attendees;
+import tw.com.conference.pojo.entity.Attendee;
 import tw.com.conference.pojo.entity.Member;
 import tw.com.conference.pojo.entity.Orders;
 import tw.com.conference.pojo.entity.Setting;
-import tw.com.conference.service.AttendeesService;
+import tw.com.conference.service.AttendeeService;
 import tw.com.conference.service.CheckinRecordService;
 import tw.com.conference.service.MemberService;
 import tw.com.conference.service.OrdersService;
@@ -72,7 +72,7 @@ public class MemberManager {
 	private final RegistrationFeeConfig registrationFeeConfig;
 	private final MemberService memberService;
 	private final OrdersService ordersService;
-	private final AttendeesService attendeesService;
+	private final AttendeeService attendeesService;
 	private final CheckinRecordService checkinRecordService;
 	private final SettingService settingService;
 
@@ -86,13 +86,13 @@ public class MemberManager {
 	public void generateCertificate(HttpServletResponse response, Long memberId) throws IOException {
 
 		// 1.查詢會員是否是與會者的資格
-		Attendees attendees = attendeesService.getAttendeesByMemberId(memberId);
+		Attendee attendees = attendeesService.getAttendeesByMemberId(memberId);
 		if (attendees == null) {
 			throw new CheckinRecordException("會員未繳費並非與會者");
 		}
 
 		// 2.查詢與會者是否有簽到記錄，如果不是用我們的簽到系統,或者不需要那麼嚴格就註解掉
-		long checkinRecordCount = checkinRecordService.getCheckinRecordCountByAttendeesId(attendees.getAttendeesId());
+		long checkinRecordCount = checkinRecordService.getCheckinRecordCountByAttendeesId(attendees.getAttendeeId());
 		if (checkinRecordCount < 1) {
 			throw new CheckinRecordException("與會者沒有簽到記錄，不發參加證明");
 		}
@@ -217,7 +217,7 @@ public class MemberManager {
 					.collect(Collectors.joining(" "));
 
 			// 5-5與會者資料
-			Attendees attendees = attendeesService.getAttendeesByMemberId(memberId);
+			Attendee attendees = attendeesService.getAttendeesByMemberId(memberId);
 
 			// 先拿到訂單 台幣價格
 			BigDecimal twdAmount = order.getTotalAmount();
@@ -297,11 +297,11 @@ public class MemberManager {
 	@Transactional
 	public void deleteMember(Long memberId) {
 		// 1.刪除會員的與會者身分
-		Attendees attendees = attendeesService.deleteAttendeesByMemberId(memberId);
+		Attendee attendees = attendeesService.deleteAttendeesByMemberId(memberId);
 
 		// 2.如果attendees不為null，刪除他的簽到/退紀錄
 		if (attendees != null) {
-			checkinRecordService.deleteCheckinRecordByAttendeesId(attendees.getAttendeesId());
+			checkinRecordService.deleteCheckinRecordByAttendeesId(attendees.getAttendeeId());
 		}
 
 		// 3.最後刪除自身

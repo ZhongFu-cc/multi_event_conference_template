@@ -13,14 +13,14 @@ import com.google.common.collect.Sets;
 
 import lombok.RequiredArgsConstructor;
 import tw.com.conference.enums.TagTypeEnum;
-import tw.com.conference.pojo.entity.AttendeesTag;
-import tw.com.conference.service.AttendeesTagService;
+import tw.com.conference.pojo.entity.AttendeeTag;
+import tw.com.conference.service.AttendeeTagService;
 
 @Component
 @RequiredArgsConstructor
-public class AttendeesTagStrategy implements TagStrategy {
+public class AttendeeTagStrategy implements TagStrategy {
 
-	private final AttendeesTagService attendeesTagService;
+	private final AttendeeTagService attendeesTagService;
 
 	@Override
 	public String supportType() {
@@ -29,15 +29,15 @@ public class AttendeesTagStrategy implements TagStrategy {
 
 	@Override
 	public long countHoldersByTagId(Long tagId) {
-		return attendeesTagService.lambdaQuery().eq(AttendeesTag::getTagId, tagId).count();
+		return attendeesTagService.lambdaQuery().eq(AttendeeTag::getTagId, tagId).count();
 	}
 
 	@Override
 	public long countHoldersByTagIds(Collection<Long> tagIds) {
 		// 拿到關聯
-		List<AttendeesTag> list = attendeesTagService.lambdaQuery().in(AttendeesTag::getTagId, tagIds).list();
+		List<AttendeeTag> list = attendeesTagService.lambdaQuery().in(AttendeeTag::getTagId, tagIds).list();
 		// 收集唯一的 attendeeId
-		Set<Long> uniqueAttendees = list.stream().map(AttendeesTag::getAttendeesId).collect(Collectors.toSet());
+		Set<Long> uniqueAttendees = list.stream().map(AttendeeTag::getAttendeesId).collect(Collectors.toSet());
 
 		return uniqueAttendees.size();
 	}
@@ -45,20 +45,20 @@ public class AttendeesTagStrategy implements TagStrategy {
 	@Override
 	public List<Long> getAssociatedIdsByTagId(Long tagId) {
 		// 1. 查詢當前 tag 的所有關聯 attendeesTag
-		List<AttendeesTag> attendeesTagList = attendeesTagService.getAttendeesTagByTagId(tagId);
+		List<AttendeeTag> attendeesTagList = attendeesTagService.getAttendeesTagByTagId(tagId);
 		// 2. stream取出 attendeesIdList
-		return attendeesTagList.stream().map(AttendeesTag::getAttendeesId).toList();
+		return attendeesTagList.stream().map(AttendeeTag::getAttendeesId).toList();
 	}
 
 	@Transactional
 	@Override
 	public void assignEntitiesToTag(List<Long> entityIdList, Long tagId) {
 		// 1. 查詢當前 tag 的所有關聯 attendees
-		List<AttendeesTag> currentAttendeesTags = attendeesTagService.getAttendeesTagByTagId(tagId);
+		List<AttendeeTag> currentAttendeesTags = attendeesTagService.getAttendeesTagByTagId(tagId);
 
 		// 2. 提取當前關聯的 attendeesId Set
 		Set<Long> currentAttendeesIdSet = currentAttendeesTags.stream()
-				.map(AttendeesTag::getAttendeesId)
+				.map(AttendeeTag::getAttendeesId)
 				.collect(Collectors.toSet());
 
 		// 3. 獲取目標的 attendeesId 的Set集合

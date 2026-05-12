@@ -44,7 +44,7 @@ import tw.com.conference.pojo.DTO.putEntityDTO.PutMemberDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutMemberForAdminDTO;
 import tw.com.conference.pojo.VO.MemberOrderVO;
 import tw.com.conference.pojo.VO.MemberTagVO;
-import tw.com.conference.pojo.entity.Attendees;
+import tw.com.conference.pojo.entity.Attendee;
 import tw.com.conference.pojo.entity.Member;
 import tw.com.conference.pojo.entity.Orders;
 import tw.com.conference.saToken.StpKit;
@@ -652,9 +652,9 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
 	}
 
 	@Override
-	public Map<Long, Member> getMemberMapByAttendeesList(Collection<Attendees> attendeesList) {
+	public Map<Long, Member> getMemberMapByAttendeesList(Collection<Attendee> attendeesList) {
 		// 1.提取attendees的memberId,拿到memberId列表
-		Set<Long> memberIdSet = attendeesList.stream().map(Attendees::getMemberId).collect(Collectors.toSet());
+		Set<Long> memberIdSet = attendeesList.stream().map(Attendee::getMemberId).collect(Collectors.toSet());
 		// 2.用memberId列表查詢Member資料
 		List<Member> memberList = this.getMemberListByIds(memberIdSet);
 		// 3.Member資料轉為memberId為key , Member本身為值的Map對象

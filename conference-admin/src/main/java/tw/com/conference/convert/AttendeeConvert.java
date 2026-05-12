@@ -5,23 +5,23 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 import tw.com.conference.enums.MemberCategoryEnum;
-import tw.com.conference.pojo.DTO.addEntityDTO.AddAttendeesDTO;
+import tw.com.conference.pojo.DTO.addEntityDTO.AddAttendeeDTO;
 import tw.com.conference.pojo.VO.AttendeesTagVO;
 import tw.com.conference.pojo.VO.AttendeesVO;
-import tw.com.conference.pojo.entity.Attendees;
+import tw.com.conference.pojo.entity.Attendee;
 import tw.com.conference.pojo.excelPojo.AttendeesExcel;
 import tw.com.conference.pojo.excelPojo.AttendeesUpdateExcel;
 
 @Mapper(componentModel = "spring")
-public interface AttendeesConvert {
+public interface AttendeeConvert {
 
-	Attendees addDTOToEntity(AddAttendeesDTO addAttendeesDTO);
+	Attendee addDTOToEntity(AddAttendeeDTO addAttendeesDTO);
 
-	// Attendees putDTOToEntity(PutAttendeesDTO putAttendeesDTO);
+	// Attendee putDTOToEntity(PutAttendeeDTO putAttendeesDTO);
 
-	AttendeesVO entityToVO(Attendees attendees);
+	AttendeesVO entityToVO(Attendee attendees);
 
-	AttendeesTagVO entityToAttendeesTagVO(Attendees attendees);
+	AttendeesTagVO entityToAttendeesTagVO(Attendee attendees);
 
 	@Mapping(source = "attendeesId", target = "attendeesId", qualifiedByName = "convertLongToString")
 	@Mapping(source = "member.memberId", target = "memberId", qualifiedByName = "convertLongToString")
@@ -50,7 +50,7 @@ public interface AttendeesConvert {
 	@Mapping(source = "attendeesId", target = "attendeesId", qualifiedByName = "convertStringToLong")
 	AttendeesUpdateExcel excelToUpdatePojo(AttendeesExcel atendeesExcel);
 	
-	Attendees updatePojoToEntity (AttendeesUpdateExcel attendeeUpdateExcel);
+	Attendee updatePojoToEntity (AttendeesUpdateExcel attendeeUpdateExcel);
 	
 	@Named("convertCategory")
 	default String convertCategory(Integer category) {

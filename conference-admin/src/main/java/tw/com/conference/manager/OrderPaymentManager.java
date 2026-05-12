@@ -23,12 +23,12 @@ import tw.com.conference.exception.RegistrationClosedException;
 import tw.com.conference.helper.MessageHelper;
 import tw.com.conference.helper.TagAssignmentHelper;
 import tw.com.conference.pojo.DTO.ECPayDTO.ECPayResponseDTO;
-import tw.com.conference.pojo.entity.Attendees;
+import tw.com.conference.pojo.entity.Attendee;
 import tw.com.conference.pojo.entity.Member;
 import tw.com.conference.pojo.entity.Orders;
 import tw.com.conference.pojo.entity.Payment;
-import tw.com.conference.service.AttendeesService;
-import tw.com.conference.service.AttendeesTagService;
+import tw.com.conference.service.AttendeeService;
+import tw.com.conference.service.AttendeeTagService;
 import tw.com.conference.service.MemberService;
 import tw.com.conference.service.MemberTagService;
 import tw.com.conference.service.OrdersService;
@@ -56,8 +56,8 @@ public class OrderPaymentManager {
 	private final MemberTagService memberTagService;
 	private final OrdersService ordersService;
 	private final PaymentService paymentService;
-	private final AttendeesService attendeesService;
-	private final AttendeesTagService attendeesTagService;
+	private final AttendeeService attendeesService;
+	private final AttendeeTagService attendeesTagService;
 	private final TagService tagService;
 	private final SettingService settingService;
 
@@ -208,10 +208,10 @@ public class OrderPaymentManager {
 				log.info(currentOrders.getOrdersId() + " 付款成功，更新資料狀態");
 
 				// 4-2 付款完成，所以將他新增進 與會者名單
-				Attendees attendees = attendeesService.addAttendees(member);
+				Attendee attendees = attendeesService.addAttendees(member);
 
 				// 4-3.獲取當下與會者群體的Index,進行與會者標籤分組
-				tagAssignmentHelper.assignTag(attendees.getAttendeesId(), attendeesService::getAttendeesGroupIndex,
+				tagAssignmentHelper.assignTag(attendees.getAttendeeId(), attendeesService::getAttendeesGroupIndex,
 						tagService::getOrCreateAttendeesGroupTag, attendeesTagService::addAttendeesTag);
 
 				// 4-4.移除會員 註冊費未付款 Tag
@@ -246,9 +246,9 @@ public class OrderPaymentManager {
 				// 如果付款完成，將報名者添加到attendees 表裡面，代表他已具備入場資格
 				if (OrderStatusEnum.PAYMENT_SUCCESS.getValue().equals(currentOrders.getStatus())) {
 					// 4-2 付款完成，所以將他新增進 與會者名單
-					Attendees attendees = attendeesService.addAttendees(slaveMember);
+					Attendee attendees = attendeesService.addAttendees(slaveMember);
 					// 4-3.獲取當下與會者群體的Index,進行與會者標籤分組
-					tagAssignmentHelper.assignTag(attendees.getAttendeesId(), attendeesService::getAttendeesGroupIndex,
+					tagAssignmentHelper.assignTag(attendees.getAttendeeId(), attendeesService::getAttendeesGroupIndex,
 							tagService::getOrCreateAttendeesGroupTag, attendeesTagService::addAttendeesTag);
 
 					// 4-4.移除會員 註冊費未付款 Tag

@@ -130,4 +130,10 @@ public class PricingRuleServiceImpl extends ServiceImpl<PricingRuleMapper, Prici
 		baseMapper.deleteById(pricingRuleId);
 	}
 
+	@Override
+	public void removeByEventId(Long eventId) {
+		baseMapper.deleteByEventId(eventId);
+		
+	}
+
 }

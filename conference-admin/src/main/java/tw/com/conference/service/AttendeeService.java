@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 
-import tw.com.conference.pojo.entity.Attendees;
+import tw.com.conference.pojo.entity.Attendee;
 import tw.com.conference.pojo.entity.Member;
 
 /**
@@ -19,7 +19,7 @@ import tw.com.conference.pojo.entity.Member;
  * @author Joey
  * @since 2025-04-24
  */
-public interface AttendeesService extends IService<Attendees> {
+public interface AttendeeService extends IService<Attendee> {
 
 	/**
 	 * 拿到與會者分組 index
@@ -29,11 +29,11 @@ public interface AttendeesService extends IService<Attendees> {
 	 */
 	int getAttendeesGroupIndex(int groupSize);
 
-	Attendees getAttendees(Long attendeesId);
+	Attendee getAttendees(Long attendeesId);
 	
-	Attendees getAttendeesByMemberId(Long memberId);
+	Attendee getAttendeesByMemberId(Long memberId);
 
-	List<Attendees> getAttendeesList();
+	List<Attendee> getAttendeesList();
 
 	/**
 	 * mybatis 原始高速查詢所有Attendees<br>
@@ -41,7 +41,7 @@ public interface AttendeesService extends IService<Attendees> {
 	 * 
 	 * @return
 	 */
-	List<Attendees> getAttendeesEfficiently();
+	List<Attendee> getAttendeesEfficiently();
 
 	/**
 	 * 根據ids查詢符合的與會者
@@ -49,9 +49,9 @@ public interface AttendeesService extends IService<Attendees> {
 	 * @param attendeesIds
 	 * @return
 	 */
-	List<Attendees> getAttendeesListByIds(Collection<Long> attendeesIds);
+	List<Attendee> getAttendeesListByIds(Collection<Long> attendeesIds);
 
-	IPage<Attendees> getAttendeesPage(Page<Attendees> page);
+	IPage<Attendee> getAttendeesPage(Page<Attendee> page);
 
 	/**
 	 * 查詢符合memberList範圍內的與會者
@@ -60,7 +60,7 @@ public interface AttendeesService extends IService<Attendees> {
 	 * @param memberList
 	 * @return
 	 */
-	IPage<Attendees> getAttendeesPageByMemberList(Page<Attendees> page, Collection<Member> memberList);
+	IPage<Attendee> getAttendeesPageByMemberList(Page<Attendee> page, Collection<Member> memberList);
 
 	/**
 	 * 根據會員資訊 建立 與會者
@@ -68,7 +68,7 @@ public interface AttendeesService extends IService<Attendees> {
 	 * @param member
 	 * @return
 	 */
-	Attendees addAttendees(Member member);
+	Attendee addAttendees(Member member);
 
 	void deleteAttendees(Long attendeesId);
 
@@ -77,14 +77,14 @@ public interface AttendeesService extends IService<Attendees> {
 	 * 
 	 * @param memberId
 	 */
-	Attendees deleteAttendeesByMemberId(Long memberId);
+	Attendee deleteAttendeesByMemberId(Long memberId);
 
 	/**
 	 * 高效獲取所有與會者的映射對象
 	 * 
-	 * @return 以attendeesId為key , Attendees 為值的value
+	 * @return 以attendeesId為key , Attendee 為值的value
 	 */
-	Map<Long, Attendees> getAttendeesMap();
+	Map<Long, Attendee> getAttendeesMap();
 
 	/**
 	 * 查詢應簽到人數

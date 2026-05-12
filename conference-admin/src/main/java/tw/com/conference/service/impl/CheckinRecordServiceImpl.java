@@ -27,7 +27,7 @@ import tw.com.conference.pojo.BO.PresenceStatsBO;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddCheckinRecordDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutCheckinRecordDTO;
 import tw.com.conference.pojo.VO.CheckinRecordVO;
-import tw.com.conference.pojo.entity.Attendees;
+import tw.com.conference.pojo.entity.Attendee;
 import tw.com.conference.pojo.entity.CheckinRecord;
 import tw.com.conference.service.CheckinRecordService;
 
@@ -94,9 +94,9 @@ public class CheckinRecordServiceImpl extends ServiceImpl<CheckinRecordMapper, C
 	}
 
 	@Override
-	public Map<Long, List<CheckinRecord>> getCheckinMapByAttendeesList(Collection<Attendees> attendeesList) {
+	public Map<Long, List<CheckinRecord>> getCheckinMapByAttendeesList(Collection<Attendee> attendeesList) {
 		// 1.提取與會者列表的ID
-		Set<Long> attendeesIdSet = attendeesList.stream().map(Attendees::getAttendeesId).collect(Collectors.toSet());
+		Set<Long> attendeesIdSet = attendeesList.stream().map(Attendee::getAttendeesId).collect(Collectors.toSet());
 		// 2.拿到符合與會者ID列表的 所有簽到退紀錄
 		List<CheckinRecord> checkinRecords = this.getCheckinRecordByAttendeesIds(attendeesIdSet);
 		// 3.如果簽到記錄為空,直接返回

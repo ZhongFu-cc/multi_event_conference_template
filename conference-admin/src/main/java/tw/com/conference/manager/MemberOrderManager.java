@@ -23,12 +23,12 @@ import tw.com.conference.pojo.DTO.OfflineTransferDTO;
 import tw.com.conference.pojo.VO.MemberOrderVO;
 import tw.com.conference.pojo.VO.MemberTagVO;
 import tw.com.conference.pojo.VO.MemberVO;
-import tw.com.conference.pojo.entity.Attendees;
+import tw.com.conference.pojo.entity.Attendee;
 import tw.com.conference.pojo.entity.Member;
 import tw.com.conference.pojo.entity.Orders;
 import tw.com.conference.pojo.excelPojo.MemberExcel;
-import tw.com.conference.service.AttendeesService;
-import tw.com.conference.service.AttendeesTagService;
+import tw.com.conference.service.AttendeeService;
+import tw.com.conference.service.AttendeeTagService;
 import tw.com.conference.service.MemberService;
 import tw.com.conference.service.MemberTagService;
 import tw.com.conference.service.OrdersService;
@@ -47,8 +47,8 @@ public class MemberOrderManager {
 	private final MemberService memberService;
 	private final MemberTagService memberTagService;
 	private final OrdersService ordersService;
-	private final AttendeesService attendeesService;
-	private final AttendeesTagService attendeesTagService;
+	private final AttendeeService attendeesService;
+	private final AttendeeTagService attendeesTagService;
 	private final TagService tagService;
 
 	// --------------------------- 查詢相關 ---------------------------------------
@@ -160,10 +160,10 @@ public class MemberOrderManager {
 		Member member = memberService.getMember(memberId);
 
 		// 3.由後台新增的Member , 自動付款完成，新增進與會者名單
-		Attendees attendees = attendeesService.addAttendees(member);
+		Attendee attendees = attendeesService.addAttendees(member);
 
 		// 4.獲取當下與會者群體的Index,進行與會者標籤分組
-		tagAssignmentHelper.assignTag(attendees.getAttendeesId(), attendeesService::getAttendeesGroupIndex,
+		tagAssignmentHelper.assignTag(attendees.getAttendeeId(), attendeesService::getAttendeesGroupIndex,
 				tagService::getOrCreateAttendeesGroupTag, attendeesTagService::addAttendeesTag);
 
 		// 5.移除會員 註冊費未付款 Tag

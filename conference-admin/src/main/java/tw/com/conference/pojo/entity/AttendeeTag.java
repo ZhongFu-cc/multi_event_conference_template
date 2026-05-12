@@ -18,19 +18,19 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@TableName("attendees_tag")
-@Schema(name = "AttendeesTag", description = "與會者 與 標籤 的關聯表")
-public class AttendeesTag implements Serializable {
+@TableName("attendee_tag")
+@Schema(name = "AttendeeTag", description = "與會者 與 標籤 的關聯表")
+public class AttendeeTag implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "主鍵ID")
-    @TableId("attendees_tag_id")
-    private Long attendeesTagId;
+    @TableId("attendee_tag_id")
+    private Long attendeeTagId;
 
     @Schema(description = "與會者ID")
-    @TableField("attendees_id")
-    private Long attendeesId;
+    @TableField("attendee_id")
+    private Long attendeeId;
 
     @Schema(description = "標籤ID")
     @TableField("tag_id")

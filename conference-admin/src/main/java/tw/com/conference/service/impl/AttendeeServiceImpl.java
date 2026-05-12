@@ -20,10 +20,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import lombok.RequiredArgsConstructor;
-import tw.com.conference.mapper.AttendeesMapper;
-import tw.com.conference.pojo.entity.Attendees;
+import tw.com.conference.mapper.AttendeeMapper;
+import tw.com.conference.pojo.entity.Attendee;
 import tw.com.conference.pojo.entity.Member;
-import tw.com.conference.service.AttendeesService;
+import tw.com.conference.service.AttendeeService;
 
 /**
  * <p>
@@ -35,7 +35,7 @@ import tw.com.conference.service.AttendeesService;
  */
 @Service
 @RequiredArgsConstructor
-public class AttendeesServiceImpl extends ServiceImpl<AttendeesMapper, Attendees> implements AttendeesService {
+public class AttendeeServiceImpl extends ServiceImpl<AttendeeMapper, Attendee> implements AttendeeService {
 
 	private static final String ATTENDEE_SEQUENCE_KEY = "attendee:sequence_lock";
 
@@ -49,29 +49,29 @@ public class AttendeesServiceImpl extends ServiceImpl<AttendeesMapper, Attendees
 	}
 
 	@Override
-	public Attendees getAttendees(Long attendeesId) {
+	public Attendee getAttendees(Long attendeesId) {
 		return baseMapper.selectById(attendeesId);
 	}
 	
 	@Override
-	public Attendees getAttendeesByMemberId(Long memberId) {
-		LambdaQueryWrapper<Attendees> attendeesWrapper = new LambdaQueryWrapper<>();
-		attendeesWrapper.eq(Attendees::getMemberId, memberId);
+	public Attendee getAttendeesByMemberId(Long memberId) {
+		LambdaQueryWrapper<Attendee> attendeesWrapper = new LambdaQueryWrapper<>();
+		attendeesWrapper.eq(Attendee::getMemberId, memberId);
 		return baseMapper.selectOne(attendeesWrapper);
 	}
 
 	@Override
-	public List<Attendees> getAttendeesList() {
+	public List<Attendee> getAttendeesList() {
 		return baseMapper.selectList(null);
 	}
 
 	@Override
-	public List<Attendees> getAttendeesEfficiently() {
+	public List<Attendee> getAttendeesEfficiently() {
 		return baseMapper.selectAttendees();
 	}
 	
 	@Override
-	public List<Attendees> getAttendeesListByIds(Collection<Long> attendeesIds) {
+	public List<Attendee> getAttendeesListByIds(Collection<Long> attendeesIds) {
 		if(attendeesIds.isEmpty()) {
 			return Collections.emptyList();
 		}
@@ -79,18 +79,18 @@ public class AttendeesServiceImpl extends ServiceImpl<AttendeesMapper, Attendees
 	}
 
 	@Override
-	public IPage<Attendees> getAttendeesPage(Page<Attendees> page) {
+	public IPage<Attendee> getAttendeesPage(Page<Attendee> page) {
 		return baseMapper.selectPage(page, null);
 	}
 
 	@Override
-	public IPage<Attendees> getAttendeesPageByMemberList(Page<Attendees> page, Collection<Member> memberList) {
+	public IPage<Attendee> getAttendeesPageByMemberList(Page<Attendee> page, Collection<Member> memberList) {
 		Set<Long> memberIdSet = memberList.stream().map(Member::getMemberId).collect(Collectors.toSet());
 		if (memberIdSet.isEmpty()) {
-			return new Page<Attendees>(page.getCurrent(), page.getSize());
+			return new Page<Attendee>(page.getCurrent(), page.getSize());
 		}
-		LambdaQueryWrapper<Attendees> attendeesWrapper = new LambdaQueryWrapper<>();
-		attendeesWrapper.in(Attendees::getMemberId, memberIdSet);
+		LambdaQueryWrapper<Attendee> attendeesWrapper = new LambdaQueryWrapper<>();
+		attendeesWrapper.in(Attendee::getMemberId, memberIdSet);
 		return baseMapper.selectPage(page, attendeesWrapper);
 	}
 
@@ -100,8 +100,8 @@ public class AttendeesServiceImpl extends ServiceImpl<AttendeesMapper, Attendees
 	}
 
 	@Override
-	public Attendees addAttendees(Member member) {
-		Attendees attendees = new Attendees();
+	public Attendee addAttendees(Member member) {
+		Attendee attendees = new Attendee();
 		attendees.setEmail(member.getEmail());
 		attendees.setMemberId(member.getMemberId());
 
@@ -142,12 +142,12 @@ public class AttendeesServiceImpl extends ServiceImpl<AttendeesMapper, Attendees
 	}
 
 	@Override
-	public Attendees deleteAttendeesByMemberId(Long memberId) {
+	public Attendee deleteAttendeesByMemberId(Long memberId) {
 
 		// 1.根據memberId 查詢attendees
-		LambdaQueryWrapper<Attendees> attendeesWrapper = new LambdaQueryWrapper<>();
-		attendeesWrapper.eq(Attendees::getMemberId, memberId);
-		Attendees attendees = baseMapper.selectOne(attendeesWrapper);
+		LambdaQueryWrapper<Attendee> attendeesWrapper = new LambdaQueryWrapper<>();
+		attendeesWrapper.eq(Attendee::getMemberId, memberId);
+		Attendee attendees = baseMapper.selectOne(attendeesWrapper);
 
 		// 2.如果不為null，刪除attendees
 	    if (attendees != null) {
@@ -160,9 +160,9 @@ public class AttendeesServiceImpl extends ServiceImpl<AttendeesMapper, Attendees
 	}
 
 	@Override
-	public Map<Long, Attendees> getAttendeesMap() {
-		List<Attendees> attendeesList = this.getAttendeesEfficiently();
-		return attendeesList.stream().collect(Collectors.toMap(Attendees::getAttendeesId, Function.identity()));
+	public Map<Long, Attendee> getAttendeesMap() {
+		List<Attendee> attendeesList = this.getAttendeesEfficiently();
+		return attendeesList.stream().collect(Collectors.toMap(Attendee::getAttendeesId, Function.identity()));
 	}
 
 

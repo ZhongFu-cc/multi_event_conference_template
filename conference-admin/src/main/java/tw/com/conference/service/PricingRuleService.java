@@ -77,4 +77,11 @@ public interface PricingRuleService extends IService<PricingRule> {
 	 */
 	void remove(Long pricingRuleId);
 
+	/**
+	 * 刪除符合 活動事件 的價格規則
+	 * 
+	 * @param eventId
+	 */
+	void removeByEventId(Long eventId);
+
 }

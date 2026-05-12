@@ -1,5 +1,7 @@
 package tw.com.conference.controller;
 
+import java.util.List;
+
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import tw.com.conference.manager.EventPriceRuleManager;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddEventDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutEventDTO;
+import tw.com.conference.pojo.entity.DiscountPackage;
 import tw.com.conference.pojo.entity.Event;
 import tw.com.conference.service.EventService;
 import tw.com.conference.utils.R;
@@ -43,54 +46,61 @@ public class EventController {
 
 	private final EventPriceRuleManager eventPriceRuleManager;
 	private final EventService eventService;
-	
+
 	@GetMapping("exist-any")
 	@Operation(summary = "是否存在任何活動事件")
 	@Parameters({
-		@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
+			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
 	@SaCheckRole("super-admin")
 	public R<Boolean> existAnyEvent() {
 		boolean existAny = eventService.existAny();
 		return R.ok(existAny);
 	}
-	
+
 	@GetMapping("{id}")
-	@Operation(summary = "查詢單一Event")
+	@Operation(summary = "查詢單一活動事件")
 	@SaCheckRole("super-admin")
 	public R<Event> getEvent(@PathVariable("id") Long eventId) {
 		Event event = eventService.get(eventId);
 		return R.ok(event);
 	}
-	
+
+	@GetMapping
+	@Operation(summary = "查詢所有活動事件")
+	@SaCheckRole("super-admin")
+	public R<List<Event>> listEvent() {
+		List<Event> list = eventService.list();
+		return R.ok(list);
+	}
+
 	@PostMapping
 	@Operation(summary = "新增單一活動事件")
 	@Parameters({
-		@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
+			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
 	@SaCheckRole("super-admin")
-	public R<Void> saveEvent(@RequestBody @Valid AddEventDTO addEventDTO)  {
+	public R<Void> saveEvent(@RequestBody @Valid AddEventDTO addEventDTO) {
 		eventService.create(addEventDTO);
 		return R.ok();
 	}
-	
+
 	@PutMapping
 	@Operation(summary = "更新單一活動事件")
 	@Parameters({
-		@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
+			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
 	@SaCheckRole("super-admin")
-	public R<Void> updateEvent(@RequestBody @Valid PutEventDTO putEventDTO)  {
+	public R<Void> updateEvent(@RequestBody @Valid PutEventDTO putEventDTO) {
 		eventService.update(putEventDTO);
 		return R.ok();
 	}
-	
+
 	@DeleteMapping("{id}")
 	@Operation(summary = "刪除單一活動事件")
 	@Parameters({
-		@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
+			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
 	@SaCheckRole("super-admin")
-	public R<Void> deleteEvent(@PathVariable("id") Long eventId)  {
+	public R<Void> deleteEvent(@PathVariable("id") Long eventId) {
 		eventPriceRuleManager.removeEvent(eventId);
 		return R.ok();
 	}
 
-	
 }
