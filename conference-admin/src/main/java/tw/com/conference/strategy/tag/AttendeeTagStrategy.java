@@ -20,64 +20,64 @@ import tw.com.conference.service.AttendeeTagService;
 @RequiredArgsConstructor
 public class AttendeeTagStrategy implements TagStrategy {
 
-	private final AttendeeTagService attendeesTagService;
+	private final AttendeeTagService attendeeTagService;
 
 	@Override
 	public String supportType() {
-		return TagTypeEnum.ATTENDEES.getType();
+		return TagTypeEnum.ATTENDEE.getType();
 	}
 
 	@Override
 	public long countHoldersByTagId(Long tagId) {
-		return attendeesTagService.lambdaQuery().eq(AttendeeTag::getTagId, tagId).count();
+		return attendeeTagService.lambdaQuery().eq(AttendeeTag::getTagId, tagId).count();
 	}
 
 	@Override
 	public long countHoldersByTagIds(Collection<Long> tagIds) {
 		// 拿到關聯
-		List<AttendeeTag> list = attendeesTagService.lambdaQuery().in(AttendeeTag::getTagId, tagIds).list();
+		List<AttendeeTag> list = attendeeTagService.lambdaQuery().in(AttendeeTag::getTagId, tagIds).list();
 		// 收集唯一的 attendeeId
-		Set<Long> uniqueAttendees = list.stream().map(AttendeeTag::getAttendeesId).collect(Collectors.toSet());
+		Set<Long> uniqueAttendees = list.stream().map(AttendeeTag::getAttendeeId).collect(Collectors.toSet());
 
 		return uniqueAttendees.size();
 	}
 
 	@Override
 	public List<Long> getAssociatedIdsByTagId(Long tagId) {
-		// 1. 查詢當前 tag 的所有關聯 attendeesTag
-		List<AttendeeTag> attendeesTagList = attendeesTagService.getAttendeesTagByTagId(tagId);
-		// 2. stream取出 attendeesIdList
-		return attendeesTagList.stream().map(AttendeeTag::getAttendeesId).toList();
+		// 1. 查詢當前 tag 的所有關聯 attendeeTag
+		List<AttendeeTag> attendeeTagList = attendeeTagService.getAttendeeTagByTagId(tagId);
+		// 2. stream取出 attendeeIdList
+		return attendeeTagList.stream().map(AttendeeTag::getAttendeeId).toList();
 	}
 
 	@Transactional
 	@Override
 	public void assignEntitiesToTag(List<Long> entityIdList, Long tagId) {
-		// 1. 查詢當前 tag 的所有關聯 attendees
-		List<AttendeeTag> currentAttendeesTags = attendeesTagService.getAttendeesTagByTagId(tagId);
+		// 1. 查詢當前 tag 的所有關聯 attendee
+		List<AttendeeTag> currentAttendeeTags = attendeeTagService.getAttendeeTagByTagId(tagId);
 
-		// 2. 提取當前關聯的 attendeesId Set
-		Set<Long> currentAttendeesIdSet = currentAttendeesTags.stream()
-				.map(AttendeeTag::getAttendeesId)
+		// 2. 提取當前關聯的 attendeeId Set
+		Set<Long> currentAttendeeIdSet = currentAttendeeTags.stream()
+				.map(AttendeeTag::getAttendeeId)
 				.collect(Collectors.toSet());
 
-		// 3. 獲取目標的 attendeesId 的Set集合
-		Set<Long> targetAttendeesIdSet = new HashSet<>(entityIdList);
+		// 3. 獲取目標的 attendeeId 的Set集合
+		Set<Long> targetAttendeeIdSet = new HashSet<>(entityIdList);
 
 		// 4. 計算差集：當前有但目標沒有 → 需刪除
-		Set<Long> attendeesToRemove = Sets.difference(currentAttendeesIdSet, targetAttendeesIdSet);
+		Set<Long> attendeesToRemove = Sets.difference(currentAttendeeIdSet, targetAttendeeIdSet);
 
 		// 5. 計算差集：目標有但當前沒有 → 需新增
-		Set<Long> attendeesToAdd = Sets.difference(targetAttendeesIdSet, currentAttendeesIdSet);
+		Set<Long> attendeesToAdd = Sets.difference(targetAttendeeIdSet, currentAttendeeIdSet);
 
 		// 6. 執行刪除操作，如果 需刪除集合 中不為空，則開始刪除
 		if (!attendeesToRemove.isEmpty()) {
-			attendeesTagService.removeAttendeesFromTag(tagId, attendeesToRemove);
+			attendeeTagService.removeAttendeesFromTag(tagId, attendeesToRemove);
 		}
 
 		// 7. 執行新增操作，如果 需新增集合 中不為空，則開始新增
 		if (!attendeesToAdd.isEmpty()) {
-			attendeesTagService.addAttendeesToTag(tagId, attendeesToAdd);
+			attendeeTagService.addAttendeesToTag(tagId, attendeesToAdd);
 		}
 
 	}

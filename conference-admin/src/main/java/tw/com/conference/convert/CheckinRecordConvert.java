@@ -8,7 +8,7 @@ import tw.com.conference.pojo.DTO.addEntityDTO.AddCheckinRecordDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutCheckinRecordDTO;
 import tw.com.conference.pojo.VO.CheckinRecordVO;
 import tw.com.conference.pojo.entity.CheckinRecord;
-import tw.com.conference.pojo.excelPojo.AttendeesExcel;
+import tw.com.conference.pojo.excelPojo.AttendeeExcel;
 import tw.com.conference.pojo.excelPojo.CheckinRecordExcel;
 
 @Mapper(componentModel = "spring")
@@ -22,6 +22,6 @@ public interface CheckinRecordConvert {
 
 	List<CheckinRecordVO> entityListToVOList(List<CheckinRecord> checkinRecordList);
 
-	CheckinRecordExcel attendeesExcelToCheckinRecordExcel(AttendeesExcel attendeesExcel);
+	CheckinRecordExcel attendeeExcelToCheckinRecordExcel(AttendeeExcel attendeeExcel);
 	
 }

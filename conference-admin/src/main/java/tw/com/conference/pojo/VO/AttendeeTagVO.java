@@ -9,10 +9,10 @@ import tw.com.conference.pojo.entity.Member;
 import tw.com.conference.pojo.entity.Tag;
 
 @Data
-public class AttendeesTagVO {
+public class AttendeeTagVO {
 
 	@Schema(description = "主鍵ID")
-	private Long attendeesId;
+	private Long attendeeId;
 	
 	@Schema(description = "現在是否已簽到；預設為false,未簽到或處於簽退狀態")
 	private Boolean isCheckedIn = false;

@@ -31,14 +31,14 @@ import tw.com.conference.pojo.BO.CheckinInfoBO;
 import tw.com.conference.pojo.BO.PresenceStatsBO;
 import tw.com.conference.pojo.DTO.EmailBodyContent;
 import tw.com.conference.pojo.DTO.WalkInRegistrationDTO;
-import tw.com.conference.pojo.VO.AttendeesStatsVO;
-import tw.com.conference.pojo.VO.AttendeesVO;
+import tw.com.conference.pojo.VO.AttendeeStatsVO;
+import tw.com.conference.pojo.VO.AttendeeVO;
 import tw.com.conference.pojo.VO.CheckinRecordVO;
 import tw.com.conference.pojo.VO.ImportResultVO;
 import tw.com.conference.pojo.entity.Attendee;
 import tw.com.conference.pojo.entity.Member;
-import tw.com.conference.pojo.excelPojo.AttendeesExcel;
-import tw.com.conference.pojo.excelPojo.AttendeesUpdateExcel;
+import tw.com.conference.pojo.excelPojo.AttendeeExcel;
+import tw.com.conference.pojo.excelPojo.AttendeeUpdateExcel;
 import tw.com.conference.service.AsyncService;
 import tw.com.conference.service.AttendeeService;
 import tw.com.conference.service.AttendeeTagService;
@@ -67,59 +67,58 @@ public class AttendeeProfileManager {
 	private final TagAssignmentHelper tagAssignmentHelper;
 	private final MemberService memberService;
 	private final MemberTagService memberTagService;
-	private final AttendeeService attendeesService;
-	private final AttendeeTagService attendeesTagService;
-	private final AttendeeConvert attendeesConvert;
+	private final AttendeeService attendeeService;
+	private final AttendeeTagService attendeeTagService;
+	private final AttendeeConvert attendeeConvert;
 	private final OrdersService ordersService;
 	private final CheckinRecordService checkinRecordService;
 	private final TagService tagService;
 	private final NotificationService notificationService;
 	private final AsyncService asyncService;
 
-	private final AttendeeVOHandler attendeesVOHandler;
+	private final AttendeeVOHandler attendeeVOHandler;
 
 	/**
-	 * 根據 attendeesId 獲取 與會者完整資訊
+	 * 根據 attendeeId 獲取 與會者完整資訊
 	 * 
-	 * @param attendeesId
+	 * @param attendeeId
 	 * @return
 	 */
-	public AttendeesVO getAttendeesVO(Long attendeesId) {
-		return attendeesVOHandler.getAttendeesVO(attendeesId);
+	public AttendeeVO getAttendeesVO(Long attendeeId) {
+		return attendeeVOHandler.getAttendeeVO(attendeeId);
 	}
 
 	/**
-	 * 返回所有attendeesVO對象
+	 * 返回所有attendeeVO對象
 	 * 
 	 * @return
 	 */
-	public List<AttendeesVO> getAttendeesVOList() {
+	public List<AttendeeVO> getAttendeesVOList() {
 		// 1.獲取所有與會者資料
-		List<Attendee> attendeesList = attendeesService.getAttendeesList();
+		List<Attendee> attendeeList = attendeeService.getAttendeeList();
 
 		// 2.轉換並返回VOList
-		return attendeesVOHandler.getAttendeesVOsByAttendeesList(attendeesList);
+		return attendeeVOHandler.getAttendeeVOsByAttendeeList(attendeeList);
 
 	}
 
 	/**
-	 * 返回所有attendeesVO 分頁對象
+	 * 返回所有attendeeVO 分頁對象
 	 * 
 	 * @param page
 	 * @return
 	 */
-	public IPage<AttendeesVO> getAttendeesVOPage(Page<Attendee> page) {
+	public IPage<AttendeeVO> getAttendeesVOPage(Page<Attendee> page) {
 		// 1.獲取與會者分頁對象
-		IPage<Attendee> attendeesPage = attendeesService.getAttendeesPage(page);
+		IPage<Attendee> attendeePage = attendeeService.getAttendeePage(page);
 		// 2.轉換並返回VOList
-		List<AttendeesVO> attendeesVOList = attendeesVOHandler
-				.getAttendeesVOsByAttendeesList(attendeesPage.getRecords());
+		List<AttendeeVO> attendeeVOList = attendeeVOHandler.getAttendeeVOsByAttendeeList(attendeePage.getRecords());
 		// 3.封裝成VOpage
-		Page<AttendeesVO> attendeesVOPage = new Page<>(attendeesPage.getCurrent(), attendeesPage.getSize(),
-				attendeesPage.getTotal());
-		attendeesVOPage.setRecords(attendeesVOList);
+		Page<AttendeeVO> attendeeVOPage = new Page<>(attendeePage.getCurrent(), attendeePage.getSize(),
+				attendeePage.getTotal());
+		attendeeVOPage.setRecords(attendeeVOList);
 
-		return attendeesVOPage;
+		return attendeeVOPage;
 	}
 
 	/**
@@ -127,24 +126,24 @@ public class AttendeeProfileManager {
 	 * 
 	 * @return
 	 */
-	public AttendeesStatsVO getAttendeesStatsVO() {
-		AttendeesStatsVO attendeesStatsVO = new AttendeesStatsVO();
+	public AttendeeStatsVO getAttendeeStatsVO() {
+		AttendeeStatsVO attendeeStatsVO = new AttendeeStatsVO();
 		//1.查詢 應到 人數
-		Integer countTotalShouldAttend = attendeesService.countTotalShouldAttend();
-		attendeesStatsVO.setTotalShouldAttend(countTotalShouldAttend);
+		Integer countTotalShouldAttend = attendeeService.countTotalShouldAttend();
+		attendeeStatsVO.setTotalShouldAttend(countTotalShouldAttend);
 
 		//2.查詢 已簽到 人數
 		Integer countCheckedIn = checkinRecordService.getCountCheckedIn();
-		attendeesStatsVO.setTotalCheckedIn(countCheckedIn);
+		attendeeStatsVO.setTotalCheckedIn(countCheckedIn);
 		//未簽到人數
-		attendeesStatsVO.setTotalNotArrived(countTotalShouldAttend - countCheckedIn);
+		attendeeStatsVO.setTotalNotArrived(countTotalShouldAttend - countCheckedIn);
 
 		//3.查詢 尚在現場、已離場 人數
 		PresenceStatsBO presenceStatsBO = checkinRecordService.getPresenceStats();
-		attendeesStatsVO.setTotalOnSite(presenceStatsBO.getTotalOnsite());
-		attendeesStatsVO.setTotalLeft(presenceStatsBO.getTotalLeft());
+		attendeeStatsVO.setTotalOnSite(presenceStatsBO.getTotalOnsite());
+		attendeeStatsVO.setTotalLeft(presenceStatsBO.getTotalLeft());
 
-		return attendeesStatsVO;
+		return attendeeStatsVO;
 	}
 
 	/**
@@ -166,22 +165,22 @@ public class AttendeeProfileManager {
 				tagService::getOrCreateMemberGroupTag, memberTagService::addMemberTag);
 
 		// 4.由後台新增的Member , 自動付款完成，新增進與會者名單
-		Attendee attendees = attendeesService.addAttendees(member);
+		Attendee attendee = attendeeService.addAttendee(member);
 
 		// 5.獲取當下與會者群體的Index,進行與會者標籤分組
-		tagAssignmentHelper.assignTag(attendees.getAttendeeId(), attendeesService::getAttendeesGroupIndex,
-				tagService::getOrCreateAttendeesGroupTag, attendeesTagService::addAttendeesTag);
+		tagAssignmentHelper.assignTag(attendee.getAttendeeId(), attendeeService::getAttendeeGroupIndex,
+				tagService::getOrCreateAttendeesGroupTag, attendeeTagService::addAttendeeTag);
 
 		// 6.獲取AttendeesVO
-		AttendeesVO attendeesVO = this.getAttendeesVO(attendees.getAttendeeId());
+		AttendeeVO attendeeVO = this.getAttendeesVO(attendee.getAttendeeId());
 
 		// 7.產生簽到記錄並組裝返回VO
-		CheckinRecordVO checkinRecordVO = checkinRecordService.walkInRegistration(attendees.getAttendeeId());
-		checkinRecordVO.setAttendeesVO(attendeesVO);
+		CheckinRecordVO checkinRecordVO = checkinRecordService.walkInRegistration(attendee.getAttendeeId());
+		checkinRecordVO.setAttendeeVO(attendeeVO);
 
 		// 8.產生現場註冊的信件,包含QRcode信息
 		EmailBodyContent walkInRegistrationContent = notificationService
-				.generateWalkInRegistrationContent(attendees.getAttendeeId(), BANNER_PHOTO_URL);
+				.generateWalkInRegistrationContent(attendee.getAttendeeId(), BANNER_PHOTO_URL);
 
 		// 9.透過異步工作去寄送郵件，因為使用了事務，在事務提交後才執行寄信的異步操作，安全做法
 		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
@@ -199,25 +198,25 @@ public class AttendeeProfileManager {
 	/**
 	 * 刪除與會者 及 其簽到/退紀錄
 	 * 
-	 * @param attendeesId
+	 * @param attendeeId
 	 */
-	public void deleteAttendees(Long attendeesId) {
+	public void deleteAttendees(Long attendeeId) {
 		// 1.刪除與會者的簽到/退紀錄
-		checkinRecordService.deleteCheckinRecordByAttendeesId(attendeesId);
+		checkinRecordService.deleteCheckinRecordByAttendeeId(attendeeId);
 
 		// 2.刪除與會者
-		attendeesService.deleteAttendees(attendeesId);
+		attendeeService.deleteAttendee(attendeeId);
 
 	}
 
 	/**
 	 * 批量刪除與會者 及 其簽到/退紀錄
 	 * 
-	 * @param attendeesIds
+	 * @param attendeeIds
 	 */
-	public void batchDeleteAttendees(List<Long> attendeesIds) {
-		for (Long attendeesId : attendeesIds) {
-			this.deleteAttendees(attendeesId);
+	public void batchDeleteAttendees(List<Long> attendeeIds) {
+		for (Long attendeeId : attendeeIds) {
+			this.deleteAttendees(attendeeId);
 		}
 
 	}
@@ -240,37 +239,37 @@ public class AttendeeProfileManager {
 		// 2.獲取所有會員的映射對象
 		Map<Long, Member> memberMap = memberService.getMemberMap();
 
-		// 3.高效獲取所有attendees
-		List<Attendee> attendeesList = attendeesService.getAttendeesEfficiently();
+		// 3.高效獲取所有attendee
+		List<Attendee> attendeeList = attendeeService.getAttendeesEfficiently();
 
 		// 4.資料轉換成Excel
-		List<AttendeesExcel> excelData = attendeesList.stream().map(attendees -> {
+		List<AttendeeExcel> excelData = attendeeList.stream().map(attendee -> {
 
 			// 4-1放入Member轉換成VO對象
-			AttendeesVO attendeesVO = attendeesConvert.entityToVO(attendees);
-			attendeesVO.setMember(memberMap.get(attendees.getMemberId()));
-			AttendeesExcel attendeesExcel = attendeesConvert.voToExcel(attendeesVO);
+			AttendeeVO attendeeVO = attendeeConvert.entityToVO(attendee);
+			attendeeVO.setMember(memberMap.get(attendee.getMemberId()));
+			AttendeeExcel attendeeExcel = attendeeConvert.voToExcel(attendeeVO);
 
 			// 4-2 獲取與會者的簡易簽到記錄
 			CheckinInfoBO checkinInfoBO = checkinRecordService
-					.getLastCheckinRecordByAttendeesId(attendees.getAttendeeId());
-			attendeesExcel.setFirstCheckinTime(checkinInfoBO.getCheckinTime());
-			attendeesExcel.setLastCheckoutTime(checkinInfoBO.getCheckoutTime());
+					.getLastCheckinRecordByAttendeeId(attendee.getAttendeeId());
+			attendeeExcel.setFirstCheckinTime(checkinInfoBO.getCheckinTime());
+			attendeeExcel.setLastCheckoutTime(checkinInfoBO.getCheckoutTime());
 
 			// 4-3匯出專屬簽到/退 QRcode
 			try {
-				attendeesExcel.setQRcodeImage(
-						QrcodeUtil.generateBase64QRCode(attendeesVO.getAttendeesId().toString(), 200, 200));
+				attendeeExcel.setQRcodeImage(
+						QrcodeUtil.generateBase64QRCode(attendeeVO.getAttendeeId().toString(), 200, 200));
 			} catch (WriterException | IOException e) {
 				log.error("QRcode產生失敗");
 				e.printStackTrace();
 			}
 
-			return attendeesExcel;
+			return attendeeExcel;
 
 		}).collect(Collectors.toList());
 
-		EasyExcel.write(response.getOutputStream(), AttendeesExcel.class).sheet("與會者列表").doWrite(excelData);
+		EasyExcel.write(response.getOutputStream(), AttendeeExcel.class).sheet("與會者列表").doWrite(excelData);
 
 	}
 
@@ -293,7 +292,7 @@ public class AttendeeProfileManager {
 		 * @param 監聽器內部方法
 		 * 
 		 */
-		EasyExcel.read(file.getInputStream(), AttendeesExcel.class, new ReadListener<AttendeesExcel>() {
+		EasyExcel.read(file.getInputStream(), AttendeeExcel.class, new ReadListener<AttendeeExcel>() {
 
 			// 批次數量
 			private static final int BATCH_COUNT = 500;
@@ -302,33 +301,33 @@ public class AttendeeProfileManager {
 
 			// 每讀取到一行就執行invoke函數
 			@Override
-			public void invoke(AttendeesExcel row, AnalysisContext context) {
+			public void invoke(AttendeeExcel row, AnalysisContext context) {
 
 				// Excel 行號從1開始
 				int rowIndex = context.readRowHolder().getRowIndex() + 1;
 				result.setTotalCount(result.getTotalCount() + 1);
 
-				// 初始化attendeesId用來記錄,如果從excel中成功讀取就會有值
-				String attendeesId = "unknown";
-				if (row != null && row.getAttendeesId() != null) {
-					attendeesId = row.getAttendeesId().toString();
+				// 初始化attendeeId用來記錄,如果從excel中成功讀取就會有值
+				String attendeeId = "unknown";
+				if (row != null && row.getAttendeeId() != null) {
+					attendeeId = row.getAttendeeId().toString();
 				}
 
 				try {
 
 					//轉換資料
-					AttendeesUpdateExcel excelToUpdatePojo = attendeesConvert.excelToUpdatePojo(row);
-					Attendee attendee = attendeesConvert.updatePojoToEntity(excelToUpdatePojo);
+					AttendeeUpdateExcel excelToUpdatePojo = attendeeConvert.excelToUpdatePojo(row);
+					Attendee attendee = attendeeConvert.updatePojoToEntity(excelToUpdatePojo);
 					cachedDataList.add(attendee);
 
 					if (cachedDataList.size() >= BATCH_COUNT) {
-						attendeesService.saveOrUpdateBatch(cachedDataList);
+						attendeeService.saveOrUpdateBatch(cachedDataList);
 						result.setSuccessCount(result.getSuccessCount() + cachedDataList.size());
 						cachedDataList.clear();
 					}
 				} catch (Exception e) {
 					// 捕獲單行錯誤，不影響整個批次
-					String messageWithId = String.format("主鍵ID=%s, %s", attendeesId, e.getMessage());
+					String messageWithId = String.format("主鍵ID=%s, %s", attendeeId, e.getMessage());
 					result.getFailList().add(new ImportResultVO.FailDetail(rowIndex, messageWithId));
 
 					log.error("第 {} 行資料處理失敗: {}", rowIndex, messageWithId, e);
@@ -342,7 +341,7 @@ public class AttendeeProfileManager {
 				// 如果緩存內還有檔案,則最後再更新一次
 				if (!cachedDataList.isEmpty()) {
 					try {
-						attendeesService.saveOrUpdateBatch(cachedDataList);
+						attendeeService.saveOrUpdateBatch(cachedDataList);
 						result.setSuccessCount(result.getSuccessCount() + cachedDataList.size());
 					} catch (Exception e) {
 						// 批次失敗直接記錄所有行為失敗
@@ -350,10 +349,10 @@ public class AttendeeProfileManager {
 						for (int i = 0; i < cachedDataList.size(); i++) {
 							Attendee attendee = cachedDataList.get(i);
 							int rowNumber = rowStart + i;
-							String attendeesIdBatch = attendee.getAttendeeId() != null
+							String attendeeIdBatch = attendee.getAttendeeId() != null
 									? attendee.getAttendeeId().toString()
 									: "unknown";
-							String messageBatch = String.format("主鍵ID=%s, %s", attendeesIdBatch, e.getMessage());
+							String messageBatch = String.format("主鍵ID=%s, %s", attendeeIdBatch, e.getMessage());
 
 							result.getFailList().add(new ImportResultVO.FailDetail(rowNumber, messageBatch));
 

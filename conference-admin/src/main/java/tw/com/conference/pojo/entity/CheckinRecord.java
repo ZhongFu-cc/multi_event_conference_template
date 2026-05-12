@@ -32,8 +32,8 @@ public class CheckinRecord implements Serializable {
     private Long checkinRecordId;
 
     @Schema(description = "與會者ID")
-    @TableField("attendees_id")
-    private Long attendeesId;
+    @TableField("attendee_id")
+    private Long attendeeId;
 
     @Schema(description = "簽到/退地點,保留欄位，未來擴展")
     @TableField("location")

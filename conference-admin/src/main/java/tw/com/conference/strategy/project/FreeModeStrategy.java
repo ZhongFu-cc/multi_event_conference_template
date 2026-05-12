@@ -31,9 +31,9 @@ public class FreeModeStrategy implements ProjectModeStrategy {
 	private int GROUP_SIZE;
 
 	private final OrdersService ordersService;
-	private final AttendeeService attendeesService;
+	private final AttendeeService attendeeService;
 	private final TagService tagService;
-	private final AttendeeTagService attendeesTagService;
+	private final AttendeeTagService attendeeTagService;
 	private final NotificationService notificationService;
 	private final AsyncService asyncService;
 
@@ -52,16 +52,16 @@ public class FreeModeStrategy implements ProjectModeStrategy {
 				registrationSuccessContent.getHtmlContent(), registrationSuccessContent.getPlainTextContent());
 
 		// 4.新增進與會者名單
-		Attendee attendees = attendeesService.addAttendees(member);
+		Attendee attendee = attendeeService.addAttendee(member);
 
 		// 5.獲取當下 Attendee 群體的Index,用於後續標籤分組
-		int attendeesGroupIndex = attendeesService.getAttendeesGroupIndex(GROUP_SIZE);
+		int attendeeGroupIndex = attendeeService.getAttendeeGroupIndex(GROUP_SIZE);
 
 		// 6.與會者標籤分組
 		// 拿到 Tag（不存在則新增Tag）
-		Tag attendeesGroupTag = tagService.getOrCreateAttendeesGroupTag(attendeesGroupIndex);
+		Tag attendeeGroupTag = tagService.getOrCreateAttendeesGroupTag(attendeeGroupIndex);
 		// 關聯 Attendee 與 Tag
-		attendeesTagService.addAttendeesTag(attendees.getAttendeesId(), attendeesGroupTag.getTagId());
+		attendeeTagService.addAttendeeTag(attendee.getAttendeeId(), attendeeGroupTag.getTagId());
 
 	}
 
@@ -81,16 +81,16 @@ public class FreeModeStrategy implements ProjectModeStrategy {
 				groupRegistrationSuccessContent.getPlainTextContent());
 
 		// 4.新增進與會者名單
-		Attendee attendees = attendeesService.addAttendees(member);
+		Attendee attendee = attendeeService.addAttendee(member);
 
 		// 5.獲取當下 Attendee 群體的Index,用於後續標籤分組
-		int attendeesGroupIndex = attendeesService.getAttendeesGroupIndex(GROUP_SIZE);
+		int attendeeGroupIndex = attendeeService.getAttendeeGroupIndex(GROUP_SIZE);
 
 		// 6.與會者標籤分組
 		// 拿到 Tag（不存在則新增Tag）
-		Tag attendeesGroupTag = tagService.getOrCreateAttendeesGroupTag(attendeesGroupIndex);
+		Tag attendeeGroupTag = tagService.getOrCreateAttendeesGroupTag(attendeeGroupIndex);
 		// 關聯 Attendee 與 Tag
-		attendeesTagService.addAttendeesTag(attendees.getAttendeesId(), attendeesGroupTag.getTagId());
+		attendeeTagService.addAttendeeTag(attendee.getAttendeeId(), attendeeGroupTag.getTagId());
 
 	}
 

@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-public class AttendeesStatsVO {
+public class AttendeeStatsVO {
 
 	@Schema(description = "應到人數")
 	private Integer totalShouldAttend;

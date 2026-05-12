@@ -6,24 +6,24 @@ import org.mapstruct.Named;
 
 import tw.com.conference.enums.MemberCategoryEnum;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddAttendeeDTO;
-import tw.com.conference.pojo.VO.AttendeesTagVO;
-import tw.com.conference.pojo.VO.AttendeesVO;
+import tw.com.conference.pojo.VO.AttendeeTagVO;
+import tw.com.conference.pojo.VO.AttendeeVO;
 import tw.com.conference.pojo.entity.Attendee;
-import tw.com.conference.pojo.excelPojo.AttendeesExcel;
-import tw.com.conference.pojo.excelPojo.AttendeesUpdateExcel;
+import tw.com.conference.pojo.excelPojo.AttendeeExcel;
+import tw.com.conference.pojo.excelPojo.AttendeeUpdateExcel;
 
 @Mapper(componentModel = "spring")
 public interface AttendeeConvert {
 
-	Attendee addDTOToEntity(AddAttendeeDTO addAttendeesDTO);
+	Attendee addDTOToEntity(AddAttendeeDTO addAttendeeDTO);
 
 	// Attendee putDTOToEntity(PutAttendeeDTO putAttendeesDTO);
 
-	AttendeesVO entityToVO(Attendee attendees);
+	AttendeeVO entityToVO(Attendee attendee);
 
-	AttendeesTagVO entityToAttendeesTagVO(Attendee attendees);
+	AttendeeTagVO entityToAttendeeTagVO(Attendee attendee);
 
-	@Mapping(source = "attendeesId", target = "attendeesId", qualifiedByName = "convertLongToString")
+	@Mapping(source = "attendeeId", target = "attendeeId", qualifiedByName = "convertLongToString")
 	@Mapping(source = "member.memberId", target = "memberId", qualifiedByName = "convertLongToString")
 	@Mapping(source = "member.idCard", target = "idCard")
 	@Mapping(source = "member.chineseName", target = "chineseName")
@@ -45,12 +45,12 @@ public interface AttendeeConvert {
 	@Mapping(source = "member.categoryExtra", target = "categoryExtra")
 	@Mapping(source = "sequenceNo", target = "sequenceNo", qualifiedByName = "convertInteger2FormatString")
 	@Mapping(source = "receiptNo", target = "receiptNo")
-	AttendeesExcel voToExcel(AttendeesVO attendeesVO);
+	AttendeeExcel voToExcel(AttendeeVO attendeeVO);
 
-	@Mapping(source = "attendeesId", target = "attendeesId", qualifiedByName = "convertStringToLong")
-	AttendeesUpdateExcel excelToUpdatePojo(AttendeesExcel atendeesExcel);
+	@Mapping(source = "attendeeId", target = "attendeeId", qualifiedByName = "convertStringToLong")
+	AttendeeUpdateExcel excelToUpdatePojo(AttendeeExcel atendeeExcel);
 	
-	Attendee updatePojoToEntity (AttendeesUpdateExcel attendeeUpdateExcel);
+	Attendee updatePojoToEntity (AttendeeUpdateExcel attendeeUpdateExcel);
 	
 	@Named("convertCategory")
 	default String convertCategory(Integer category) {

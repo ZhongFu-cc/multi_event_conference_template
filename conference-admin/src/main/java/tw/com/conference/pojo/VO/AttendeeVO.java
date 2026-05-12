@@ -5,10 +5,10 @@ import lombok.Data;
 import tw.com.conference.pojo.entity.Member;
 
 @Data
-public class AttendeesVO {
+public class AttendeeVO {
 
 	@Schema(description = "主鍵ID")
-	private Long attendeesId;
+	private Long attendeeId;
 
 	@Schema(description = "主鍵ID")
 	private Long memberId;

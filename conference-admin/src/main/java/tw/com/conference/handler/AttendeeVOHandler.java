@@ -1,6 +1,5 @@
 package tw.com.conference.handler;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -10,10 +9,9 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 import tw.com.conference.convert.AttendeeConvert;
-import tw.com.conference.pojo.VO.AttendeesVO;
+import tw.com.conference.pojo.VO.AttendeeVO;
 import tw.com.conference.pojo.entity.Attendee;
 import tw.com.conference.pojo.entity.Member;
-import tw.com.conference.service.AttendeeHistoryService;
 import tw.com.conference.service.AttendeeService;
 import tw.com.conference.service.MemberService;
 
@@ -22,53 +20,52 @@ import tw.com.conference.service.MemberService;
 public class AttendeeVOHandler {
 
 	private final MemberService memberService;
-	private final AttendeeService attendeesService;
-	private final AttendeeConvert attendeesConvert;
-	private final AttendeeHistoryService attendeesHistoryService;
+	private final AttendeeService attendeeService;
+	private final AttendeeConvert attendeeConvert;
 
 	/**
-	 * 根據 attendeesId 獲取 與會者完整資訊
+	 * 根據 attendeeId 獲取 與會者完整資訊
 	 * 
-	 * @param attendeesId
+	 * @param attendeeId
 	 * @return
 	 */
-	public AttendeesVO getAttendeesVO(Long attendeesId) {
+	public AttendeeVO getAttendeeVO(Long attendeeId) {
 		// 1.查詢到與會者資訊
-		Attendee attendees = attendeesService.getAttendees(attendeesId);
+		Attendee attendee = attendeeService.getAttendee(attendeeId);
 		// 2.查詢此與會者的基本資料
-		Member member = memberService.getMember(attendees.getMemberId());
-		// 3.attendees 轉換成 VO
-		AttendeesVO attendeesVO = attendeesConvert.entityToVO(attendees);
+		Member member = memberService.getMember(attendee.getMemberId());
+		// 3.attendee 轉換成 VO
+		AttendeeVO attendeeVO = attendeeConvert.entityToVO(attendee);
 		// 4.獲取是否為往年與會者		
-		Boolean existsAttendeesHistory = attendeesHistoryService.existsAttendeesHistory(LocalDate.now().getYear() - 1,
-				member.getIdCard(), member.getEmail());
+//		Boolean existsAttendeesHistory = attendeeHistoryService.existsAttendeesHistory(LocalDate.now().getYear() - 1,
+//				member.getIdCard(), member.getEmail());
 
 		// 5.組裝VO
-		attendeesVO.setMember(member);
-		attendeesVO.setIsLastYearAttendee(existsAttendeesHistory);
+		attendeeVO.setMember(member);
+//		attendeeVO.setIsLastYearAttendee(existsAttendeesHistory);
 
-		return attendeesVO;
+		return attendeeVO;
 	}
 
 	/**
 	 * 根據與會者列表,獲取AttendeesVO列表
 	 * 
-	 * @param attendeesList
+	 * @param attendeeList
 	 * @return
 	 */
-	public List<AttendeesVO> getAttendeesVOsByAttendeesList(Collection<Attendee> attendeesList) {
+	public List<AttendeeVO> getAttendeeVOsByAttendeeList(Collection<Attendee> attendeeList) {
 
 		// 1.根據與會者列表對應的memberId 整合成List,並拿到memberList 
-		Map<Long, Member> memberMap = memberService.getMemberMapByAttendeesList(attendeesList);
+		Map<Long, Member> memberMap = memberService.getMemberMapByAttendeeList(attendeeList);
 
 		// 2.最後組裝成AttendeesVO列表
-		List<AttendeesVO> attendeesVOList = attendeesList.stream().map(attendees -> {
-			AttendeesVO vo = attendeesConvert.entityToVO(attendees);
-			vo.setMember(memberMap.get(attendees.getMemberId()));
+		List<AttendeeVO> attendeeVOList = attendeeList.stream().map(attendee -> {
+			AttendeeVO vo = attendeeConvert.entityToVO(attendee);
+			vo.setMember(memberMap.get(attendee.getMemberId()));
 			return vo;
 		}).collect(Collectors.toList());
 
-		return attendeesVOList;
+		return attendeeVOList;
 
 	}
 
@@ -78,21 +75,21 @@ public class AttendeeVOHandler {
 	 * @param ids
 	 * @return
 	 */
-	public List<AttendeesVO> getAttendeesVOsByAttendeesIds(Collection<Long> ids) {
+	public List<AttendeeVO> getAttendeesVOsByAttendeesIds(Collection<Long> ids) {
 		// 1.根據ids 查詢與會者列表
-		List<Attendee> attendeesList = attendeesService.getAttendeesListByIds(ids);
+		List<Attendee> attendeeList = attendeeService.getAttendeeListByIds(ids);
 
 		// 2.根據與會者列表對應的memberId 整合成List,並拿到memberList 
-		Map<Long, Member> memberMap = memberService.getMemberMapByAttendeesList(attendeesList);
+		Map<Long, Member> memberMap = memberService.getMemberMapByAttendeeList(attendeeList);
 
 		// 最後組裝成AttendeesVO列表
-		List<AttendeesVO> attendeesVOList = attendeesList.stream().map(attendees -> {
-			AttendeesVO vo = attendeesConvert.entityToVO(attendees);
-			vo.setMember(memberMap.get(attendees.getMemberId()));
+		List<AttendeeVO> attendeeVOList = attendeeList.stream().map(attendee -> {
+			AttendeeVO vo = attendeeConvert.entityToVO(attendee);
+			vo.setMember(memberMap.get(attendee.getMemberId()));
 			return vo;
 		}).collect(Collectors.toList());
 
-		return attendeesVOList;
+		return attendeeVOList;
 	};
 
 }

@@ -256,7 +256,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
 
 	@Override
 	public Tag getOrCreateAttendeesGroupTag(int groupIndex) {
-		return getOrCreateGroupTag(TagTypeEnum.ATTENDEES.getType(), "A", groupIndex, "#008080", "與會者分組標籤 (第 %d 組)");
+		return getOrCreateGroupTag(TagTypeEnum.ATTENDEE.getType(), "A", groupIndex, "#008080", "與會者分組標籤 (第 %d 組)");
 	}
 
 	@Override

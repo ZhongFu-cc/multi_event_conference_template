@@ -56,8 +56,8 @@ public class OrderPaymentManager {
 	private final MemberTagService memberTagService;
 	private final OrdersService ordersService;
 	private final PaymentService paymentService;
-	private final AttendeeService attendeesService;
-	private final AttendeeTagService attendeesTagService;
+	private final AttendeeService attendeeService;
+	private final AttendeeTagService attendeeTagService;
 	private final TagService tagService;
 	private final SettingService settingService;
 
@@ -208,11 +208,11 @@ public class OrderPaymentManager {
 				log.info(currentOrders.getOrdersId() + " 付款成功，更新資料狀態");
 
 				// 4-2 付款完成，所以將他新增進 與會者名單
-				Attendee attendees = attendeesService.addAttendees(member);
+				Attendee attendee = attendeeService.addAttendee(member);
 
 				// 4-3.獲取當下與會者群體的Index,進行與會者標籤分組
-				tagAssignmentHelper.assignTag(attendees.getAttendeeId(), attendeesService::getAttendeesGroupIndex,
-						tagService::getOrCreateAttendeesGroupTag, attendeesTagService::addAttendeesTag);
+				tagAssignmentHelper.assignTag(attendee.getAttendeeId(), attendeeService::getAttendeeGroupIndex,
+						tagService::getOrCreateAttendeesGroupTag, attendeeTagService::addAttendeeTag);
 
 				// 4-4.移除會員 註冊費未付款 Tag
 				tagAssignmentHelper.removeGroupTagsByPattern(member.getMemberId(), TagTypeEnum.MEMBER.getType(),
@@ -243,13 +243,13 @@ public class OrderPaymentManager {
 				// 5-3 找到memberId為名單內成員且訂單的itemsSummary 為 註冊費的訂單，同步更新
 				ordersService.syncSlaveMemberOrderStatus(slaveMember.getMemberId(), currentOrders.getStatus());
 
-				// 如果付款完成，將報名者添加到attendees 表裡面，代表他已具備入場資格
+				// 如果付款完成，將報名者添加到attendee表裡面，代表他已具備入場資格
 				if (OrderStatusEnum.PAYMENT_SUCCESS.getValue().equals(currentOrders.getStatus())) {
 					// 4-2 付款完成，所以將他新增進 與會者名單
-					Attendee attendees = attendeesService.addAttendees(slaveMember);
+					Attendee attendee = attendeeService.addAttendee(slaveMember);
 					// 4-3.獲取當下與會者群體的Index,進行與會者標籤分組
-					tagAssignmentHelper.assignTag(attendees.getAttendeeId(), attendeesService::getAttendeesGroupIndex,
-							tagService::getOrCreateAttendeesGroupTag, attendeesTagService::addAttendeesTag);
+					tagAssignmentHelper.assignTag(attendee.getAttendeeId(), attendeeService::getAttendeeGroupIndex,
+							tagService::getOrCreateAttendeesGroupTag, attendeeTagService::addAttendeeTag);
 
 					// 4-4.移除會員 註冊費未付款 Tag
 					tagAssignmentHelper.removeGroupTagsByPattern(slaveMember.getMemberId(), TagTypeEnum.MEMBER.getType(),

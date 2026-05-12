@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class AddScheduleEmailTaskDTO {
 
-	@Schema(description = "收信者類別,有member會員、attendees與會者、paper投稿者、paperReviewer審稿委員、")
+	@Schema(description = "收信者類別,有member會員、attendee與會者、paper投稿者、paperReviewer審稿委員、")
 	private String recipientCategory;
 
 	@Schema(description = "此排程信件任務的描述,用於補充")

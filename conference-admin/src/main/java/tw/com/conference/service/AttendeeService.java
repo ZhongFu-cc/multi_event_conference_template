@@ -27,16 +27,16 @@ public interface AttendeeService extends IService<Attendee> {
 	 * @param groupSize
 	 * @return
 	 */
-	int getAttendeesGroupIndex(int groupSize);
+	int getAttendeeGroupIndex(int groupSize);
 
-	Attendee getAttendees(Long attendeesId);
+	Attendee getAttendee(Long attendeesId);
 	
-	Attendee getAttendeesByMemberId(Long memberId);
+	Attendee getAttendeeByMemberId(Long memberId);
 
-	List<Attendee> getAttendeesList();
+	List<Attendee> getAttendeeList();
 
 	/**
-	 * mybatis 原始高速查詢所有Attendees<br>
+	 * mybatis 原始高速查詢所有Attendee<br>
 	 * 輸出Excel數據適用
 	 * 
 	 * @return
@@ -46,12 +46,12 @@ public interface AttendeeService extends IService<Attendee> {
 	/**
 	 * 根據ids查詢符合的與會者
 	 * 
-	 * @param attendeesIds
+	 * @param attendeeIds
 	 * @return
 	 */
-	List<Attendee> getAttendeesListByIds(Collection<Long> attendeesIds);
+	List<Attendee> getAttendeeListByIds(Collection<Long> attendeeIds);
 
-	IPage<Attendee> getAttendeesPage(Page<Attendee> page);
+	IPage<Attendee> getAttendeePage(Page<Attendee> page);
 
 	/**
 	 * 查詢符合memberList範圍內的與會者
@@ -60,7 +60,7 @@ public interface AttendeeService extends IService<Attendee> {
 	 * @param memberList
 	 * @return
 	 */
-	IPage<Attendee> getAttendeesPageByMemberList(Page<Attendee> page, Collection<Member> memberList);
+	IPage<Attendee> getAttendeePageByMemberList(Page<Attendee> page, Collection<Member> memberList);
 
 	/**
 	 * 根據會員資訊 建立 與會者
@@ -68,23 +68,23 @@ public interface AttendeeService extends IService<Attendee> {
 	 * @param member
 	 * @return
 	 */
-	Attendee addAttendees(Member member);
+	Attendee addAttendee(Member member);
 
-	void deleteAttendees(Long attendeesId);
+	void deleteAttendee(Long attendeeId);
 
 	/**
 	 * 根據memberId 刪除與會者身分
 	 * 
 	 * @param memberId
 	 */
-	Attendee deleteAttendeesByMemberId(Long memberId);
+	Attendee deleteAttendeeByMemberId(Long memberId);
 
 	/**
 	 * 高效獲取所有與會者的映射對象
 	 * 
 	 * @return 以attendeesId為key , Attendee 為值的value
 	 */
-	Map<Long, Attendee> getAttendeesMap();
+	Map<Long, Attendee> getAttendeeMap();
 
 	/**
 	 * 查詢應簽到人數

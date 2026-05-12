@@ -55,7 +55,7 @@ public interface CheckinRecordService extends IService<CheckinRecord> {
 	 * @param attendeesId
 	 * @return
 	 */
-	List<CheckinRecord> getCheckinRecordByAttendeesId(Long attendeesId);
+	List<CheckinRecord> getCheckinRecordByAttendeeId(Long attendeeId);
 	
 	/**
 	 * 根據 attendeesId 找到與會者簽到記錄的總數
@@ -63,7 +63,7 @@ public interface CheckinRecordService extends IService<CheckinRecord> {
 	 * @param attendeesId
 	 * @return
 	 */
-	long getCheckinRecordCountByAttendeesId(Long attendeesId);
+	long getCheckinRecordCountByAttendeeId(Long attendeeId);
 	
 	/**
 	 * 根據 attendeesIds 找到範圍內與會者 所有簽到/退紀錄
@@ -71,7 +71,7 @@ public interface CheckinRecordService extends IService<CheckinRecord> {
 	 * @param attendeesIds
 	 * @return
 	 */
-	List<CheckinRecord> getCheckinRecordByAttendeesIds(Collection<Long> attendeesIds);
+	List<CheckinRecord> getCheckinRecordByAttendeeIds(Collection<Long> attendeeIds);
 	
 	/**
 	 * 查詢所有簽到/退 紀錄(分頁)
@@ -88,7 +88,7 @@ public interface CheckinRecordService extends IService<CheckinRecord> {
 	 * @param attendeesList
 	 * @return attendeesId 為key , List<CheckinRecord>為value的 Map對象
 	 */
-	public Map<Long, List<CheckinRecord>> getCheckinMapByAttendeesList(Collection<Attendee> attendeesList) ;
+	public Map<Long, List<CheckinRecord>> getCheckinMapByAttendeeList(Collection<Attendee> attendeeList) ;
 	
 	/**
 	 * 透過 與會者ID 和 簽到記錄的映射，再創建一個與會者與最後簽到狀態的映射
@@ -139,7 +139,7 @@ public interface CheckinRecordService extends IService<CheckinRecord> {
 	 * 
 	 * @param attendeesId
 	 */
-	void deleteCheckinRecordByAttendeesId(Long attendeesId);
+	void deleteCheckinRecordByAttendeeId(Long attendeesId);
 
 	/**
 	 * 批量刪除簽到/退紀錄
@@ -163,13 +163,13 @@ public interface CheckinRecordService extends IService<CheckinRecord> {
 	public PresenceStatsBO getPresenceStats();
 	
 	/**
-	 * 根據attendeesId , 找到這位與會者簡易的簽到退紀錄
+	 * 根據attendeeId , 找到這位與會者簡易的簽到退紀錄
 	 * <p>
 	 * (已最早的簽到紀錄 和 最晚的簽退紀錄組成)
 	 * 
-	 * @param attendeesId
+	 * @param attendeeId
 	 * @return
 	 */
-	public CheckinInfoBO getLastCheckinRecordByAttendeesId(Long attendeesId);
+	public CheckinInfoBO getLastCheckinRecordByAttendeeId(Long attendeeId);
 
 }

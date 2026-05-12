@@ -14,7 +14,7 @@ public class CheckinRecordVO {
 	private Long checkinRecordId;
 
 	@Schema(description = "與會者VO對象(含基本資料)")
-	private AttendeesVO attendeesVO;
+	private AttendeeVO attendeeVO;
 
 	@Schema(description = "簽到/退地點,保留欄位，未來擴展")
 	private String location;

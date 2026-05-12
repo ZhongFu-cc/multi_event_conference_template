@@ -13,10 +13,10 @@ import lombok.Data;
 @ContentRowHeight(100)
 // 表示這一欄的寬度為「20 個字元」每個單位是約 1 個英文字的寬度，20 大致對應圖片寬度約 200px
 @ColumnWidth(80 / 4)
-public class AttendeesExcel {
+public class AttendeeExcel {
 
 	@ExcelProperty("參加者ID")
-	private String attendeesId;
+	private String attendeeId;
 
 	@ExcelProperty("初次簽到時間")
 	private LocalDateTime firstCheckinTime;

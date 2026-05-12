@@ -60,7 +60,7 @@ public interface AsyncService {
 	 * 裡面會根據寄出10封信件等3秒的模式，避免控制寄信速率
 	 * 
 	 * @param <T>
-	 * @param recipients      任何收件者列表,member、attendees、paper、paperReviewer 等
+	 * @param recipients      任何收件者列表,member、attendee、paper、paperReviewer 等
 	 * @param sendEmailDTO    信件資訊
 	 * @param emailExtractor  獲取收件者mail的方式
 	 * @param contentReplacer 信件內容替換方式
@@ -72,7 +72,7 @@ public interface AsyncService {
 	 * 裡面會根據寄出10封信件等3秒的模式，避免控制寄信速率，並可以攜帶附件
 	 * 
 	 * @param <T>
-	 * @param recipients         任何收件者列表,member、attendees、paper、paperReviewer 等
+	 * @param recipients         任何收件者列表,member、attendee、paper、paperReviewer 等
 	 * @param sendEmailDTO       信件資訊
 	 * @param emailExtractor     獲取收件者mail的方式
 	 * @param contentReplacer    信件內容替換方式

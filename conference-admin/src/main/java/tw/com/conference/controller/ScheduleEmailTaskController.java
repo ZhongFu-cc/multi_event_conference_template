@@ -55,7 +55,7 @@ public class ScheduleEmailTaskController {
 			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
 	@SaCheckRole("super-admin")
 	public R<IPage<ScheduleEmailTask>> getScheduleEmailTaskPage(@RequestParam Integer page, @RequestParam Integer size,
-			@RequestParam(required = false) @Schema(description = "member會員、attendees與會者、paper投稿者、paperReviewer審稿委員") String recipientCategory,
+			@RequestParam(required = false) @Schema(description = "member會員、attendee與會者、paper投稿者、paperReviewer審稿委員") String recipientCategory,
 			@RequestParam(required = false) @Schema(description = "0為pending、1為execute 、2為finished、3為failed、4為canceled") Integer status) {
 		Page<ScheduleEmailTask> pageable = new Page<ScheduleEmailTask>(page, size);
 

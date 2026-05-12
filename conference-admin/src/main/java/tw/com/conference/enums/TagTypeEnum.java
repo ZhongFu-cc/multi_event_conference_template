@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum TagTypeEnum {
 	MEMBER("member", "memberTagStrategy","memberMailStrategy"),
-	ATTENDEES("attendees", "attendeesTagStrategy","attendeesMailStrategy"),
+	ATTENDEE("attendee", "attendeeTagStrategy","attendeeMailStrategy"),
 	PAPER("paper", "paperTagStrategy","paperMailStrategy"),
 	PAPER_REVIEWER("paper-reviewer", "paperReviewerTagStrategy","paperReviewerMailStrategy");
 

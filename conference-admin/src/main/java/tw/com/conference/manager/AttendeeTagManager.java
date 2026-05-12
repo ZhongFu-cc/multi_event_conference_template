@@ -16,7 +16,7 @@ import com.google.common.collect.Sets;
 import lombok.RequiredArgsConstructor;
 import tw.com.conference.convert.AttendeeConvert;
 import tw.com.conference.enums.CheckinActionTypeEnum;
-import tw.com.conference.pojo.VO.AttendeesTagVO;
+import tw.com.conference.pojo.VO.AttendeeTagVO;
 import tw.com.conference.pojo.entity.Attendee;
 import tw.com.conference.pojo.entity.CheckinRecord;
 import tw.com.conference.pojo.entity.Member;
@@ -31,29 +31,29 @@ import tw.com.conference.service.MemberService;
 public class AttendeeTagManager {
 
 	private final MemberService memberService;
-	private final AttendeeService attendeesService;
-	private final AttendeeTagService attendeesTagService;
-	private final AttendeeConvert attendeesConvert;
+	private final AttendeeService attendeeService;
+	private final AttendeeTagService attendeeTagService;
+	private final AttendeeConvert attendeeConvert;
 	private final CheckinRecordService checkinRecordService;
 
 	/**
-	 * 根據 attendeesId ， 獲取與會者資訊 和 Tag標籤
+	 * 根據 attendeeId ， 獲取與會者資訊 和 Tag標籤
 	 * 
-	 * @param attendeesId
+	 * @param attendeeId
 	 * @return
 	 */
-	public AttendeesTagVO getAttendeesTagVO(Long attendeesId) {
-		// 1.獲取attendees 資料並轉換成 attendeesTagVO
-		Attendee attendees = attendeesService.getAttendees(attendeesId);
-		AttendeesTagVO attendeesTagVO = attendeesConvert.entityToAttendeesTagVO(attendees);
+	public AttendeeTagVO getAttendeesTagVO(Long attendeeId) {
+		// 1.獲取attendee 資料並轉換成 attendeeTagVO
+		Attendee attendee = attendeeService.getAttendee(attendeeId);
+		AttendeeTagVO attendeeTagVO = attendeeConvert.entityToAttendeeTagVO(attendee);
 
-		// 2.查詢attendees 的基本資料，並放入Member屬性
-		Member member = memberService.getMember(attendees.getMemberId());
-		attendeesTagVO.setMember(member);
+		// 2.查詢attendee 的基本資料，並放入Member屬性
+		Member member = memberService.getMember(attendee.getMemberId());
+		attendeeTagVO.setMember(member);
 
-		// 3.根據 attendeesId 找到與會者所有簽到/退紀錄，並放入CheckinRecord屬性
-		List<CheckinRecord> checkinRecordList = checkinRecordService.getCheckinRecordByAttendeesId(attendeesId);
-		attendeesTagVO.setCheckinRecordList(checkinRecordList);
+		// 3.根據 attendeeId 找到與會者所有簽到/退紀錄，並放入CheckinRecord屬性
+		List<CheckinRecord> checkinRecordList = checkinRecordService.getCheckinRecordByAttendeeId(attendeeId);
+		attendeeTagVO.setCheckinRecordList(checkinRecordList);
 
 		// 4.isCheckedIn屬性預設是false, 所以只要判斷最新的資料是不是已簽到,如果是再進行更改就好
 		CheckinRecord latest = checkinRecordList.stream()
@@ -62,50 +62,49 @@ public class AttendeeTagManager {
 				.orElse(null);
 
 		if (latest != null && CheckinActionTypeEnum.CHECKIN.getValue().equals(latest.getActionType())) {
-			attendeesTagVO.setIsCheckedIn(true);
+			attendeeTagVO.setIsCheckedIn(true);
 		}
 
 		// 5.查找 與會者 的tags，放入VO
-		List<Tag> tags = attendeesTagService.getTagsByAttendeesId(attendeesId);
-		attendeesTagVO.setTagList(tags);
+		List<Tag> tags = attendeeTagService.getTagsByAttendeeId(attendeeId);
+		attendeeTagVO.setTagList(tags);
 
-		return attendeesTagVO;
+		return attendeeTagVO;
 	}
 
 	/**
 	 * 組裝AttendeesTagVO對象
 	 * 
-	 * @param attendeesPage
+	 * @param attendeePage
 	 * @return
 	 */
-	private List<AttendeesTagVO> buildAttendeesTagVO(IPage<Attendee> attendeesPage) {
+	private List<AttendeeTagVO> buildAttendeeTagVO(IPage<Attendee> attendeePage) {
 		// 2.獲取 會員 映射對象
-		Map<Long, Member> memberMap = memberService.getMemberMapByAttendeesList(attendeesPage.getRecords());
+		Map<Long, Member> memberMap = memberService.getMemberMapByAttendeeList(attendeePage.getRecords());
 
 		// 3.獲取 簽到記錄 映射對象
 		Map<Long, List<CheckinRecord>> checkinMap = checkinRecordService
-				.getCheckinMapByAttendeesList(attendeesPage.getRecords());
+				.getCheckinMapByAttendeeList(attendeePage.getRecords());
 
 		// 4.獲取 最後簽到紀錄 映射對象
 		Map<Long, Boolean> checkinStatusMap = checkinRecordService.getCheckinStatusMap(checkinMap);
 
 		// 5.獲取 標籤 映射對象
-		Map<Long, List<Tag>> tagMapByAttendeesId = attendeesTagService
-				.getTagMapByAttendeesId(attendeesPage.getRecords());
+		Map<Long, List<Tag>> tagMapByAttendeeId = attendeeTagService.getTagMapByAttendeeId(attendeePage.getRecords());
 
 		// 6.遍歷與會者分頁對象 並組裝VOPage
-		List<AttendeesTagVO> attendeesTagVOList = attendeesPage.getRecords().stream().map(attendees -> {
-			AttendeesTagVO vo = attendeesConvert.entityToAttendeesTagVO(attendees);
-			vo.setMember(memberMap.get(attendees.getMemberId()));
-			vo.setCheckinRecordList(checkinMap.getOrDefault(attendees.getAttendeeId(), Collections.emptyList()));
-			vo.setIsCheckedIn(checkinStatusMap.getOrDefault(attendees.getAttendeeId(), false));
-			vo.setTagList(tagMapByAttendeesId.getOrDefault(attendees.getAttendeeId(), Collections.emptyList()));
+		List<AttendeeTagVO> attendeeTagVOList = attendeePage.getRecords().stream().map(attendee -> {
+			AttendeeTagVO vo = attendeeConvert.entityToAttendeeTagVO(attendee);
+			vo.setMember(memberMap.get(attendee.getMemberId()));
+			vo.setCheckinRecordList(checkinMap.getOrDefault(attendee.getAttendeeId(), Collections.emptyList()));
+			vo.setIsCheckedIn(checkinStatusMap.getOrDefault(attendee.getAttendeeId(), false));
+			vo.setTagList(tagMapByAttendeeId.getOrDefault(attendee.getAttendeeId(), Collections.emptyList()));
 
 			return vo;
 		}).toList();
 
 		// 7.返回voList
-		return attendeesTagVOList;
+		return attendeeTagVOList;
 
 	}
 
@@ -116,10 +115,10 @@ public class AttendeeTagManager {
 	 * @param queryText
 	 * @return
 	 */
-	public IPage<AttendeesTagVO> getAttendeesTagVOPageByQuery(Page<Attendee> pageInfo, String queryText) {
+	public IPage<AttendeeTagVO> getAttendeesTagVOPageByQuery(Page<Attendee> pageInfo, String queryText) {
 
 		// 初始化分頁對象
-		IPage<AttendeesTagVO> voPage = new Page<>(pageInfo.getCurrent(), pageInfo.getSize());
+		IPage<AttendeeTagVO> voPage = new Page<>(pageInfo.getCurrent(), pageInfo.getSize());
 
 		// 1.根據條件查詢符合的會員(與會者的資訊在會員表內)
 		List<Member> memberList = memberService.getMembersByQuery(queryText);
@@ -129,14 +128,14 @@ public class AttendeeTagManager {
 		}
 
 		// 2.獲取與會者分頁對象
-		IPage<Attendee> attendeesPage = attendeesService.getAttendeesPageByMemberList(pageInfo, memberList);
+		IPage<Attendee> attendeePage = attendeeService.getAttendeePageByMemberList(pageInfo, memberList);
 
 		// 3.組裝AttendeesTagVOList
-		List<AttendeesTagVO> attendeesTagVOList = this.buildAttendeesTagVO(attendeesPage);
+		List<AttendeeTagVO> attendeeTagVOList = this.buildAttendeeTagVO(attendeePage);
 
 		// 4.回傳分頁物件
-		voPage = new Page<>(pageInfo.getCurrent(), pageInfo.getSize(), attendeesPage.getTotal());
-		voPage.setRecords(attendeesTagVOList);
+		voPage = new Page<>(pageInfo.getCurrent(), pageInfo.getSize(), attendeePage.getTotal());
+		voPage.setRecords(attendeeTagVOList);
 		return voPage;
 
 	}
@@ -147,13 +146,13 @@ public class AttendeeTagManager {
 	 * @param targetTagIdList
 	 * @param memberId
 	 */
-	public void assignTagToAttendees(List<Long> targetTagIdList, Long attendeesId) {
+	public void assignTagToAttendees(List<Long> targetTagIdList, Long attendeeId) {
 
 		// 1.拿到目標 TagIdSet
 		Set<Long> targetTagIdSet = new HashSet<>(targetTagIdList);
 
-		// 2.查詢該attendees所有關聯的tagId Set
-		Set<Long> currentTagIdSet = attendeesTagService.getTagIdsByAttendeesId(attendeesId);
+		// 2.查詢該attendee所有關聯的tagId Set
+		Set<Long> currentTagIdSet = attendeeTagService.getTagIdsByAttendeeId(attendeeId);
 
 		// 3.拿到該移除的集合 和 該新增的集合
 		Set<Long> tagsToRemove = Sets.difference(currentTagIdSet, targetTagIdSet);
@@ -161,12 +160,12 @@ public class AttendeeTagManager {
 
 		// 4. 執行刪除操作，如果 需刪除集合 中不為空，則開始刪除
 		if (!tagsToRemove.isEmpty()) {
-			attendeesTagService.removeTagsFromAttendee(attendeesId, tagsToRemove);
+			attendeeTagService.removeTagsFromAttendee(attendeeId, tagsToRemove);
 		}
 
 		// 5.執行新增操作
 		if (!tagsToAdd.isEmpty()) {
-			attendeesTagService.addTagsToAttendees(attendeesId, tagsToAdd);
+			attendeeTagService.addTagsToAttendee(attendeeId, tagsToAdd);
 		}
 
 	}

@@ -72,7 +72,7 @@ public class MemberManager {
 	private final RegistrationFeeConfig registrationFeeConfig;
 	private final MemberService memberService;
 	private final OrdersService ordersService;
-	private final AttendeeService attendeesService;
+	private final AttendeeService attendeeService;
 	private final CheckinRecordService checkinRecordService;
 	private final SettingService settingService;
 
@@ -86,13 +86,13 @@ public class MemberManager {
 	public void generateCertificate(HttpServletResponse response, Long memberId) throws IOException {
 
 		// 1.查詢會員是否是與會者的資格
-		Attendee attendees = attendeesService.getAttendeesByMemberId(memberId);
-		if (attendees == null) {
+		Attendee attendee = attendeeService.getAttendeeByMemberId(memberId);
+		if (attendee == null) {
 			throw new CheckinRecordException("會員未繳費並非與會者");
 		}
 
 		// 2.查詢與會者是否有簽到記錄，如果不是用我們的簽到系統,或者不需要那麼嚴格就註解掉
-		long checkinRecordCount = checkinRecordService.getCheckinRecordCountByAttendeesId(attendees.getAttendeeId());
+		long checkinRecordCount = checkinRecordService.getCheckinRecordCountByAttendeeId(attendee.getAttendeeId());
 		if (checkinRecordCount < 1) {
 			throw new CheckinRecordException("與會者沒有簽到記錄，不發參加證明");
 		}
@@ -217,7 +217,7 @@ public class MemberManager {
 					.collect(Collectors.joining(" "));
 
 			// 5-5與會者資料
-			Attendee attendees = attendeesService.getAttendeesByMemberId(memberId);
+			Attendee attendee = attendeeService.getAttendeeByMemberId(memberId);
 
 			// 先拿到訂單 台幣價格
 			BigDecimal twdAmount = order.getTotalAmount();
@@ -249,7 +249,7 @@ public class MemberManager {
 
 			parameters.put("finalName", enName);
 			parameters.put("eventDate", eventDate);
-			parameters.put("sequenceNo", String.format("%03d", attendees.getSequenceNo()));
+			parameters.put("sequenceNo", String.format("%03d", attendee.getSequenceNo()));
 			parameters.put("totalAmount", usdAmount);
 			parameters.put("contactEmail", EMAIL_REPLY_TO);
 			parameters.put("bg", bgInputStream);
@@ -297,11 +297,11 @@ public class MemberManager {
 	@Transactional
 	public void deleteMember(Long memberId) {
 		// 1.刪除會員的與會者身分
-		Attendee attendees = attendeesService.deleteAttendeesByMemberId(memberId);
+		Attendee attendee = attendeeService.deleteAttendeeByMemberId(memberId);
 
-		// 2.如果attendees不為null，刪除他的簽到/退紀錄
-		if (attendees != null) {
-			checkinRecordService.deleteCheckinRecordByAttendeesId(attendees.getAttendeeId());
+		// 2.如果attendee不為null，刪除他的簽到/退紀錄
+		if (attendee != null) {
+			checkinRecordService.deleteCheckinRecordByAttendeeId(attendee.getAttendeeId());
 		}
 
 		// 3.最後刪除自身

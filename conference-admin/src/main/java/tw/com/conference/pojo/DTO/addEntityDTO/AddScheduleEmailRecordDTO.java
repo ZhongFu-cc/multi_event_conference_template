@@ -9,7 +9,7 @@ public class AddScheduleEmailRecordDTO {
     @Schema(description = "排程信件任務ID")
     private Long scheduleEmailTaskId;
 
-	@Schema(description = "收信者類別,有member會員、attendees與會者、paper投稿者、paperReviewer審稿委員、")
+	@Schema(description = "收信者類別,有member會員、attendee與會者、paper投稿者、paperReviewer審稿委員、")
 	private String recipientCategory;
 
 	@Schema(description = "收信者的E-Mail")

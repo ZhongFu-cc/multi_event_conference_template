@@ -23,61 +23,60 @@ public interface AttendeeTagService extends IService<AttendeeTag> {
 
 	
 	/**
-	 * 根據 attendeesId 查詢與之有關tagIds關聯
+	 * 根據 attendeeId 查詢與之有關tagIds關聯
 	 * 
-	 * @param attendeesId
+	 * @param attendeeId
 	 * @return
 	 */
-	Set<Long> getTagIdsByAttendeesId(Long attendeesId);
+	Set<Long> getTagIdsByAttendeeId(Long attendeeId);
 	
 	/**
-	 * 根據 attendeesId 查詢與之有關的所有Tag關聯
+	 * 根據 attendeeId 查詢與之有關的所有Tag關聯
 	 * 
-	 * @param attendeesId
+	 * @param attendeeId
 	 * @return
 	 */
-	List<AttendeeTag> getAttendeesTagByAttendeesId(Long attendeesId);
-	
+	List<AttendeeTag> getAttendeeTagsByAttendeeId(Long attendeeId);
 	
 	
 	/**
 	 * 拿到與會者持有的Tag
-	 * @param attendeesId
+	 * @param attendeeId
 	 * @return
 	 */
-	List<Tag> getTagsByAttendeesId(Long attendeesId);
+	List<Tag> getTagsByAttendeeId(Long attendeeId);
 	
 	/**
-	 * 根據 attendeesIds 查詢 與會者ID 和 標籤 關聯關係 的映射
+	 * 根據 attendeeIds 查詢 與會者ID 和 標籤 關聯關係 的映射
 	 * 
-	 * @param attendeesIds
+	 * @param attendeeIds
 	 * @return
 	 */
-	Map<Long, List<Long>> getAttendeesTagMapByAttendeesIds(Collection<Long> attendeesIds);
+	Map<Long, List<Long>> getAttendeeTagMapByAttendeeIds(Collection<Long> attendeeIds);
 
 	/**
-	 * 根據 attendeesList, 獲取範圍內與會者的 標籤映射對象
+	 * 根據 attendeeList, 獲取範圍內與會者的 標籤映射對象
 	 * 
-	 * @param attendeesList
-	 * @return 獲得以attendeesId為key , List<Tag> 為值的 映射對象
+	 * @param attendeeList
+	 * @return 獲得以attendeeId為key , List<Tag> 為值的 映射對象
 	 */
-	Map<Long, List<Tag>> getTagMapByAttendeesId(Collection<Attendee> attendeesList);
+	Map<Long, List<Tag>> getTagMapByAttendeeId(Collection<Attendee> attendeeList);
 	
 	/**
-	 * 根據 tagId 查詢與之有關的所有Attendees關聯
+	 * 根據 tagId 查詢與之有關的所有Attendee關聯
 	 * 
 	 * @param tagId
 	 * @return
 	 */
-	List<AttendeeTag> getAttendeesTagByTagId(Long tagId);
+	List<AttendeeTag> getAttendeeTagByTagId(Long tagId);
 
 	/**
-	 * 根據複數 attendeesId 查詢與之有關的所有Tag關聯
+	 * 根據複數 attendeeId 查詢與之有關的所有Tag關聯
 	 * 
-	 * @param attendeesIds
+	 * @param attendeeIds
 	 * @return
 	 */
-	List<AttendeeTag> getAttendeesTagByAttendeesIds(Collection<Long> attendeesIds);
+	List<AttendeeTag> getAttendeeTagsByAttendeeIds(Collection<Long> attendeeIds);
 
 	/**
 	 * 根據複數 tagId 查詢與之有關的所有Tag關聯
@@ -85,35 +84,35 @@ public interface AttendeeTagService extends IService<AttendeeTag> {
 	 * @param tagIds
 	 * @return
 	 */
-	List<AttendeeTag> getAttendeesTagByTagIds(Collection<Long> tagIds);
+	List<AttendeeTag> getAttendeeTagsByTagIds(Collection<Long> tagIds);
 
 	/**
-	 * 為一個tag和attendees新增關聯
+	 * 為一個tag和attendee新增關聯
 	 * 
-	 * @param attendeesTag
+	 * @param attendeeTag
 	 */
-	void addAttendeesTag(AttendeeTag attendeesTag);
+	void addAttendeeTag(AttendeeTag attendeeTag);
 	
 	/**
 	 * 透過與會者ID 和 標籤ID 建立關聯
 	 * 
-	 * @param attendeesId 與會者ID
+	 * @param attendeeId 與會者ID
 	 * @param tagId 標籤ID
 	 */
-	 void addAttendeesTag(Long attendeesId, Long tagId);
+	 void addAttendeeTag(Long attendeeId, Long tagId);
 
 	 /**
 	  * 為與會者新增多個Tag
 	  * 
-	  * @param attendeesId
+	  * @param attendeeId
 	  * @param tagsToAdd
 	  */
-	 void addTagsToAttendees(Long attendeesId, Collection<Long> tagsToAdd);
+	 void addTagsToAttendee(Long attendeeId, Collection<Long> tagsToAdd);
 	 
 	 /**
 	  * 根據標籤 ID 新增多個與會者 關聯
 	  * 
-	  * @param attendeesId
+	  * @param attendeeId
 	  * @param tagsToAdd
 	  */
 	 void addAttendeesToTag(Long tagId, Collection<Long> attendeesToAdd);
@@ -121,18 +120,18 @@ public interface AttendeeTagService extends IService<AttendeeTag> {
 	/**
 	 * 為與會者移除多個Tag
 	 * 
-	 * @param attendeesId
+	 * @param attendeeId
 	 * @param tagsToRemove
 	 */
-	void removeTagsFromAttendee(Long attendeesId, Collection<Long> tagsToRemove);
+	void removeTagsFromAttendee(Long attendeeId, Collection<Long> tagsToRemove);
 	
 	/**
 	 * 根據標籤 ID 刪除多個與會者 關聯
 	 * 
 	 * @param tagId
-	 * @param attendeessToRemove
+	 * @param attendeesToRemove
 	 */
-	void removeAttendeesFromTag(Long tagId, Set<Long> attendeessToRemove);
+	void removeAttendeesFromTag(Long tagId, Set<Long> attendeesToRemove);
 	
 
 	

@@ -62,28 +62,28 @@ public class CheckinRecordServiceImpl extends ServiceImpl<CheckinRecordMapper, C
 	}
 
 	@Override
-	public List<CheckinRecord> getCheckinRecordByAttendeesId(Long attendeesId) {
+	public List<CheckinRecord> getCheckinRecordByAttendeeId(Long attendeeId) {
 		// 找到這個與會者所有的checkin紀錄
 		LambdaQueryWrapper<CheckinRecord> checkinRecordWrapper = new LambdaQueryWrapper<>();
-		checkinRecordWrapper.eq(CheckinRecord::getAttendeesId, attendeesId);
+		checkinRecordWrapper.eq(CheckinRecord::getAttendeeId, attendeeId);
 		return baseMapper.selectList(checkinRecordWrapper);
 	}
 	
 	@Override
-	public long getCheckinRecordCountByAttendeesId(Long attendeesId) {
+	public long getCheckinRecordCountByAttendeeId(Long attendeeId) {
 		// 找到這個與會者所有的checkin紀錄總數
 		LambdaQueryWrapper<CheckinRecord> checkinRecordWrapper = new LambdaQueryWrapper<>();
-		checkinRecordWrapper.eq(CheckinRecord::getAttendeesId, attendeesId);
+		checkinRecordWrapper.eq(CheckinRecord::getAttendeeId, attendeeId);
 		return baseMapper.selectCount(checkinRecordWrapper);
 	}
 
 	@Override
-	public List<CheckinRecord> getCheckinRecordByAttendeesIds(Collection<Long> attendeesIds) {
-		if (attendeesIds.isEmpty()) {
+	public List<CheckinRecord> getCheckinRecordByAttendeeIds(Collection<Long> attendeeIds) {
+		if (attendeeIds.isEmpty()) {
 			return Collections.emptyList();
 		}
 		LambdaQueryWrapper<CheckinRecord> checkinRecordWrapper = new LambdaQueryWrapper<>();
-		checkinRecordWrapper.in(CheckinRecord::getAttendeesId, attendeesIds);
+		checkinRecordWrapper.in(CheckinRecord::getAttendeeId, attendeeIds);
 		return baseMapper.selectList(checkinRecordWrapper);
 
 	}
@@ -94,17 +94,17 @@ public class CheckinRecordServiceImpl extends ServiceImpl<CheckinRecordMapper, C
 	}
 
 	@Override
-	public Map<Long, List<CheckinRecord>> getCheckinMapByAttendeesList(Collection<Attendee> attendeesList) {
+	public Map<Long, List<CheckinRecord>> getCheckinMapByAttendeeList(Collection<Attendee> attendeeList) {
 		// 1.提取與會者列表的ID
-		Set<Long> attendeesIdSet = attendeesList.stream().map(Attendee::getAttendeesId).collect(Collectors.toSet());
+		Set<Long> attendeeIdSet = attendeeList.stream().map(Attendee::getAttendeeId).collect(Collectors.toSet());
 		// 2.拿到符合與會者ID列表的 所有簽到退紀錄
-		List<CheckinRecord> checkinRecords = this.getCheckinRecordByAttendeesIds(attendeesIdSet);
+		List<CheckinRecord> checkinRecords = this.getCheckinRecordByAttendeeIds(attendeeIdSet);
 		// 3.如果簽到記錄為空,直接返回
 		if (checkinRecords.isEmpty()) {
 			return Collections.emptyMap();
 		}
 		// 4.根據 attendeesId 群組化
-		return checkinRecords.stream().collect(Collectors.groupingBy(CheckinRecord::getAttendeesId));
+		return checkinRecords.stream().collect(Collectors.groupingBy(CheckinRecord::getAttendeeId));
 	}
 
 	@Override
@@ -130,7 +130,7 @@ public class CheckinRecordServiceImpl extends ServiceImpl<CheckinRecordMapper, C
 	public CheckinRecordVO walkInRegistration(Long attendeesId) {
 		// 1.幫現場註冊的與會者產生簽到記錄
 		CheckinRecord checkinRecord = new CheckinRecord();
-		checkinRecord.setAttendeesId(attendeesId);
+		checkinRecord.setAttendeeId(attendeesId);
 		checkinRecord.setActionType(CheckinActionTypeEnum.CHECKIN.getValue());
 		baseMapper.insert(checkinRecord);
 
@@ -143,7 +143,7 @@ public class CheckinRecordServiceImpl extends ServiceImpl<CheckinRecordMapper, C
 	public CheckinRecord addCheckinRecord(AddCheckinRecordDTO addCheckinRecordDTO) {
 		// 1.查詢指定 AttendeesId 最新的一筆
 		CheckinRecord latestRecord = baseMapper.selectOne(new LambdaQueryWrapper<CheckinRecord>()
-				.eq(CheckinRecord::getAttendeesId, addCheckinRecordDTO.getAttendeesId())
+				.eq(CheckinRecord::getAttendeeId, addCheckinRecordDTO.getAttendeesId())
 				.orderByDesc(CheckinRecord::getCheckinRecordId)
 				.last("LIMIT 1"));
 
@@ -171,10 +171,10 @@ public class CheckinRecordServiceImpl extends ServiceImpl<CheckinRecordMapper, C
 	}
 
 	@Override
-	public void undoLastCheckin(Long attendeesId) {
+	public void undoLastCheckin(Long attendeeId) {
 		//查詢此與會者的最後一筆簽到/退資料
 		LambdaQueryWrapper<CheckinRecord> checkinRecordWrapper = new LambdaQueryWrapper<>();
-		checkinRecordWrapper.eq(CheckinRecord::getAttendeesId, attendeesId)
+		checkinRecordWrapper.eq(CheckinRecord::getAttendeeId, attendeeId)
 				.orderByDesc(CheckinRecord::getActionTime)
 				.last("LIMIT 1");
 		CheckinRecord checkinRecord = baseMapper.selectOne(checkinRecordWrapper);
@@ -204,9 +204,9 @@ public class CheckinRecordServiceImpl extends ServiceImpl<CheckinRecordMapper, C
 	}
 
 	@Override
-	public void deleteCheckinRecordByAttendeesId(Long attendeesId) {
+	public void deleteCheckinRecordByAttendeeId(Long attendeeId) {
 		LambdaQueryWrapper<CheckinRecord> checkinRecordWrapper = new LambdaQueryWrapper<>();
-		checkinRecordWrapper.eq(CheckinRecord::getAttendeesId, attendeesId);
+		checkinRecordWrapper.eq(CheckinRecord::getAttendeeId, attendeeId);
 		baseMapper.delete(checkinRecordWrapper);
 	}
 
@@ -228,10 +228,10 @@ public class CheckinRecordServiceImpl extends ServiceImpl<CheckinRecordMapper, C
 	}
 
 	@Override
-	public CheckinInfoBO getLastCheckinRecordByAttendeesId(Long attendeesId) {
+	public CheckinInfoBO getLastCheckinRecordByAttendeeId(Long attendeeId) {
 		// 先找到這個與會者所有的checkin紀錄
 		LambdaQueryWrapper<CheckinRecord> checkinRecordWrapper = new LambdaQueryWrapper<>();
-		checkinRecordWrapper.eq(CheckinRecord::getAttendeesId, attendeesId);
+		checkinRecordWrapper.eq(CheckinRecord::getAttendeeId, attendeeId);
 		List<CheckinRecord> checkinRecordList = baseMapper.selectList(checkinRecordWrapper);
 
 		// 創建簡易簽到/退紀錄的BO對象

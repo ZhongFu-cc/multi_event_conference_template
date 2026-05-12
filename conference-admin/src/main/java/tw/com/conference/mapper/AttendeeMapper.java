@@ -19,10 +19,10 @@ import tw.com.conference.pojo.entity.Attendee;
 public interface AttendeeMapper extends BaseMapper<Attendee> {
 
 
-	@Select("SELECT MAX(sequence_no) FROM attendees")
+	@Select("SELECT MAX(sequence_no) FROM attendee")
 	Integer selectMaxSequenceNo();
 
-	@Select("SELECT * FROM attendees WHERE is_deleted = 0")
+	@Select("SELECT * FROM attendee WHERE is_deleted = 0")
 	List<Attendee> selectAttendees();
 
 	/**
@@ -30,7 +30,7 @@ public interface AttendeeMapper extends BaseMapper<Attendee> {
 	 * 
 	 * @return
 	 */
-	@Select("SELECT COUNT(*) FROM attendees WHERE is_deleted = 0")
+	@Select("SELECT COUNT(*) FROM attendee WHERE is_deleted = 0")
 	Integer countTotalShouldAttend();
 	
 }

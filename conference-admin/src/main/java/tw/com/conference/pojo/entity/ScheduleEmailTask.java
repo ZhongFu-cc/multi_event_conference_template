@@ -35,7 +35,7 @@ public class ScheduleEmailTask implements Serializable {
     @TableId("schedule_email_task_id")
     private Long scheduleEmailTaskId;
 
-    @Schema(description = "收信者類別,有member會員、attendees與會者、paper投稿者、paperReviewer審稿委員")
+    @Schema(description = "收信者類別,有member會員、attendee與會者、paper投稿者、paperReviewer審稿委員")
     @TableField("recipient_category")
     private String recipientCategory;
 

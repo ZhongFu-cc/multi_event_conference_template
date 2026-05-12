@@ -139,10 +139,10 @@ public interface TagService extends IService<Tag> {
 	/**
 	 * 根據 與會者 和 標籤 關聯關係 的映射，拿到 與會者 和 真正標籤的映射
 	 * 
-	 * @param attendeesTagMap
+	 * @param attendeeTagMap
 	 * @return
 	 */
-	Map<Long, Tag> getTagMapFromAttendeesTag(Map<Long, List<Long>> attendeesTagMap);
+	Map<Long, Tag> getTagMapFromAttendeesTag(Map<Long, List<Long>> attendeeTagMap);
 
 	/**
 	 * 獲取單一標籤
@@ -177,7 +177,7 @@ public interface TagService extends IService<Tag> {
 	/**
 	 * 根據標籤ID 返回 關聯的ID List,例:<br>
 	 * member => memberTag ID List<br>
-	 * attendees => attendeesTag ID List
+	 * attendee => attendeeTag ID List
 	 * 
 	 * @param tagId
 	 * @return
@@ -187,7 +187,7 @@ public interface TagService extends IService<Tag> {
 	/**
 	 * 為複數 實體類 添加/更新/刪除 tag,例:<br>
 	 * member => memberTag <br>
-	 * attendees => attendeesTag
+	 * attendee => attendeeTag
 	 * 
 	 * @param targetAssociatedIdList
 	 * @param tagId

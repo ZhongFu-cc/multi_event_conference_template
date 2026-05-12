@@ -5,7 +5,6 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.excel.EasyExcel;
@@ -47,8 +46,8 @@ public class MemberOrderManager {
 	private final MemberService memberService;
 	private final MemberTagService memberTagService;
 	private final OrdersService ordersService;
-	private final AttendeeService attendeesService;
-	private final AttendeeTagService attendeesTagService;
+	private final AttendeeService attendeeService;
+	private final AttendeeTagService attendeeTagService;
 	private final TagService tagService;
 
 	// --------------------------- 查詢相關 ---------------------------------------
@@ -160,11 +159,11 @@ public class MemberOrderManager {
 		Member member = memberService.getMember(memberId);
 
 		// 3.由後台新增的Member , 自動付款完成，新增進與會者名單
-		Attendee attendees = attendeesService.addAttendees(member);
+		Attendee attendee = attendeeService.addAttendee(member);
 
 		// 4.獲取當下與會者群體的Index,進行與會者標籤分組
-		tagAssignmentHelper.assignTag(attendees.getAttendeeId(), attendeesService::getAttendeesGroupIndex,
-				tagService::getOrCreateAttendeesGroupTag, attendeesTagService::addAttendeesTag);
+		tagAssignmentHelper.assignTag(attendee.getAttendeeId(), attendeeService::getAttendeeGroupIndex,
+				tagService::getOrCreateAttendeesGroupTag, attendeeTagService::addAttendeeTag);
 
 		// 5.移除會員 註冊費未付款 Tag
 		tagAssignmentHelper.removeGroupTagsByPattern(member.getMemberId(), TagTypeEnum.MEMBER.getType(), "註冊費未付款",

@@ -235,12 +235,12 @@ public interface MemberService extends IService<Member> {
 	Map<Long, Member> getMemberMapByIds(Collection<Long> memberIds);
 
 	/**
-	 * 根據 attendeesList 查詢範圍內, Member 的映射關係
+	 * 根據 attendeeList 查詢範圍內, Member 的映射關係
 	 * 
-	 * @param attendeesList
+	 * @param attendeeList
 	 * @return 獲得以 memberId為key , Member為value的 Map對象
 	 */
-	Map<Long, Member> getMemberMapByAttendeesList(Collection<Attendee> attendeesList);
+	Map<Long, Member> getMemberMapByAttendeeList(Collection<Attendee> attendeeList);
 
 	/**
 	 * 獲取所有會員資料,並產生成Map映射對象

@@ -43,25 +43,25 @@ public class AttendeeServiceImpl extends ServiceImpl<AttendeeMapper, Attendee> i
 	private final RedissonClient redissonClient;
 
 	@Override
-	public int getAttendeesGroupIndex(int groupSize) {
-		Long attendeesCount = baseMapper.selectCount(null);
-		return (int) Math.ceil(attendeesCount / (double) groupSize);
+	public int getAttendeeGroupIndex(int groupSize) {
+		Long attendeeCount = baseMapper.selectCount(null);
+		return (int) Math.ceil(attendeeCount / (double) groupSize);
 	}
 
 	@Override
-	public Attendee getAttendees(Long attendeesId) {
-		return baseMapper.selectById(attendeesId);
+	public Attendee getAttendee(Long attendeeId) {
+		return baseMapper.selectById(attendeeId);
 	}
 	
 	@Override
-	public Attendee getAttendeesByMemberId(Long memberId) {
-		LambdaQueryWrapper<Attendee> attendeesWrapper = new LambdaQueryWrapper<>();
-		attendeesWrapper.eq(Attendee::getMemberId, memberId);
-		return baseMapper.selectOne(attendeesWrapper);
+	public Attendee getAttendeeByMemberId(Long memberId) {
+		LambdaQueryWrapper<Attendee> attendeeWrapper = new LambdaQueryWrapper<>();
+		attendeeWrapper.eq(Attendee::getMemberId, memberId);
+		return baseMapper.selectOne(attendeeWrapper);
 	}
 
 	@Override
-	public List<Attendee> getAttendeesList() {
+	public List<Attendee> getAttendeeList() {
 		return baseMapper.selectList(null);
 	}
 
@@ -71,27 +71,27 @@ public class AttendeeServiceImpl extends ServiceImpl<AttendeeMapper, Attendee> i
 	}
 	
 	@Override
-	public List<Attendee> getAttendeesListByIds(Collection<Long> attendeesIds) {
-		if(attendeesIds.isEmpty()) {
+	public List<Attendee> getAttendeeListByIds(Collection<Long> attendeeIds) {
+		if(attendeeIds.isEmpty()) {
 			return Collections.emptyList();
 		}
-		return baseMapper.selectBatchIds(attendeesIds);
+		return baseMapper.selectBatchIds(attendeeIds);
 	}
 
 	@Override
-	public IPage<Attendee> getAttendeesPage(Page<Attendee> page) {
+	public IPage<Attendee> getAttendeePage(Page<Attendee> page) {
 		return baseMapper.selectPage(page, null);
 	}
 
 	@Override
-	public IPage<Attendee> getAttendeesPageByMemberList(Page<Attendee> page, Collection<Member> memberList) {
+	public IPage<Attendee> getAttendeePageByMemberList(Page<Attendee> page, Collection<Member> memberList) {
 		Set<Long> memberIdSet = memberList.stream().map(Member::getMemberId).collect(Collectors.toSet());
 		if (memberIdSet.isEmpty()) {
 			return new Page<Attendee>(page.getCurrent(), page.getSize());
 		}
-		LambdaQueryWrapper<Attendee> attendeesWrapper = new LambdaQueryWrapper<>();
-		attendeesWrapper.in(Attendee::getMemberId, memberIdSet);
-		return baseMapper.selectPage(page, attendeesWrapper);
+		LambdaQueryWrapper<Attendee> attendeeWrapper = new LambdaQueryWrapper<>();
+		attendeeWrapper.in(Attendee::getMemberId, memberIdSet);
+		return baseMapper.selectPage(page, attendeeWrapper);
 	}
 
 	@Override
@@ -100,10 +100,10 @@ public class AttendeeServiceImpl extends ServiceImpl<AttendeeMapper, Attendee> i
 	}
 
 	@Override
-	public Attendee addAttendees(Member member) {
-		Attendee attendees = new Attendee();
-		attendees.setEmail(member.getEmail());
-		attendees.setMemberId(member.getMemberId());
+	public Attendee addAttendee(Member member) {
+		Attendee attendee = new Attendee();
+		attendee.setEmail(member.getEmail());
+		attendee.setMemberId(member.getMemberId());
 
 		RLock lock = redissonClient.getLock(ATTENDEE_SEQUENCE_KEY);
 		boolean isLocked = false;
@@ -118,8 +118,8 @@ public class AttendeeServiceImpl extends ServiceImpl<AttendeeMapper, Attendee> i
 				int nextSeq = (lockedMax != null) ? lockedMax + 1 : 1;
 
 				// 如果 設定城當前最大sequence_no
-				attendees.setSequenceNo(nextSeq);
-				baseMapper.insert(attendees);
+				attendee.setSequenceNo(nextSeq);
+				baseMapper.insert(attendee);
 			}
 
 		} catch (InterruptedException e) {
@@ -133,36 +133,36 @@ public class AttendeeServiceImpl extends ServiceImpl<AttendeeMapper, Attendee> i
 		}
 
 		// 7.返回主鍵ID
-		return attendees;
+		return attendee;
 	}
 
 	@Override
-	public void deleteAttendees(Long attendeesId) {
-		baseMapper.deleteById(attendeesId);
+	public void deleteAttendee(Long attendeeId) {
+		baseMapper.deleteById(attendeeId);
 	}
 
 	@Override
-	public Attendee deleteAttendeesByMemberId(Long memberId) {
+	public Attendee deleteAttendeeByMemberId(Long memberId) {
 
-		// 1.根據memberId 查詢attendees
-		LambdaQueryWrapper<Attendee> attendeesWrapper = new LambdaQueryWrapper<>();
-		attendeesWrapper.eq(Attendee::getMemberId, memberId);
-		Attendee attendees = baseMapper.selectOne(attendeesWrapper);
+		// 1.根據memberId 查詢attendee
+		LambdaQueryWrapper<Attendee> attendeeWrapper = new LambdaQueryWrapper<>();
+		attendeeWrapper.eq(Attendee::getMemberId, memberId);
+		Attendee attendee = baseMapper.selectOne(attendeeWrapper);
 
-		// 2.如果不為null，刪除attendees
-	    if (attendees != null) {
-			baseMapper.deleteById(attendees);
+		// 2.如果不為null，刪除attendee
+	    if (attendee != null) {
+			baseMapper.deleteById(attendee);
 	    }
 		
 		// 3.返回被刪除的與會者，可能為null
-		return attendees;
+		return attendee;
 
 	}
 
 	@Override
-	public Map<Long, Attendee> getAttendeesMap() {
-		List<Attendee> attendeesList = this.getAttendeesEfficiently();
-		return attendeesList.stream().collect(Collectors.toMap(Attendee::getAttendeesId, Function.identity()));
+	public Map<Long, Attendee> getAttendeeMap() {
+		List<Attendee> attendeeList = this.getAttendeesEfficiently();
+		return attendeeList.stream().collect(Collectors.toMap(Attendee::getAttendeeId, Function.identity()));
 	}
 
 

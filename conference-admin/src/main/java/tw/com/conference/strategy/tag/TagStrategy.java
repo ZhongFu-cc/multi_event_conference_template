@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 public interface TagStrategy {
-	// 返回 "member" / "attendees" / "paper" / "paper-reviewer"
+	// 返回 "member" / "attendee" / "paper" / "paper-reviewer"
 	String supportType();
 
 	/**

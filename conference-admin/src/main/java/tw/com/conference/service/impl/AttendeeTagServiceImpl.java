@@ -38,35 +38,35 @@ import tw.com.conference.service.AttendeeTagService;
 public class AttendeeTagServiceImpl extends ServiceImpl<AttendeeTagMapper, AttendeeTag>
 		implements AttendeeTagService {
 
-	private final AttendeeMapper attendeesMapper;
+	private final AttendeeMapper attendeeMapper;
 	private final TagMapper tagMapper;
 
 	@Override
-	public Set<Long> getTagIdsByAttendeesId(Long attendeesId) {
-		// 1.透過attendeesId 找到attendees 與 tag 的關聯
+	public Set<Long> getTagIdsByAttendeeId(Long attendeeId) {
+		// 1.透過attendeeId 找到attendee 與 tag 的關聯
 		LambdaQueryWrapper<AttendeeTag> currentQueryWrapper = new LambdaQueryWrapper<>();
-		currentQueryWrapper.eq(AttendeeTag::getAttendeesId, attendeesId);
-		List<AttendeeTag> attendeesTagList = baseMapper.selectList(currentQueryWrapper);
+		currentQueryWrapper.eq(AttendeeTag::getAttendeeId, attendeeId);
+		List<AttendeeTag> attendeeTagList = baseMapper.selectList(currentQueryWrapper);
 
 		// 2.透過stream流抽取tagId, 變成Set集合
-		return attendeesTagList.stream().map(attendeesTag -> attendeesTag.getTagId()).collect(Collectors.toSet());
+		return attendeeTagList.stream().map(attendeeTag -> attendeeTag.getTagId()).collect(Collectors.toSet());
 
 	}
 
 	@Override
-	public List<AttendeeTag> getAttendeesTagByAttendeesId(Long attendeesId) {
+	public List<AttendeeTag> getAttendeeTagsByAttendeeId(Long attendeeId) {
 		LambdaQueryWrapper<AttendeeTag> currentQueryWrapper = new LambdaQueryWrapper<>();
-		currentQueryWrapper.eq(AttendeeTag::getAttendeesId, attendeesId);
-		List<AttendeeTag> attendeesTagList = baseMapper.selectList(currentQueryWrapper);
+		currentQueryWrapper.eq(AttendeeTag::getAttendeeId, attendeeId);
+		List<AttendeeTag> attendeeTagList = baseMapper.selectList(currentQueryWrapper);
 
-		return attendeesTagList;
+		return attendeeTagList;
 	}
 
 	@Override
-	public List<Tag> getTagsByAttendeesId(Long attendeesId) {
+	public List<Tag> getTagsByAttendeeId(Long attendeeId) {
 		// 1.查找關聯,提取tagIds
-		List<AttendeeTag> attendeesTags = this.getAttendeesTagByAttendeesId(attendeesId);
-		Set<Long> tagIds = attendeesTags.stream().map(AttendeeTag::getTagId).collect(Collectors.toSet());
+		List<AttendeeTag> attendeeTags = this.getAttendeeTagsByAttendeeId(attendeeId);
+		Set<Long> tagIds = attendeeTags.stream().map(AttendeeTag::getTagId).collect(Collectors.toSet());
 
 		// 2.沒有返回空陣列
 		if (tagIds.isEmpty()) {
@@ -81,15 +81,15 @@ public class AttendeeTagServiceImpl extends ServiceImpl<AttendeeTagMapper, Atten
 	}
 
 	@Override
-	public Map<Long, List<Long>> getAttendeesTagMapByAttendeesIds(Collection<Long> attendeesIds) {
+	public Map<Long, List<Long>> getAttendeeTagMapByAttendeeIds(Collection<Long> attendeeIds) {
 		// 先獲取所有關聯關係
-		List<AttendeeTag> tagList = this.getAttendeesTagByAttendeesIds(attendeesIds);
+		List<AttendeeTag> tagList = this.getAttendeeTagsByAttendeeIds(attendeeIds);
 		// 設立結果集用來儲存
 		Map<Long, List<Long>> result = new HashMap<>();
 
 		// 將所有關係進行遍歷
 		for (AttendeeTag at : tagList) {
-			// 1. 分組：attendeesId → List<tagId>
+			// 1. 分組：attendeeId → List<tagId>
 			/**
 			 * 
 			 * 如果 result 中已經存在 at.getAttendeesId() 這個鍵：
@@ -111,30 +111,30 @@ public class AttendeeTagServiceImpl extends ServiceImpl<AttendeeTagMapper, Atten
 			 * computeIfAbsent 和後續的 .add() 操作實際上是兩個分開的步驟
 			 * 
 			 */
-			result.computeIfAbsent(at.getAttendeesId(), k -> new ArrayList<>()).add(at.getTagId());
+			result.computeIfAbsent(at.getAttendeeId(), k -> new ArrayList<>()).add(at.getTagId());
 		}
 		return result;
 	}
 
 	@Override
-	public Map<Long, List<Tag>> getTagMapByAttendeesId(Collection<Attendee> attendeesList) {
+	public Map<Long, List<Tag>> getTagMapByAttendeeId(Collection<Attendee> attendeeList) {
 		
 		// 如果列表為空,則返回空Map
-		if(attendeesList.isEmpty()) {
+		if(attendeeList.isEmpty()) {
 			return Collections.emptyMap();
 		}
 		
-		// 1.將attendeesList提取attendeesId ，獲取所有關聯
-		Set<Long> attnedeesIdSet = attendeesList.stream().map(Attendee::getAttendeesId).collect(Collectors.toSet());
-		List<AttendeeTag> attendeesTags = this.getAttendeesTagByAttendeesIds(attnedeesIdSet);
+		// 1.將attendeeList提取attendeeId ，獲取所有關聯
+		Set<Long> attnedeesIdSet = attendeeList.stream().map(Attendee::getAttendeeId).collect(Collectors.toSet());
+		List<AttendeeTag> attendeeTags = this.getAttendeeTagsByAttendeeIds(attnedeesIdSet);
 
-		// 2. 按 attendeesId 分組，收集 tagId
-		Map<Long, List<Long>> attendeesIdToTagIds = attendeesTags.stream()
-				.collect(Collectors.groupingBy(AttendeeTag::getAttendeesId,
+		// 2. 按 attendeeId 分組，收集 tagId
+		Map<Long, List<Long>> attendeeIdToTagIds = attendeeTags.stream()
+				.collect(Collectors.groupingBy(AttendeeTag::getAttendeeId,
 						Collectors.mapping(AttendeeTag::getTagId, Collectors.toList())));
 
 		// 3. 收集所有 tagId，獲取map中所有value,兩層List(Collection<List<Long>>)要拆開
-		Set<Long> allTagIds = attendeesIdToTagIds.values().stream().flatMap(List::stream).collect(Collectors.toSet());
+		Set<Long> allTagIds = attendeeIdToTagIds.values().stream().flatMap(List::stream).collect(Collectors.toSet());
 
 		// 4. 批量查詢所有 Tag，並組成映射關係tagId:Tag
 		Map<Long, Tag> tagMap = tagMapper.selectBatchIds(allTagIds)
@@ -142,12 +142,12 @@ public class AttendeeTagServiceImpl extends ServiceImpl<AttendeeTagMapper, Atten
 				.filter(Objects::nonNull)
 				.collect(Collectors.toMap(Tag::getTagId, Function.identity()));
 
-		// 5. 構建最終結果：attendeesId -> List<Tag>
+		// 5. 構建最終結果：attendeeId -> List<Tag>
 		Map<Long, List<Tag>> result = new HashMap<>();
 
-		attendeesIdToTagIds.forEach((attendeesId, tagIds) -> {
+		attendeeIdToTagIds.forEach((attendeeId, tagIds) -> {
 			List<Tag> tags = tagIds.stream().map(tagMap::get).filter(Objects::nonNull).collect(Collectors.toList());
-			result.put(attendeesId, tags);
+			result.put(attendeeId, tags);
 		});
 
 		return result;
@@ -155,91 +155,91 @@ public class AttendeeTagServiceImpl extends ServiceImpl<AttendeeTagMapper, Atten
 	}
 
 	@Override
-	public List<AttendeeTag> getAttendeesTagByTagId(Long tagId) {
+	public List<AttendeeTag> getAttendeeTagByTagId(Long tagId) {
 		LambdaQueryWrapper<AttendeeTag> currentQueryWrapper = new LambdaQueryWrapper<>();
 		currentQueryWrapper.eq(AttendeeTag::getTagId, tagId);
-		List<AttendeeTag> attendeesTagList = baseMapper.selectList(currentQueryWrapper);
+		List<AttendeeTag> attendeeTagList = baseMapper.selectList(currentQueryWrapper);
 
-		return attendeesTagList;
+		return attendeeTagList;
 	}
 
 	@Override
-	public List<AttendeeTag> getAttendeesTagByAttendeesIds(Collection<Long> attendeesIds) {
-		if (attendeesIds.isEmpty()) {
+	public List<AttendeeTag> getAttendeeTagsByAttendeeIds(Collection<Long> attendeeIds) {
+		if (attendeeIds.isEmpty()) {
 			return Collections.emptyList();
 		}
 		LambdaQueryWrapper<AttendeeTag> currentQueryWrapper = new LambdaQueryWrapper<>();
-		currentQueryWrapper.in(AttendeeTag::getAttendeesId, attendeesIds);
-		List<AttendeeTag> attendeesTagList = baseMapper.selectList(currentQueryWrapper);
+		currentQueryWrapper.in(AttendeeTag::getAttendeeId, attendeeIds);
+		List<AttendeeTag> attendeeTagList = baseMapper.selectList(currentQueryWrapper);
 
-		return attendeesTagList;
+		return attendeeTagList;
 	}
 
 	@Override
-	public List<AttendeeTag> getAttendeesTagByTagIds(Collection<Long> tagIds) {
-		LambdaQueryWrapper<AttendeeTag> attendeesTagWrapper = new LambdaQueryWrapper<>();
-		attendeesTagWrapper.in(AttendeeTag::getTagId, tagIds);
-		List<AttendeeTag> attendeesTagList = baseMapper.selectList(attendeesTagWrapper);
+	public List<AttendeeTag> getAttendeeTagsByTagIds(Collection<Long> tagIds) {
+		LambdaQueryWrapper<AttendeeTag> attendeeTagWrapper = new LambdaQueryWrapper<>();
+		attendeeTagWrapper.in(AttendeeTag::getTagId, tagIds);
+		List<AttendeeTag> attendeeTagList = baseMapper.selectList(attendeeTagWrapper);
 
-		return attendeesTagList;
+		return attendeeTagList;
 	}
 
 	@Override
-	public void addAttendeesTag(AttendeeTag attendeesTag) {
-		baseMapper.insert(attendeesTag);
+	public void addAttendeeTag(AttendeeTag attendeeTag) {
+		baseMapper.insert(attendeeTag);
 
 	}
 
 	@Override
-	public void addAttendeesTag(Long attendeesId, Long tagId) {
-		AttendeeTag attendeesTag = new AttendeeTag();
-		attendeesTag.setAttendeesId(attendeesId);
-		attendeesTag.setTagId(tagId);
-		baseMapper.insert(attendeesTag);
+	public void addAttendeeTag(Long attendeeId, Long tagId) {
+		AttendeeTag attendeeTag = new AttendeeTag();
+		attendeeTag.setAttendeeId(attendeeId);
+		attendeeTag.setTagId(tagId);
+		baseMapper.insert(attendeeTag);
 	}
 
 	@Override
-	public void addTagsToAttendees(Long attendeesId, Collection<Long> tagsToAdd) {
+	public void addTagsToAttendee(Long attendeeId, Collection<Long> tagsToAdd) {
 		// 1.建立多個新連結
-		List<AttendeeTag> newAttendeesTags = tagsToAdd.stream().map(tagId -> {
-			AttendeeTag attendeesTag = new AttendeeTag();
-			attendeesTag.setTagId(tagId);
-			attendeesTag.setAttendeesId(attendeesId);
-			return attendeesTag;
+		List<AttendeeTag> newAttendeeTags = tagsToAdd.stream().map(tagId -> {
+			AttendeeTag attendeeTag = new AttendeeTag();
+			attendeeTag.setTagId(tagId);
+			attendeeTag.setAttendeeId(attendeeId);
+			return attendeeTag;
 		}).collect(Collectors.toList());
 
 		// 2.批量新增
-		this.saveBatch(newAttendeesTags);
+		this.saveBatch(newAttendeeTags);
 	}
 
 	@Override
 	public void addAttendeesToTag(Long tagId, Collection<Long> attendeesToAdd) {
 		// 1.建立多個新連結
-		List<AttendeeTag> newAttendeesTags = attendeesToAdd.stream().map(attendeesId -> {
-			AttendeeTag attendeesTag = new AttendeeTag();
-			attendeesTag.setTagId(tagId);
-			attendeesTag.setAttendeesId(attendeesId);
-			return attendeesTag;
+		List<AttendeeTag> newAttendeeTags = attendeesToAdd.stream().map(attendeeId -> {
+			AttendeeTag attendeeTag = new AttendeeTag();
+			attendeeTag.setTagId(tagId);
+			attendeeTag.setAttendeeId(attendeeId);
+			return attendeeTag;
 		}).collect(Collectors.toList());
 
 		// 2.批量新增
-		this.saveBatch(newAttendeesTags);
+		this.saveBatch(newAttendeeTags);
 	}
 
 	@Override
-	public void removeTagsFromAttendee(Long attendeesId, Collection<Long> tagsToRemove) {
+	public void removeTagsFromAttendee(Long attendeeId, Collection<Long> tagsToRemove) {
 		LambdaQueryWrapper<AttendeeTag> deleteAttendeesTagWrapper = new LambdaQueryWrapper<>();
-		deleteAttendeesTagWrapper.eq(AttendeeTag::getAttendeesId, attendeesId)
+		deleteAttendeesTagWrapper.eq(AttendeeTag::getAttendeeId, attendeeId)
 				.in(AttendeeTag::getTagId, tagsToRemove);
 		baseMapper.delete(deleteAttendeesTagWrapper);
 
 	}
 
 	@Override
-	public void removeAttendeesFromTag(Long tagId, Set<Long> attendeessToRemove) {
+	public void removeAttendeesFromTag(Long tagId, Set<Long> attendeesToRemove) {
 		LambdaQueryWrapper<AttendeeTag> deleteAttendeesTagWrapper = new LambdaQueryWrapper<>();
 		deleteAttendeesTagWrapper.eq(AttendeeTag::getTagId, tagId)
-				.in(AttendeeTag::getAttendeesId, attendeessToRemove);
+				.in(AttendeeTag::getAttendeeId, attendeesToRemove);
 		baseMapper.delete(deleteAttendeesTagWrapper);
 
 	}

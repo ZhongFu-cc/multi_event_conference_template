@@ -21,12 +21,12 @@ import tw.com.conference.convert.CheckinRecordConvert;
 import tw.com.conference.enums.CheckinActionTypeEnum;
 import tw.com.conference.handler.AttendeeVOHandler;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddCheckinRecordDTO;
-import tw.com.conference.pojo.VO.AttendeesVO;
+import tw.com.conference.pojo.VO.AttendeeVO;
 import tw.com.conference.pojo.VO.CheckinRecordVO;
 import tw.com.conference.pojo.entity.Attendee;
 import tw.com.conference.pojo.entity.CheckinRecord;
 import tw.com.conference.pojo.entity.Member;
-import tw.com.conference.pojo.excelPojo.AttendeesExcel;
+import tw.com.conference.pojo.excelPojo.AttendeeExcel;
 import tw.com.conference.pojo.excelPojo.CheckinRecordExcel;
 import tw.com.conference.service.AttendeeService;
 import tw.com.conference.service.CheckinRecordService;
@@ -39,9 +39,9 @@ public class CheckinRecordManager {
 	private final MemberService memberService;
 	private final CheckinRecordService checkinRecordService;
 	private final CheckinRecordConvert checkinRecordConvert;
-	private final AttendeeService attendeesService;
-	private final AttendeeConvert attendeesConvert;
-	private final AttendeeVOHandler attendeesVOHandler;
+	private final AttendeeService attendeeService;
+	private final AttendeeConvert attendeeConvert;
+	private final AttendeeVOHandler attendeeVOHandler;
 
 	/**
 	 * 獲得此筆簽到退資料 及 簽到者身分
@@ -55,13 +55,13 @@ public class CheckinRecordManager {
 		CheckinRecord checkinRecord = checkinRecordService.getCheckinRecord(checkinRecordId);
 
 		// 2.查詢此簽到者的基本資訊
-		AttendeesVO attendeesVO = attendeesVOHandler.getAttendeesVO(checkinRecord.getAttendeesId());
+		AttendeeVO attendeeVO = attendeeVOHandler.getAttendeeVO(checkinRecord.getAttendeeId());
 
 		// 3.實體類轉換成VO
 		CheckinRecordVO checkinRecordVO = checkinRecordConvert.entityToVO(checkinRecord);
 
 		// 4.vo中填入與會者VO對象  2025/9/24 重構臨時註解
-		checkinRecordVO.setAttendeesVO(attendeesVO);
+		checkinRecordVO.setAttendeeVO(attendeeVO);
 
 		return checkinRecordVO;
 	}
@@ -76,20 +76,20 @@ public class CheckinRecordManager {
 
 		// 1.獲取與會者的ID(去重)
 		Set<Long> attendeesIdSet = checkinRecordList.stream()
-				.map(CheckinRecord::getAttendeesId)
+				.map(CheckinRecord::getAttendeeId)
 				.collect(Collectors.toSet());
 
 		// 2.透過去重的與會者ID拿到資料
-		List<AttendeesVO> attendeesVOList = attendeesVOHandler.getAttendeesVOsByAttendeesIds(attendeesIdSet);
+		List<AttendeeVO> attendeesVOList = attendeeVOHandler.getAttendeesVOsByAttendeesIds(attendeesIdSet);
 
 		// 3.做成資料映射attendeesID 對應 AttendeesVO
-		Map<Long, AttendeesVO> AttendeesVOMap = attendeesVOList.stream()
-				.collect(Collectors.toMap(AttendeesVO::getAttendeesId, Function.identity()));
+		Map<Long, AttendeeVO> AttendeesVOMap = attendeesVOList.stream()
+				.collect(Collectors.toMap(AttendeeVO::getAttendeeId, Function.identity()));
 
 		// 4.checkinRecordList stream轉換後映射組裝成VO對象
 		List<CheckinRecordVO> checkinRecordVOList = checkinRecordList.stream().map(checkinRecord -> {
 			CheckinRecordVO vo = checkinRecordConvert.entityToVO(checkinRecord);
-			vo.setAttendeesVO(AttendeesVOMap.get(checkinRecord.getAttendeesId()));
+			vo.setAttendeeVO(AttendeesVOMap.get(checkinRecord.getAttendeeId()));
 			return vo;
 		}).collect(Collectors.toList());
 
@@ -151,7 +151,7 @@ public class CheckinRecordManager {
 	 * 下載所有簽到/退紀錄
 	 * 
 	 * @param response
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void downloadExcel(HttpServletResponse response) throws IOException {
 
@@ -169,18 +169,18 @@ public class CheckinRecordManager {
 		Map<Long, Member> memberMap = memberService.getMemberMap();
 
 		// 4.高效獲取所有與會者資料映射
-		Map<Long, Attendee> attendeesMap = attendeesService.getAttendeesMap();
+		Map<Long, Attendee> attendeesMap = attendeeService.getAttendeeMap();
 
 		// 資料轉換成Excel
 		List<CheckinRecordExcel> excelData = checkinRecordList.stream().map(checkinRecord -> {
 			// 透過attendeesId先拿到attendeesVO
-			AttendeesVO attendeesVO = attendeesConvert.entityToVO(attendeesMap.get(checkinRecord.getAttendeesId()));
+			AttendeeVO attendeesVO = attendeeConvert.entityToVO(attendeesMap.get(checkinRecord.getAttendeeId()));
 			// 再透過 memberId放入Member
 			attendeesVO.setMember(memberMap.get(attendeesVO.getMemberId()));
 			// 獲取到AttendeesExcel 再轉換成 CheckinRecordExcel
-			AttendeesExcel attendeesExcel = attendeesConvert.voToExcel(attendeesVO);
+			AttendeeExcel attendeesExcel = attendeeConvert.voToExcel(attendeesVO);
 			CheckinRecordExcel checkinRecordExcel = checkinRecordConvert
-					.attendeesExcelToCheckinRecordExcel(attendeesExcel);
+					.attendeeExcelToCheckinRecordExcel(attendeesExcel);
 
 			//最後再補上缺失的屬性
 			checkinRecordExcel.setActionTime(checkinRecord.getActionTime());

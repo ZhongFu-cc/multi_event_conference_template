@@ -181,11 +181,11 @@ public class MemberRegistrationManager {
 				tagService::getOrCreateMemberCategoryGroupTag, memberTagService::addMemberTag);
 
 		// 5.由後台新增的Member , 自動付款完成，新增進與會者名單
-		Attendee attendees = attendeesService.addAttendees(member);
+		Attendee attendee = attendeesService.addAttendee(member);
 
 		// 6.獲取當下與會者群體的Index,進行與會者標籤分組
-		tagAssignmentHelper.assignTag(attendees.getAttendeeId(), attendeesService::getAttendeesGroupIndex,
-				tagService::getOrCreateAttendeesGroupTag, attendeesTagService::addAttendeesTag);
+		tagAssignmentHelper.assignTag(attendee.getAttendeeId(), attendeesService::getAttendeeGroupIndex,
+				tagService::getOrCreateAttendeesGroupTag, attendeesTagService::addAttendeeTag);
 		
 		// 7.如果是講者身分,則新增到invited-speaker, 這個也再考慮, 可能違反SRP
 		if (MemberCategoryEnum.SPEAKER.getValue().equals(member.getCategory())) {
