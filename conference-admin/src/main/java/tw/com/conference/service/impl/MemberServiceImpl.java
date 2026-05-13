@@ -26,6 +26,7 @@ import cn.dev33.satoken.stp.SaTokenInfo;
 import lombok.RequiredArgsConstructor;
 import tw.com.conference.constants.I18nMessageKey;
 import tw.com.conference.convert.MemberConvert;
+import tw.com.conference.enums.NationalityEnum;
 import tw.com.conference.enums.OrderStatusEnum;
 import tw.com.conference.exception.AccountPasswordWrongException;
 import tw.com.conference.exception.ForgetPasswordException;
@@ -310,10 +311,10 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
 	}
 
 	@Override
-	public int getMemberCategoryGroupIndex(int groupSize, Integer memberCategory) {
+	public int getMemberCategoryGroupIndex(int groupSize, Long memberTypeId) {
 
 		LambdaQueryWrapper<Member> queryWrapper = new LambdaQueryWrapper<>();
-		queryWrapper.eq(Member::getCategory, memberCategory);
+		queryWrapper.eq(Member::getMemberTypeId, memberTypeId);
 
 		Long memberCategoryCount = baseMapper.selectCount(queryWrapper);
 		return (int) Math.ceil(memberCategoryCount / (double) groupSize);
@@ -396,7 +397,7 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
 		member.setChineseName(walkInRegistrationDTO.getChineseName());
 		member.setFirstName(walkInRegistrationDTO.getFirstName());
 		member.setLastName(walkInRegistrationDTO.getLastName());
-		member.setCategory(walkInRegistrationDTO.getCategory());
+//		member.setMemberTypeId(walkInRegistrationDTO.getCategory());
 
 		//判斷Email有無被註冊過
 		LambdaQueryWrapper<Member> memberQueryWrapper = new LambdaQueryWrapper<>();
@@ -419,8 +420,8 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
 		Member oldMemberInfo = this.getMember(newMemberInfo.getMemberId());
 
 		// 抽出這次更新時的國籍
-		String oldMemberCountry = CountryUtil.getTaiwanOrForeign(oldMemberInfo.getCountry());
-		String newMemberCountry = CountryUtil.getTaiwanOrForeign(newMemberInfo.getCountry());
+		 NationalityEnum oldMemberCountry = CountryUtil.getDomesticOrInternational(oldMemberInfo.getCountry());
+		 NationalityEnum newMemberCountry = CountryUtil.getDomesticOrInternational(newMemberInfo.getCountry());
 
 		// 如果國籍有變更 國外=>台灣 or 台灣=>國外 則拒絕變更
 		if (!oldMemberCountry.equals(newMemberCountry)) {
@@ -434,7 +435,7 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
 		System.out.println("新ID_Card: " + newMemberIdCard);
 
 		// 台灣人註冊
-		if (CountryUtil.isNational(newMemberCountry)) {
+		if(NationalityEnum.DOMESTIC.equals(newMemberCountry)){
 			// idCard有傳值，且跟舊資料不一致，idCard不許修改,因為這代表帳號
 			if (newMemberIdCard != null && !oldMemberIdCard.equals(newMemberIdCard)) {
 				throw new MemberException("身分證不允許更新，如需更新請洽工作人員");

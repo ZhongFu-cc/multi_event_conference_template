@@ -2,6 +2,8 @@ package tw.com.conference.utils;
 
 import java.util.Locale;
 
+import tw.com.conference.enums.NationalityEnum;
+
 public class CountryUtil {
 	
 	//設定常數本國人,此地方為台灣
@@ -27,10 +29,10 @@ public class CountryUtil {
     }
     
     /**
-     * 根據國家回傳 "taiwan" 或 "foreign"
+     * 根據國家回傳 "domestic" 或 "international"
      */
-    public static String getTaiwanOrForeign(String country) {
-        return isNational(country) ? "taiwan" : "foreign";
+    public static NationalityEnum getDomesticOrInternational(String country) {
+        return isNational(country) ? NationalityEnum.DOMESTIC : NationalityEnum.INTERNATIONAL;
     }
     
     

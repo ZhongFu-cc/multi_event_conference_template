@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 import tw.com.conference.constants.OrderConstants;
 import tw.com.conference.convert.OrdersItemConvert;
 import tw.com.conference.mapper.OrdersItemMapper;
-import tw.com.conference.pojo.DTO.addEntityDTO.AddOrdersItemDTO;
+import tw.com.conference.pojo.DTO.addEntityDTO.AddOrderItemDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutOrdersItemDTO;
 import tw.com.conference.pojo.entity.Orders;
 import tw.com.conference.pojo.entity.OrdersItem;
@@ -99,9 +99,9 @@ public class OrdersItemServiceImpl extends ServiceImpl<OrdersItemMapper, OrdersI
 	}
 
 	@Override
-	public void addOrdersItem(AddOrdersItemDTO addOrdersItemDTO) {
-		OrdersItem ordersItem = ordersItemConvert.addDTOToEntity(addOrdersItemDTO);
-		baseMapper.insert(ordersItem);
+	public void addOrderItem(AddOrderItemDTO addOrderItemDTO) {
+		OrdersItem orderItem = ordersItemConvert.addDTOToEntity(addOrderItemDTO);
+		baseMapper.insert(orderItem);
 	}
 
 	@Override

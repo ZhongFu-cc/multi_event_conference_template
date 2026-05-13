@@ -117,10 +117,10 @@ public interface MemberService extends IService<Member> {
 	 * 拿到 某個身分類別 當前團體標籤的index
 	 * 
 	 * @param groupSize
-	 * @param memberCategory member.category的值
+	 * @param memberTypeId
 	 * @return
 	 */
-	int getMemberCategoryGroupIndex(int groupSize,Integer memberCategory);
+	int getMemberCategoryGroupIndex(int groupSize,Long memberTypeId);
 
 	/**
 	 * 校驗email是否註冊過<br>

@@ -1,5 +1,7 @@
 package tw.com.conference.service.impl;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -31,6 +33,16 @@ public class DiscountPackageRuleServiceImpl extends ServiceImpl<DiscountPackageR
 	private final static int DEFAULT_PRIORITY = 20;
 
 	private final DiscountPackageRuleConvert discountPackageRuleConvert;
+
+	@Override
+	public List<DiscountPackageRule> findTriggerRule(Long packageId, int hitCount) {
+		return baseMapper.selectByPackageIdAndRequiredCountLessThanEqual(packageId, hitCount);
+	}
+
+	@Override
+	public List<DiscountPackageRule> findByPackageId(Long packageId) {
+		return baseMapper.selectByPackageId(packageId);
+	}
 
 	@Override
 	public DiscountPackageRule get(Long discountPackageRuleId) {

@@ -41,7 +41,7 @@ public interface AttendeeConvert {
 	@Mapping(source = "member.receipt", target = "receipt")
 	@Mapping(source = "member.food", target = "food")
 	@Mapping(source = "member.foodTaboo", target = "foodTaboo")
-	@Mapping(source = "member.category", target = "category", qualifiedByName = "convertCategory")
+//	@Mapping(source = "member.memberTypeId", target = "category", qualifiedByName = "convertCategory")
 	@Mapping(source = "member.categoryExtra", target = "categoryExtra")
 	@Mapping(source = "sequenceNo", target = "sequenceNo", qualifiedByName = "convertInteger2FormatString")
 	@Mapping(source = "receiptNo", target = "receiptNo")

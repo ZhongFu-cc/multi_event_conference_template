@@ -116,6 +116,8 @@ public class EventPriceRuleManager {
 	 */
 	public void removeEvent(Long eventId) {
 
+		// 刪除前，要判斷目前刪除的事件是不是最後一個，如果是則不執行刪除
+		
 		// 刪除事件活動 相關的 組合優惠
 		discountPackageItemService.removeByEventId(eventId);
 

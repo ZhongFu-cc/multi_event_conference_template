@@ -137,7 +137,7 @@ public class MemberOrderManager {
 		memberService.updateById(member);
 
 		// 不管狀態為何,觸發則將訂單狀態改為 付款-待確認
-		order.setStatus(OrderStatusEnum.PENDING_CONFIRMATION.getValue());
+		order.setStatus(OrderStatusEnum.PENDING_CONFIRMATION);
 
 		// 更新訂單狀態 , 改為已付款-確認中
 		ordersService.updateById(order);
@@ -198,7 +198,7 @@ public class MemberOrderManager {
 
 			// 4-2 轉換設置資料
 			MemberExcelRaw memberExcelRaw = memberConvert.entityToExcelRaw(member);
-			memberExcelRaw.setStatus(orders.getStatus());
+			memberExcelRaw.setStatus(orders.getStatus().getLabelZh());
 			memberExcelRaw.setRegistrationFee(orders.getTotalAmount());
 			MemberExcel memberExcel = memberConvert.memberExcelRawToExcel(memberExcelRaw);
 

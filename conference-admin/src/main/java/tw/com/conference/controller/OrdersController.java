@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 import tw.com.conference.manager.MemberOrderManager;
 import tw.com.conference.manager.OrderPaymentManager;
 import tw.com.conference.pojo.DTO.OfflineTransferDTO;
-import tw.com.conference.pojo.DTO.addEntityDTO.AddOrdersDTO;
+import tw.com.conference.pojo.DTO.addEntityDTO.AddOrderDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutOrdersDTO;
 import tw.com.conference.pojo.entity.Member;
 import tw.com.conference.pojo.entity.Orders;
@@ -107,8 +107,8 @@ public class OrdersController {
 	@Parameters({
 			@Parameter(name = "Authorization-member", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
 	@SaCheckLogin(type = StpKit.MEMBER_TYPE)
-	public R<Orders> saveOrders(@RequestBody @Valid AddOrdersDTO addOrdersDTO) {
-		ordersService.addOrders(addOrdersDTO);
+	public R<Orders> saveOrders(@RequestBody @Valid AddOrderDTO addOrderDTO) {
+		ordersService.addOrder(addOrderDTO);
 		return R.ok();
 	}
 

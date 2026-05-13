@@ -22,7 +22,7 @@ import tw.com.conference.constants.OrderConstants;
 import tw.com.conference.convert.OrdersConvert;
 import tw.com.conference.enums.OrderStatusEnum;
 import tw.com.conference.mapper.OrdersMapper;
-import tw.com.conference.pojo.DTO.addEntityDTO.AddOrdersDTO;
+import tw.com.conference.pojo.DTO.addEntityDTO.AddOrderDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutOrdersDTO;
 import tw.com.conference.pojo.entity.Member;
 import tw.com.conference.pojo.entity.Orders;
@@ -162,7 +162,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 		Orders orders = baseMapper.selectOne(ordersWrapper);
 
 		// 更新訂單付款狀態為 已付款
-		orders.setStatus(OrderStatusEnum.PAYMENT_SUCCESS.getValue());
+		orders.setStatus(OrderStatusEnum.PAYMENT_SUCCESS);
 
 		// 更新進資料庫
 		baseMapper.updateById(orders);
@@ -177,7 +177,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 		// 3.設定這筆訂單商品的統稱
 		order.setItemsSummary(OrderConstants.ITEMS_SUMMARY_REGISTRATION);
 		// 4.設定繳費狀態為 未繳費(0)
-		order.setStatus(OrderStatusEnum.UNPAID.getValue());
+		order.setStatus(OrderStatusEnum.UNPAID);
 		// 5.設定金額
 		order.setTotalAmount(amount);
 		// 6.透過訂單服務 新增訂單
@@ -197,7 +197,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 		// 3.設定這筆訂單商品的統稱
 		order.setItemsSummary(OrderConstants.ITEMS_SUMMARY_REGISTRATION);
 		// 4.設定繳費狀態為 已繳費(2)
-		order.setStatus(OrderStatusEnum.PAYMENT_SUCCESS.getValue());
+		order.setStatus(OrderStatusEnum.PAYMENT_SUCCESS);
 		// 5.設定金額
 		order.setTotalAmount(BigDecimal.ZERO);
 		// 6.透過訂單服務 新增訂單
@@ -217,7 +217,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 		// 3.設定這筆訂單商品的統稱
 		order.setItemsSummary(OrderConstants.GROUP_ITEMS_SUMMARY_REGISTRATION);
 		// 4.設定繳費狀態為 未繳費(0)
-		order.setStatus(OrderStatusEnum.UNPAID.getValue());
+		order.setStatus(OrderStatusEnum.UNPAID);
 		// 5.設定金額
 		order.setTotalAmount(amount);
 		// 6.透過訂單服務 新增訂單
@@ -237,7 +237,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 		// 3.設定這筆訂單商品的統稱
 		order.setItemsSummary(OrderConstants.GROUP_ITEMS_SUMMARY_REGISTRATION);
 		// 4.設定繳費狀態為 未繳費
-		order.setStatus(OrderStatusEnum.UNPAID.getValue());
+		order.setStatus(OrderStatusEnum.UNPAID);
 		// 5.設定金額
 		order.setTotalAmount(BigDecimal.ZERO);
 		// 6.透過訂單服務 新增訂單
@@ -257,7 +257,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 		// 3.設定這筆訂單商品的統稱
 		order.setItemsSummary(OrderConstants.GROUP_ITEMS_SUMMARY_REGISTRATION);
 		// 4.設定繳費狀態為 已繳費
-		order.setStatus(OrderStatusEnum.PAYMENT_SUCCESS.getValue());
+		order.setStatus(OrderStatusEnum.PAYMENT_SUCCESS);
 		// 5.設定金額
 		order.setTotalAmount(BigDecimal.ZERO);
 		// 6.透過訂單服務 新增訂單
@@ -303,12 +303,12 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 
 	@Override
 	@Transactional
-	public Long addOrders(AddOrdersDTO addOrdersDTO) {
+	public Long addOrder(AddOrderDTO addOrderDTO) {
 		// 新增訂單本身
-		Orders orders = ordersConvert.addDTOToEntity(addOrdersDTO);
-		baseMapper.insert(orders);
+		Orders order = ordersConvert.addDTOToEntity(addOrderDTO);
+		baseMapper.insert(order);
 
-		return orders.getOrdersId();
+		return order.getOrdersId();
 	}
 
 	@Override
@@ -354,7 +354,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 	}
 
 	@Override
-	public void syncSlaveMemberOrderStatus(Long slaveMemberId, Integer currentStatus) {
+	public void syncSlaveMemberOrderStatus(Long slaveMemberId, OrderStatusEnum currentStatus) {
 		// 1.查詢子報名者當前的 團體報名訂單狀態
 		LambdaQueryWrapper<Orders> query = new LambdaQueryWrapper<>();
 		query.eq(Orders::getMemberId, slaveMemberId)
@@ -367,11 +367,12 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 		}
 
 		// 3.如果子報名者訂單狀態不是「付款成功 (2)」，才允許更新，避免成功付款仍再付一次
-		if (!OrderStatusEnum.PAYMENT_SUCCESS.getValue().equals(slaveOrder.getStatus())) {
+		if (!OrderStatusEnum.PAYMENT_SUCCESS.equals(slaveOrder.getStatus())) {
 			slaveOrder.setStatus(currentStatus);
 			baseMapper.updateById(slaveOrder);
 		}
 	}
+
 
 
 }

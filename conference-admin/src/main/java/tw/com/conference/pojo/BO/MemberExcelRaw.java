@@ -68,8 +68,8 @@ public class MemberExcelRaw {
 	private LocalDateTime createDate;
 
 	// Entity中為Integer , Excel最終為String 
-	@Schema(description = "0為未付款，2為已付款，3為付款失敗")
-	private Integer status;
+	@Schema(description = "未付款,已付款-待確認,付款成功,付款失敗")
+	private String status;
 
 	@Schema(description = "註冊費金額")
 	private BigDecimal registrationFee;

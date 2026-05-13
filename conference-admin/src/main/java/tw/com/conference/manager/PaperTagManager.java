@@ -16,7 +16,6 @@ import com.google.common.collect.Sets.SetView;
 
 import lombok.RequiredArgsConstructor;
 import tw.com.conference.convert.PaperConvert;
-import tw.com.conference.enums.OrderStatusEnum;
 import tw.com.conference.pojo.VO.AssignedReviewersVO;
 import tw.com.conference.pojo.VO.PaperTagVO;
 import tw.com.conference.pojo.entity.Orders;
@@ -78,7 +77,7 @@ public class PaperTagManager {
 
 		// 7.根據memberId找到 註冊費訂單狀態，並塞進VO
 		Orders registrationOrder = ordersService.getRegistrationOrderByMemberId(paper.getMemberId());
-		paperTagVO.setMemberPaymentStatus(OrderStatusEnum.fromValue(registrationOrder.getStatus()).getLabelEn());
+		paperTagVO.setMemberPaymentStatus(registrationOrder.getStatus().getLabelEn());
 
 		return paperTagVO;
 	}
@@ -148,8 +147,7 @@ public class PaperTagManager {
 
 			// 8-6 拿到會員繳費狀態塞進vo
 			Orders orders = registrationOrderMapByMemberId.get(paper.getMemberId());
-			OrderStatusEnum orderStatusEnum = OrderStatusEnum.fromValue(orders.getStatus());
-			vo.setMemberPaymentStatus(orderStatusEnum.getLabelZh());
+			vo.setMemberPaymentStatus(orders.getStatus().getLabelZh());
 
 			return vo;
 

@@ -27,6 +27,8 @@ public class AttendeeExcel {
 	@ExcelProperty("會員ID")
 	private String memberId;
 	
+
+	
 	@ExcelProperty("格式化流水號")
 	private String sequenceNo;
 	
@@ -34,7 +36,10 @@ public class AttendeeExcel {
 	private String receiptNo;
 
 	// Member 相關欄位
-
+	// Entity中為Integer , Excel 為String 
+	@ExcelProperty("會員資格")
+	private String category;
+	
 	@ExcelProperty("頭銜")
 	private String title;
 
@@ -67,10 +72,6 @@ public class AttendeeExcel {
 
 	@ExcelProperty("電話號碼")
 	private String phone;
-
-	// Entity中為Integer , Excel 為String 
-	@ExcelProperty("會員資格")
-	private String category;
 
 	@ExcelProperty("資格的補充")
 	private String categoryExtra;

@@ -9,7 +9,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 
-import tw.com.conference.pojo.DTO.addEntityDTO.AddOrdersDTO;
+import tw.com.conference.enums.OrderStatusEnum;
+import tw.com.conference.pojo.DTO.addEntityDTO.AddOrderDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutOrdersDTO;
 import tw.com.conference.pojo.entity.Member;
 import tw.com.conference.pojo.entity.Orders;
@@ -104,7 +105,7 @@ public interface OrdersService extends IService<Orders> {
 	 * @param member
 	 */
 	void createRegistrationOrder(BigDecimal amount, Member member);
-
+	
 	/**
 	 * 創建 「免費」 註冊費訂單<br>
 	 * 付款狀態為 「已付款」<br>
@@ -149,7 +150,7 @@ public interface OrdersService extends IService<Orders> {
 
 	IPage<Orders> getOrdersPage(Page<Orders> page);
 
-	Long addOrders(AddOrdersDTO addOrdersDTO);
+	Long addOrder(AddOrderDTO addOrderDTO);
 
 	void updateOrders(PutOrdersDTO putOrdersDTO);
 
@@ -167,6 +168,6 @@ public interface OrdersService extends IService<Orders> {
 	 * @param slaveMemberId 子報名者 memberId
 	 * @param currentStatus 當前付款狀態 (通常來自主報名者訂單)
 	 */
-	void syncSlaveMemberOrderStatus(Long slaveMemberId, Integer currentStatus);
+	void syncSlaveMemberOrderStatus(Long slaveMemberId, OrderStatusEnum currentStatus);
 
 }

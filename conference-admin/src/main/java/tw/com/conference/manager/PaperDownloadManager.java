@@ -131,8 +131,7 @@ public class PaperDownloadManager {
 
 			// 拿到會員繳費狀態塞進vo
 			Orders orders = registrationOrderMapByMemberId.get(paper.getMemberId());
-			OrderStatusEnum orderStatusEnum = OrderStatusEnum.fromValue(orders.getStatus());
-			paperScoreExcel.setMemberPaymentStatus(orderStatusEnum.getLabelZh());
+			paperScoreExcel.setMemberPaymentStatus(orders.getStatus().getLabelZh());
 
 			return paperScoreExcel;
 

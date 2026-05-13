@@ -70,8 +70,8 @@ public class MemberTagVO {
 	@Schema(description = "備註")
 	private String remark;
 
-	@Schema(description = "訂單狀態 0為未付款 ; 1為已付款-待審核 ; 2為付款成功 ; 3為付款失敗")
-	private Integer status;
+	@Schema(description = "訂單狀態")
+	private String status;
 	
 	@Schema(description = "註冊費金額")
 	private BigDecimal amount;

@@ -2,6 +2,7 @@ package tw.com.conference.pojo.VO;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import tw.com.conference.enums.OrderStatusEnum;
 
 @Data
 public class MemberVO {
@@ -63,8 +64,8 @@ public class MemberVO {
 	@Schema(description = "會員資格的身份補充")
 	private String categoryExtra;
 
-	@Schema(description = "訂單狀態 0為未付款 ; 1為已付款-待審核 ; 2為付款成功 ; 3為付款失敗")
-	private Integer status;
+	@Schema(description = "訂單狀態: 未付款,已付款-待審核,付款成功,付款失敗")
+	private OrderStatusEnum status;
 
 
 }

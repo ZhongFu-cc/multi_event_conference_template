@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 
-import tw.com.conference.pojo.DTO.addEntityDTO.AddOrdersItemDTO;
+import tw.com.conference.pojo.DTO.addEntityDTO.AddOrderItemDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutOrdersItemDTO;
 import tw.com.conference.pojo.entity.Orders;
 import tw.com.conference.pojo.entity.OrdersItem;
@@ -41,7 +41,7 @@ public interface OrdersItemService extends IService<OrdersItem> {
 
 	IPage<OrdersItem> getOrdersItemPage(Page<OrdersItem> page);
 
-	void addOrdersItem(AddOrdersItemDTO addOrdersItemDTO);
+	void addOrderItem(AddOrderItemDTO addOrderItemDTO);
 
 	void updateOrdersItem(PutOrdersItemDTO putOrdersItemDTO);
 	

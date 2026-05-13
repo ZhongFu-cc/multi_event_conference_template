@@ -196,13 +196,13 @@ public class MemberController {
 		String userVerificationCode = addMemberDTO.getVerificationCode();
 
 		// 判斷驗證碼是否正確,如果不正確就直接返回前端,不做後續的業務處理
-		if (userVerificationCode == null || redisCode == null
-				|| !redisCode.equals(userVerificationCode.trim().toLowerCase())) {
-			return R.fail("Verification code is incorrect");
-		}
+//		if (userVerificationCode == null || redisCode == null
+//				|| !redisCode.equals(userVerificationCode.trim().toLowerCase())) {
+//			return R.fail("Verification code is incorrect");
+//		}
 
 		// 驗證通過,刪除key 並往後執行添加操作
-		redissonClient.getBucket(addMemberDTO.getVerificationKey()).delete();
+//		redissonClient.getBucket(addMemberDTO.getVerificationKey()).delete();
 
 		SaTokenInfo tokenInfo = memberRegistrationManager.addMember(addMemberDTO);
 
@@ -236,7 +236,7 @@ public class MemberController {
 
 		// 驗證通過,刪除key 並往後執行添加操作
 		redissonClient.getBucket(groupRegistrationDTO.getVerificationKey()).delete();
-		memberRegistrationManager.addGroupMember(groupRegistrationDTO);
+//		memberRegistrationManager.addGroupMember(groupRegistrationDTO);
 
 		return R.ok();
 	}

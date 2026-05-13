@@ -40,7 +40,7 @@ public class DiscountPackageItemServiceImpl extends ServiceImpl<DiscountPackageI
 	private final DiscountPackageMapper discountPackageMapper;
 
 	@Override
-	public List<DiscountPackageItem> findPackageItemByPackageId(Long packageId) {
+	public List<DiscountPackageItem> findByPackageId(Long packageId) {
 		return baseMapper.selectByPackageId(packageId);
 	}
 
@@ -97,7 +97,7 @@ public class DiscountPackageItemServiceImpl extends ServiceImpl<DiscountPackageI
 	}
 
 	@Override
-	public List<DiscountPackageItem> findPackageItemByEventIds(Collection<Long> eventIds) {
+	public List<DiscountPackageItem> findByEventIds(Collection<Long> eventIds) {
 		// 空值判斷
 		if (eventIds != null && eventIds.isEmpty()) {
 			return Collections.emptyList();

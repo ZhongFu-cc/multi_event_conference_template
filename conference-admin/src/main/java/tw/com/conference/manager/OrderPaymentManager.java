@@ -201,9 +201,9 @@ public class OrderPaymentManager {
 		if (ECpayRtnCodeEnum.SUCCESS.getCode().equals(payment.getRtnCode())) {
 
 			// 如果當前訂單狀態不是 '付款成功' 則變更狀態
-			if (!currentOrders.getStatus().equals(OrderStatusEnum.PAYMENT_SUCCESS.getValue())) {
+			if (!currentOrders.getStatus().equals(OrderStatusEnum.PAYMENT_SUCCESS)) {
 				// 4-1更新這筆訂單資料
-				currentOrders.setStatus(OrderStatusEnum.PAYMENT_SUCCESS.getValue());
+				currentOrders.setStatus(OrderStatusEnum.PAYMENT_SUCCESS);
 				ordersService.updateById(currentOrders);
 				log.info(currentOrders.getOrdersId() + " 付款成功，更新資料狀態");
 
@@ -223,9 +223,9 @@ public class OrderPaymentManager {
 			// 5.付款失敗，更新訂單的付款狀態
 		} else {
 			// 如果已經成功過就不用在更新成失敗
-			if (!currentOrders.getStatus().equals(OrderStatusEnum.PAYMENT_SUCCESS.getValue())) {
+			if (!currentOrders.getStatus().equals(OrderStatusEnum.PAYMENT_SUCCESS)) {
 				// 5-1付款失敗，並更新這筆訂單資料
-				currentOrders.setStatus(OrderStatusEnum.PAYMENT_FAILED.getValue());
+				currentOrders.setStatus(OrderStatusEnum.PAYMENT_FAILED);
 				ordersService.updateById(currentOrders);
 				log.warn(currentOrders.getOrdersId() + " 付款失敗，更新資料狀態");
 			}

@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-public class AddOrdersItemDTO {
+public class AddOrderItemDTO {
 	
 	@Schema(description = "訂單ID")
 	private Long ordersId;

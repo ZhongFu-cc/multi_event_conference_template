@@ -45,14 +45,14 @@ public interface MemberConvert {
 	MemberExcelRaw entityToExcelRaw(Member member);
 
 	// BO對象轉成真正的Excel 對象
-	@Mapping(target = "status", source = "status", qualifiedByName = "convertStatus")
+	@Mapping(target = "status", source = "status" )
 	@Mapping(target = "category", source = "category", qualifiedByName = "convertCategory")
 	MemberExcel memberExcelRawToExcel(MemberExcelRaw memberExcelRaw);
 
-	@Named("convertStatus")
-	default String convertStatus(Integer status) {
-		return OrderStatusEnum.fromValue(status).getLabelZh();
-	}
+//	@Named("convertStatus")
+//	default String convertStatus(Integer status) {
+//		return OrderStatusEnum.fromValue(status).getLabelZh();
+//	}
 
 	@Named("convertCategory")
 	default String convertCategory(Integer category) {

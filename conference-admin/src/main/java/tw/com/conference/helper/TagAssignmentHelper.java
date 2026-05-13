@@ -9,7 +9,7 @@ import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import tw.com.conference.enums.MemberCategoryEnum;
+import tw.com.conference.pojo.entity.MemberType;
 import tw.com.conference.pojo.entity.Tag;
 
 @Component
@@ -50,13 +50,13 @@ public class TagAssignmentHelper {
 	 */
 	public void assignMemberCategoryTag(
 	        Long entityId,
-	        MemberCategoryEnum memberCategoryEnum,
-	        BiFunction<Integer, Integer, Integer> groupIndexGetter,
+	        MemberType memberType,
+	        BiFunction<Integer, Long, Integer> groupIndexGetter,
 	        BiFunction<Integer, String, Tag> tagResolver,
 	        BiConsumer<Long, Long> tagAssociator) {
 
-	    int groupIndex = groupIndexGetter.apply(GROUP_SIZE, memberCategoryEnum.getValue());
-	    Tag tag = tagResolver.apply(groupIndex, memberCategoryEnum.getLabelZh());
+	    int groupIndex = groupIndexGetter.apply(GROUP_SIZE, memberType.getMemberTypeId());
+	    Tag tag = tagResolver.apply(groupIndex, memberType.getLabelZh());
 	    tagAssociator.accept(entityId, tag.getTagId());
 	}
 

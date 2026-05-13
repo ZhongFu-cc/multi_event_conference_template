@@ -10,10 +10,10 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import lombok.RequiredArgsConstructor;
-import tw.com.conference.enums.MemberCategoryEnum;
 import tw.com.conference.enums.ProjectModeEnum;
 import tw.com.conference.pojo.DTO.EmailBodyContent;
 import tw.com.conference.pojo.entity.Member;
+import tw.com.conference.pojo.entity.MemberType;
 import tw.com.conference.pojo.entity.Paper;
 import tw.com.conference.service.NotificationService;
 
@@ -60,12 +60,12 @@ public class NotificationServiceImpl implements NotificationService {
 	private static final String FIELD_CATEGORY = "category";
 
 	@Override
-	public EmailBodyContent generateRegistrationSuccessContent(Member member, String bannerPhotoUrl) {
+	public EmailBodyContent generateRegistrationSuccessContent(Member member, MemberType memberType) {
 		Context context = new Context();
 
 		// 1.設置通用變量
 		context.setVariable(FIELD_CONFERENCE_NAME, PROJECT_NAME);
-		context.setVariable(FIELD_BANNER_PHOTO_URL, bannerPhotoUrl);
+		context.setVariable(FIELD_BANNER_PHOTO_URL, BANNER_PHOTO_URL);
 		context.setVariable(FIELD_MODE, mode.getValue());
 		context.setVariable(FIELD_UPDATE_TIME,
 				LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
@@ -79,8 +79,9 @@ public class NotificationServiceImpl implements NotificationService {
 		context.setVariable(FIELD_AFFILIATION, member.getAffiliation());
 		context.setVariable(FIELD_JOB_TITLE, member.getJobTitle());
 		context.setVariable(FIELD_PHONE, member.getPhone());
+		
 		// Category 要轉換成字串
-		context.setVariable(FIELD_CATEGORY, MemberCategoryEnum.fromValue(member.getCategory()).getLabelEn());
+		context.setVariable(FIELD_CATEGORY, memberType.getLabelZh());
 
 		// 3. 根據 project.language 選擇模板路徑（無需 if-else 太多，簡單拼接）
 		String languagePath = "";
@@ -98,11 +99,11 @@ public class NotificationServiceImpl implements NotificationService {
 	}
 
 	@Override
-	public EmailBodyContent generateGroupRegistrationSuccessContent(Member member, String bannerPhotoUrl) {
+	public EmailBodyContent generateGroupRegistrationSuccessContent(Member member, MemberType memberType) {
 		Context context = new Context();
 		// 1.設置通用變量
 		context.setVariable(FIELD_CONFERENCE_NAME, PROJECT_NAME);
-		context.setVariable(FIELD_BANNER_PHOTO_URL, bannerPhotoUrl);
+		context.setVariable(FIELD_BANNER_PHOTO_URL, BANNER_PHOTO_URL);
 		context.setVariable(FIELD_MODE, mode.getValue());
 		context.setVariable(FIELD_UPDATE_TIME,
 				LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
@@ -117,7 +118,7 @@ public class NotificationServiceImpl implements NotificationService {
 		context.setVariable(FIELD_JOB_TITLE, member.getJobTitle());
 		context.setVariable(FIELD_PHONE, member.getPhone());
 		// Category 要轉換成字串
-		context.setVariable(FIELD_CATEGORY, MemberCategoryEnum.fromValue(member.getCategory()).getLabelEn());
+		context.setVariable(FIELD_CATEGORY, memberType.getLabelZh());
 
 		// 3. 根據 project.language 選擇模板路徑（無需 if-else 太多，簡單拼接）
 		String languagePath = "";

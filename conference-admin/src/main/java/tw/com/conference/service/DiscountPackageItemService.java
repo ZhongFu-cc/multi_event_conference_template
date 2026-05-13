@@ -26,7 +26,7 @@ public interface DiscountPackageItemService extends IService<DiscountPackageItem
 	 * @param packageId
 	 * @return
 	 */
-	List<DiscountPackageItem> findPackageItemByPackageId(Long packageId);
+	List<DiscountPackageItem> findByPackageId(Long packageId);
 
 	/**
 	 * 根據 packageIds 獲取符合的event , 以packageId為鍵,eventList為值的方式返回值
@@ -50,7 +50,7 @@ public interface DiscountPackageItemService extends IService<DiscountPackageItem
 	 * @param eventIds
 	 * @return
 	 */
-	List<DiscountPackageItem> findPackageItemByEventIds(Collection<Long> eventIds);
+	List<DiscountPackageItem> findByEventIds(Collection<Long> eventIds);
 
 	/**
 	 * 透過 packageId 和 eventId 建立關聯

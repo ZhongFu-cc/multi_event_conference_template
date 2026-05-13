@@ -1,7 +1,5 @@
 package tw.com.conference.pojo.DTO;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -9,6 +7,10 @@ import lombok.Data;
 
 @Data
 public class AddGroupMemberDTO {
+	
+	@NotNull
+	@Schema(description = "會員類別ID")
+	private Long memberTypeId;
 	
 //	@NotBlank
 	@Schema(description = "同時作為護照號碼 和 台灣身分證字號使用")
@@ -43,10 +45,6 @@ public class AddGroupMemberDTO {
 	
 	@Schema(description = "匯款帳號-後五碼  台灣會員使用")
 	private String remitAccountLast5;
-
-	@NotNull
-	@Schema(description = "用於分類會員資格, 1為 Member，2為 Others，3為 Non-Member，4為 MVP，5為 Speaker，6為 Moderator，7為 Staff")
-	private Integer category;
 	
 	@Schema(description = "會員資格的身份補充")
 	private String categoryExtra;

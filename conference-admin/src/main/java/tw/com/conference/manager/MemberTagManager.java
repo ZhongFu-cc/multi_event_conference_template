@@ -117,7 +117,7 @@ public class MemberTagManager {
 			Orders order = registrationOrderMapByMemberId.get(member.getMemberId());
 
 			// 4-3 取出付款狀態 和 金額 並放入VO對象中
-			vo.setStatus(order.getStatus());
+			vo.setStatus(order.getStatus().getLabelZh());
 			vo.setAmount(order.getTotalAmount());
 
 			// 4.4 查詢到並將tag放入

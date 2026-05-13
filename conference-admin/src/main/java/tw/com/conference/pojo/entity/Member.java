@@ -32,6 +32,10 @@ public class Member implements Serializable {
 	@Schema(description = "主鍵ID")
 	@TableId("member_id")
 	private Long memberId;
+	
+	@Schema(description = "會員類別ID")
+	@TableField("member_type_id")
+	private Long memberTypeId;
 
 	@Schema(description = "同時作為護照號碼 和 台灣身分證字號使用")
 	@TableField("id_card")
@@ -100,10 +104,6 @@ public class Member implements Serializable {
 	@Schema(description = "飲食禁忌")
 	@TableField("food_taboo")
 	private String foodTaboo;
-
-	@Schema(description = "用於分類會員資格, 1為 Member，2為 Others，3為 Non-Member，4為 MVP，5為 Speaker，6為 Moderator，7為 Staff")
-	@TableField("category")
-	private Integer category;
 
 	@Schema(description = "會員資格的身份補充")
 	@TableField("category_extra")

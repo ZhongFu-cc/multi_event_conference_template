@@ -20,9 +20,11 @@ import tw.com.conference.exception.EmailException;
 import tw.com.conference.pojo.DTO.SendEmailDTO;
 import tw.com.conference.pojo.entity.Member;
 import tw.com.conference.pojo.entity.MemberTag;
+import tw.com.conference.pojo.entity.MemberType;
 import tw.com.conference.service.AsyncService;
 import tw.com.conference.service.MemberService;
 import tw.com.conference.service.MemberTagService;
+import tw.com.conference.service.MemberTypeService;
 import tw.com.conference.service.ScheduleEmailTaskService;
 
 @Component
@@ -34,6 +36,7 @@ public class MemberMailStrategy implements MailStrategy {
 
 	private static final String DAILY_EMAIL_QUOTA_KEY = "email:dailyQuota";
 	private final MemberService memberService;
+	private final MemberTypeService memberTypeService;
 	private final MemberTagService memberTagService;
 	private final AsyncService asyncService;
 	private final ScheduleEmailTaskService scheduleEmailTaskService;
@@ -116,7 +119,7 @@ public class MemberMailStrategy implements MailStrategy {
 	private String replaceMemberMergeTag(String content, Member member) {
 
 		String newContent;
-		MemberCategoryEnum memberCategoryEnum = MemberCategoryEnum.fromValue(member.getCategory());
+		MemberType memberType = memberTypeService.get(member.getMemberTypeId());
 
 		newContent = content.replace("{{title}}", Strings.nullToEmpty(member.getTitle()))
 				.replace("{{firstName}}", Strings.nullToEmpty(member.getFirstName()))
@@ -126,7 +129,7 @@ public class MemberMailStrategy implements MailStrategy {
 				.replace("{{country}}", Strings.nullToEmpty(member.getCountry()))
 				.replace("{{affiliation}}", Strings.nullToEmpty(member.getAffiliation()))
 				.replace("{{jobTitle}}", Strings.nullToEmpty(member.getJobTitle()))
-				.replace("{{category}}", memberCategoryEnum.getLabelEn());
+				.replace("{{category}}", memberType.getLabelZh());
 
 		return newContent;
 

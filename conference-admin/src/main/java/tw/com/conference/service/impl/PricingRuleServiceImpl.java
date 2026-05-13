@@ -53,7 +53,7 @@ public class PricingRuleServiceImpl extends ServiceImpl<PricingRuleMapper, Prici
 	@Override
 	public PricingRule resolvePricingRule(Long eventId, Long memberTypeId, NationalityEnum nationality,
 			LocalDateTime targetTime) {
-		PricingRule pricingRule = baseMapper.selectPricingRuleByQuery(eventId, memberTypeId, nationality, targetTime);
+		PricingRule pricingRule = baseMapper.selectMatchedRule(eventId, memberTypeId, nationality, targetTime);
 		if (pricingRule == null) {
 			throw new PricingRuleException("沒有匹配的價格規則。");
 		}
@@ -135,5 +135,6 @@ public class PricingRuleServiceImpl extends ServiceImpl<PricingRuleMapper, Prici
 		baseMapper.deleteByEventId(eventId);
 		
 	}
+
 
 }

@@ -21,6 +21,7 @@ import tw.com.conference.pojo.entity.PricingRule;
  */
 public interface PricingRuleMapper extends BaseMapper<PricingRule> {
 
+
 	/**
 	 * 查詢該活動所有的價格規則
 	 * 
@@ -42,7 +43,7 @@ public interface PricingRuleMapper extends BaseMapper<PricingRule> {
 	 * @param targetTime   目標時間
 	 * @return
 	 */
-	default PricingRule selectPricingRuleByQuery(Long eventId, Long memberTypeId, NationalityEnum nationality,
+	default PricingRule selectMatchedRule(Long eventId, Long memberTypeId, NationalityEnum nationality,
 			LocalDateTime targetTime) {
 
 		LambdaQueryWrapper<PricingRule> queryWrapper = new LambdaQueryWrapper<>();

@@ -223,22 +223,22 @@ public class MemberManager {
 			BigDecimal twdAmount = order.getTotalAmount();
 
 			// 5-6 如果itemsSummary為Group Registration Fee , 代表是團體報名 , 那台幣金額要重算
-			if (order.getItemsSummary().equals(OrderConstants.GROUP_ITEMS_SUMMARY_REGISTRATION)) {
-
-				// 1.拿到配置設定,知道處於哪個註冊階段
-				RegistrationPhaseEnum registrationPhaseEnum = settingService
-						.getRegistrationPhaseEnum(member.getCreateDate());
-
-				// 2.拿到身分
-				MemberCategoryEnum memberCategoryEnum = MemberCategoryEnum.fromValue(member.getCategory());
-
-				// 3.透過階段、國籍、身分，得到金額
-				BigDecimal membershipFee = registrationFeeConfig.getFee(registrationPhaseEnum.getValue(),
-						member.getCountry(), memberCategoryEnum.getConfigKey());
-
-				// 4.金額還要再打團體報名的優惠折扣
-				twdAmount = membershipFee.multiply(BigDecimal.valueOf(GROUP_DISCOUNT));
-			}
+//			if (order.getItemsSummary().equals(OrderConstants.GROUP_ITEMS_SUMMARY_REGISTRATION)) {
+//
+//				// 1.拿到配置設定,知道處於哪個註冊階段
+//				RegistrationPhaseEnum registrationPhaseEnum = settingService
+//						.getRegistrationPhaseEnum(member.getCreateDate());
+//
+//				// 2.拿到身分
+//				MemberCategoryEnum memberCategoryEnum = MemberCategoryEnum.fromValue(member.getCategory());
+//
+//				// 3.透過階段、國籍、身分，得到金額
+//				BigDecimal membershipFee = registrationFeeConfig.getFee(registrationPhaseEnum.getValue(),
+//						member.getCountry(), memberCategoryEnum.getConfigKey());
+//
+//				// 4.金額還要再打團體報名的優惠折扣
+//				twdAmount = membershipFee.multiply(BigDecimal.valueOf(GROUP_DISCOUNT));
+//			}
 
 			// 5-7訂單資料,拿到美金折算匯率,計算並保留兩位小數,四捨五入規則,最後固定小數點後兩位
 			BigDecimal rate = new BigDecimal(RATE);

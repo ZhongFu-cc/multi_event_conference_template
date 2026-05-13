@@ -5,9 +5,10 @@ import java.math.BigDecimal;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import tw.com.conference.enums.OrderStatusEnum;
 
 @Data
-public class AddOrdersDTO {
+public class AddOrderDTO {
 	
 	@NotNull
 	@Schema(description = "會員ID")
@@ -19,7 +20,7 @@ public class AddOrdersDTO {
 	@Schema(description = "訂單總金額")
 	private BigDecimal totalAmount;
 
-	@Schema(description = "訂單狀態 0為未付款 ; 1為已付款-待審核 ; 2為付款成功 ; 3為付款失敗")
-	private Integer status;
+	@Schema(description = "訂單狀態: 未付款,已付款-待審核,付款成功,付款失敗")
+	private OrderStatusEnum status;
 
 }

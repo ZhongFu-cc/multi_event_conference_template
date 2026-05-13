@@ -1,5 +1,8 @@
 package tw.com.conference.enums;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -13,7 +16,7 @@ public enum OrderStatusEnum {
 	 * <p>
 	 * 訂單已建立，但尚未收到任何付款。
 	 */
-	UNPAID(0, "Unpaid", "未付款"),
+	UNPAID("unpaid", "Unpaid", "未付款"),
 
 	/**
 	 * 付款待確認，代號為 1
@@ -22,7 +25,7 @@ public enum OrderStatusEnum {
 	 * <p>
 	 * 客戶已付款，但系統/審核人員，尚未確認收款。
 	 */
-	PENDING_CONFIRMATION(1, "Pending-Confirmation", "付款-待確認"),
+	PENDING_CONFIRMATION("pending-confirmation", "Pending-Confirmation", "付款-待確認"),
 
 	/**
 	 * 付款成功，代號為 2
@@ -31,7 +34,7 @@ public enum OrderStatusEnum {
 	 * <p>
 	 * 系統/審核人員，已確認收到客戶的付款。
 	 */
-	PAYMENT_SUCCESS(2, "Payment-Success", "付款完成"),
+	PAYMENT_SUCCESS("payment-success", "Payment-Success", "付款完成"),
 
 	/**
 	 * 付款失敗，代號為 3
@@ -40,12 +43,14 @@ public enum OrderStatusEnum {
 	 * <p>
 	 * 客戶付款失敗或交易被拒絕。
 	 */
-	PAYMENT_FAILED(3, "Payment-Failed", "付款失败");
+	PAYMENT_FAILED("payment-failed", "Payment-Failed", "付款失败");
 
 	/**
 	 * DB table 中的代號
 	 */
-	private final Integer value;
+	@EnumValue
+	@JsonValue // JSON 輸出用
+	private final String value;
 
 	/**
 	 * 標籤-英文
@@ -57,11 +62,11 @@ public enum OrderStatusEnum {
 	 */
 	private final String labelZh;
 
-	public static OrderStatusEnum fromValue(Integer value) {
+	public static OrderStatusEnum fromValue(String value) {
 		for (OrderStatusEnum type : values()) {
 			if (type.value.equals(value))
 				return type;
 		}
-		throw new IllegalArgumentException("無效的付款值: " + value);
+		throw new IllegalArgumentException("無效的付款狀態: " + value);
 	}
 }

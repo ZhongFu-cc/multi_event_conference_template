@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
+import tw.com.conference.enums.OrderStatusEnum;
 
 /**
  * <p>
@@ -37,18 +38,18 @@ public class Orders implements Serializable {
 	@Schema(description = "會員ID")
 	@TableField("member_id")
 	private Long memberId;
-	
+
 	@Schema(description = "這筆訂單商品的統稱- 因為綠界沒有辦法顯示 明細 對應 細項金額,只能統整Total金額")
 	@TableField("items_summary")
 	private String itemsSummary;
-	
+
 	@Schema(description = "訂單總金額")
 	@TableField("total_amount")
 	private BigDecimal totalAmount;
 
-	@Schema(description = "訂單狀態 0為未付款 ; 1為已付款-待審核 ; 2為付款成功 ; 3為付款失敗")
+	@Schema(description = "訂單狀態: 未付款,已付款-待審核,付款成功,付款失敗")
 	@TableField("status")
-	private Integer status;
+	private OrderStatusEnum status;
 
 	@Schema(description = "創建者")
 	@TableField(value = "create_by", fill = FieldFill.INSERT)

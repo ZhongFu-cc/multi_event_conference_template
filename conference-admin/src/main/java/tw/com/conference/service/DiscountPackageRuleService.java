@@ -1,5 +1,7 @@
 package tw.com.conference.service;
 
+import java.util.List;
+
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import tw.com.conference.pojo.DTO.addEntityDTO.AddDiscountPackageRuleDTO;
@@ -16,6 +18,22 @@ import tw.com.conference.pojo.entity.DiscountPackageRule;
  */
 public interface DiscountPackageRuleService extends IService<DiscountPackageRule> {
 
+	
+	/**
+	 * 查詢觸發的組合優惠規則
+	 * @param packageId 優惠組合ID
+	 * @param hitCount 觸發數量
+	 * @return
+	 */
+	List<DiscountPackageRule> findTriggerRule(Long packageId, int hitCount);
+	
+	/**
+	 * 
+	 * @param packageId
+	 * @return
+	 */
+	List<DiscountPackageRule> findByPackageId(Long packageId);
+	
 	/**
 	 * 獲取優惠組合規則
 	 * 
@@ -52,5 +70,7 @@ public interface DiscountPackageRuleService extends IService<DiscountPackageRule
 	 * @param discountPackageId
 	 */
 	void removeByDiscountPackageId(Long discountPackageId);
+
+
 
 }
