@@ -72,6 +72,8 @@ public class CalculateDiscountHelper {
 			Long packageId = entry.getKey();
 			List<Long> bundleEventIds = entry.getValue();
 
+			System.out.println("packageId: " +packageId + "bundleEventIds: " + bundleEventIds);
+			
 			// 組合優惠資訊
 			DiscountPackage discountPackage = discountPackageService.get(packageId);
 
@@ -211,7 +213,7 @@ public class CalculateDiscountHelper {
 
 			// 若 discountValue=80 代表支付 80%（8折）
 			// 即：80/100 = 0.8 , 取小數點0位,四捨五入
-			BigDecimal payPercent = discountValue.divide(new BigDecimal(100), 0, RoundingMode.HALF_UP);
+			BigDecimal payPercent = discountValue.divide(new BigDecimal(100), 2, RoundingMode.HALF_UP);
 			// 1 - 減免百分比 = 折扣金額%數
 			BigDecimal discountPercent = BigDecimal.ONE.subtract(payPercent);
 			// 當前金額 * 折扣百分比 = 折扣金額,把計算結果的小數部分處理掉，四捨五入到整數（元）
