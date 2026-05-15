@@ -8,6 +8,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import lombok.RequiredArgsConstructor;
 import tw.com.conference.convert.EventConvert;
+import tw.com.conference.enums.CommonStatusEnum;
+import tw.com.conference.exception.EventException;
 import tw.com.conference.mapper.EventMapper;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddEventDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutEventDTO;
@@ -42,7 +44,12 @@ public class EventServiceImpl extends ServiceImpl<EventMapper, Event> implements
 	public Event get(Long eventId) {
 		return baseMapper.selectById(eventId);
 	}
-	
+
+	@Override
+	public Event getMain() {
+		return baseMapper.selectMain();
+	}
+
 	@Override
 	public List<Event> findAvailable() {
 		return baseMapper.selectCurrentAvailable();
@@ -51,6 +58,12 @@ public class EventServiceImpl extends ServiceImpl<EventMapper, Event> implements
 	@Override
 	public Event create(AddEventDTO addEventDTO) {
 		Event event = eventConvert.addDTOToEntity(addEventDTO);
+		if (event.getIsMain().equals(CommonStatusEnum.YES)) {
+			// 查看看是否已存在主活動，如果有則拋出異常
+			if (getMain() != null) {
+				throw new EventException("主會議只能有一場");
+			}
+		}
 		baseMapper.insert(event);
 		return event;
 	}
@@ -66,7 +79,5 @@ public class EventServiceImpl extends ServiceImpl<EventMapper, Event> implements
 	public void remove(Long eventId) {
 		baseMapper.deleteById(eventId);
 	}
-
-
 
 }

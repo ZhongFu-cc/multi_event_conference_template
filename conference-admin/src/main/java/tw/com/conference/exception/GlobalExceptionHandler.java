@@ -39,6 +39,21 @@ public class GlobalExceptionHandler {
 	//		return R.ok();
 	//	}
 
+	
+	/**
+	 * 活動建立的業務邏輯錯誤
+	 * 
+	 * @param exception
+	 * @return
+	 */
+	@ResponseBody
+	@ResponseStatus(HttpStatus.CONFLICT)
+	@ExceptionHandler(value = EventException.class)
+	public R<Map<String, Object>> eventException(EventException exception) {
+		String message = exception.getMessage();
+		return R.fail(409, message);
+	}
+	
 	/**
 	 * 定價規則的業務邏輯錯誤
 	 * 

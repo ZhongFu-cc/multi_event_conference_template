@@ -39,6 +39,13 @@ public interface EventService extends IService<Event> {
 	Event get(Long eventId);
 
 	/**
+	 * 查詢主活動
+	 * 
+	 * @return
+	 */
+	Event getMain();
+
+	/**
 	 * 查詢可用的Event<br>
 	 * 1.處於啟用狀態
 	 * 2.處於報名期間

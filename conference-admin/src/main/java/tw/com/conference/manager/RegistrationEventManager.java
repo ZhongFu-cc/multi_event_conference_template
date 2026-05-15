@@ -60,12 +60,14 @@ public class RegistrationEventManager {
 	}
 
 	/**
-	 * 會員申請參加活動
+	 * 個人報名活動<br>
+	 * 可一次報名 **多個** 事件<br>
+	 * 可套用優惠組合
 	 * 
 	 * @param member
 	 * @param eventIds
 	 */
-	public EventOrderVO registrationEvent(Member member, List<Long> eventIds) {
+	public EventOrderVO individualRegistration(Member member, List<Long> eventIds) {
 
 		// 如果沒有活動則返回
 		if (eventIds != null && eventIds.isEmpty()) {
@@ -140,23 +142,11 @@ public class RegistrationEventManager {
 	}
 
 	/**
-	 * 個人報名活動<br>
-	 * 可一次報名 **多個** 事件
-	 * 
-	 * @param memberCache
-	 * @param eventIds
-	 * @return
-	 */
-	public EventOrderVO individualRegistration(Member memberCache, @Valid List<Long> eventIds) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/**
 	 * 
 	 * 團體報名活動事件<br>
 	 * 一次僅可報名 **一個** 事件<br>
-	 * 需帶上團體報名者的專屬code號 (memberId)
+	 * 需帶上團體報名者的專屬code號 (memberId)<br>
+	 * 只能使用團體優惠組合
 	 * 
 	 * @param memberCache
 	 * @param dto

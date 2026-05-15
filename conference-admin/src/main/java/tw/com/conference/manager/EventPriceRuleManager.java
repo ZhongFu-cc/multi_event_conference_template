@@ -9,9 +9,11 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 import tw.com.conference.enums.NationalityEnum;
+import tw.com.conference.exception.EventException;
 import tw.com.conference.pojo.VO.PriceDashboardVO;
 import tw.com.conference.pojo.VO.PriceDashboardVO.PriceRowVO;
 import tw.com.conference.pojo.VO.PriceDashboardVO.PriceTableVO;
+import tw.com.conference.pojo.entity.Event;
 import tw.com.conference.pojo.entity.MemberType;
 import tw.com.conference.pojo.entity.PricingRule;
 import tw.com.conference.service.DiscountPackageItemService;
@@ -116,8 +118,13 @@ public class EventPriceRuleManager {
 	 */
 	public void removeEvent(Long eventId) {
 
-		// 刪除前，要判斷目前刪除的事件是不是最後一個，如果是則不執行刪除
-		
+		Event event = eventService.get(eventId);
+
+		// 如果Event 是 main活動,不可刪除
+		if (event.getIsMain().getBooleanValue()) {
+			throw new EventException("Main活動 不可刪除");
+		}
+
 		// 刪除事件活動 相關的 組合優惠
 		discountPackageItemService.removeByEventId(eventId);
 

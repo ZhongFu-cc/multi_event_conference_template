@@ -22,6 +22,16 @@ import tw.com.conference.pojo.entity.Event;
 public interface EventMapper extends BaseMapper<Event> {
 
 	/**
+	 * 查詢主會議
+	 * @return
+	 */
+	default Event selectMain() {
+		LambdaQueryWrapper<Event> queryWrapper = new LambdaQueryWrapper<>();
+		queryWrapper.eq(Event::getIsMain, CommonStatusEnum.YES);
+		return this.selectOne(queryWrapper);
+	}
+
+	/**
 	 * 搜尋當前時間可報名的活動
 	 * 
 	 * @return

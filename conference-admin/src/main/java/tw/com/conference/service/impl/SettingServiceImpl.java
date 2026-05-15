@@ -10,7 +10,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import lombok.RequiredArgsConstructor;
 import tw.com.conference.convert.SettingConvert;
-import tw.com.conference.enums.RegistrationPhaseEnum;
 import tw.com.conference.exception.SettingException;
 import tw.com.conference.mapper.SettingMapper;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutSettingDTO;
@@ -63,16 +62,6 @@ public class SettingServiceImpl extends ServiceImpl<SettingMapper, Setting> impl
 				setting.getAbstractSubmissionEndTime());
 	}
 
-	/**
-	 * 判斷某個時間 time 是否落在「某個截止時間」之前（含等於）。
-	 * 
-	 * @param time
-	 * @param deadline
-	 * @return
-	 */
-	private boolean isInPhase(LocalDateTime time, LocalDateTime deadline) {
-		return deadline != null && (time.isBefore(deadline) || time.isEqual(deadline));
-	}
 
 	/**
 	 * 判斷是否處於活動時間

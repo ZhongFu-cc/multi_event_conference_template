@@ -2,7 +2,6 @@ package tw.com.conference.pojo.DTO.putEntityDTO;
 
 import java.time.LocalDateTime;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -59,6 +58,5 @@ public class PutEventDTO {
 	@NotNull
 	@Schema(description = "是否啟用;0=否,1=是")
 	private CommonStatusEnum isActive;
-
 
 }
