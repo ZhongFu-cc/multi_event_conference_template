@@ -340,14 +340,14 @@ public class MemberController {
 	public R<SaTokenInfo> login(@Valid @RequestBody MemberIdCardLogin memberIdCardLogin) {
 
 		// 透過key 獲取redis中的驗證碼
-		String redisCode = redissonClient.<String>getBucket(memberIdCardLogin.getVerificationKey()).get();
-		String userVerificationCode = memberIdCardLogin.getVerificationCode();
+//		String redisCode = redissonClient.<String>getBucket(memberIdCardLogin.getVerificationKey()).get();
+//		String userVerificationCode = memberIdCardLogin.getVerificationCode();
 
 		// 判斷驗證碼是否正確,如果不正確就直接返回前端,不做後續的業務處理
-		if (userVerificationCode == null || redisCode == null
-				|| !redisCode.equals(userVerificationCode.trim().toLowerCase())) {
-			return R.fail("Verification code is incorrect");
-		}
+//		if (userVerificationCode == null || redisCode == null
+//				|| !redisCode.equals(userVerificationCode.trim().toLowerCase())) {
+//			return R.fail("Verification code is incorrect");
+//		}
 
 		// 驗證通過,刪除key 並往後執行添加操作
 		redissonClient.getBucket(memberIdCardLogin.getVerificationKey()).delete();

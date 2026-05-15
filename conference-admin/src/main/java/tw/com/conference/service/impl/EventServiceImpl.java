@@ -1,5 +1,7 @@
 package tw.com.conference.service.impl;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -30,10 +32,20 @@ public class EventServiceImpl extends ServiceImpl<EventMapper, Event> implements
 	public boolean existAny() {
 		return baseMapper.existAnyEvent();
 	}
-	
+
+	@Override
+	public long count() {
+		return baseMapper.selectCount(null);
+	}
+
 	@Override
 	public Event get(Long eventId) {
 		return baseMapper.selectById(eventId);
+	}
+	
+	@Override
+	public List<Event> findAvailable() {
+		return baseMapper.selectCurrentAvailable();
 	}
 
 	@Override
@@ -47,7 +59,7 @@ public class EventServiceImpl extends ServiceImpl<EventMapper, Event> implements
 	public void update(PutEventDTO putEventDTO) {
 		Event event = eventConvert.putDTOToEntity(putEventDTO);
 		baseMapper.updateById(event);
-		
+
 	}
 
 	@Override
@@ -56,6 +68,5 @@ public class EventServiceImpl extends ServiceImpl<EventMapper, Event> implements
 	}
 
 
-	
 
 }

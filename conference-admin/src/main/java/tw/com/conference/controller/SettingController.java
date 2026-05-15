@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import tw.com.conference.manager.SettingManager;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutSettingDTO;
 import tw.com.conference.pojo.VO.SettingVO;
 import tw.com.conference.pojo.entity.Setting;
@@ -29,6 +30,7 @@ import tw.com.conference.utils.R;
 public class SettingController {
 
 	private final SettingService settingService;
+	private final SettingManager settingManager;
 
 	@GetMapping()
 	@Operation(summary = "查詢設定")

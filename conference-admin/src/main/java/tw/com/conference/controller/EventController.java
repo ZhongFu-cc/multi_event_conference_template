@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,13 +22,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import tw.com.conference.manager.EventPriceRuleManager;
 import tw.com.conference.manager.RegistrationEventManager;
+import tw.com.conference.pojo.DTO.GroupRegistrationDTO;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddEventDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutEventDTO;
 import tw.com.conference.pojo.VO.EventOrderVO;
-import tw.com.conference.pojo.VO.MemberVO;
 import tw.com.conference.pojo.entity.Event;
 import tw.com.conference.pojo.entity.Member;
-import tw.com.conference.saToken.StpKit;
 import tw.com.conference.service.EventService;
 import tw.com.conference.service.MemberService;
 import tw.com.conference.utils.R;
@@ -113,15 +111,25 @@ public class EventController {
 
 	/** ------------------- 以下為用戶報名參加活動事件用 ------------------------------------ */
 
-	@PostMapping("registration")
-	@Operation(summary = "用戶報名活動")
-	@Parameters({
-			@Parameter(name = "Authorization-member", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
-	@SaCheckLogin(type = StpKit.MEMBER_TYPE)
-	public R<EventOrderVO> registrationEvent(@Valid @RequestBody List<Long> eventIds) {
-		// 根據token 拿取本人的數據
+	@PostMapping("individual")
+	@Operation(summary = "個人報名活動")
+	public R<EventOrderVO> individualRegistration(@Valid @RequestBody List<Long> eventIds) {
+
 		Member memberCache = memberService.getMemberInfo();
-		EventOrderVO eventOrderVO = registrationEventManager.registrationEvent(memberCache, eventIds);
+
+		EventOrderVO eventOrderVO = registrationEventManager.individualRegistration(memberCache, eventIds);
+
+		return R.ok(eventOrderVO);
+	}
+
+	@PostMapping("group")
+	@Operation(summary = "團體報名活動")
+	public R<EventOrderVO> groupRegistration(@Valid @RequestBody GroupRegistrationDTO dto) {
+
+		Member memberCache = memberService.getMemberInfo();
+
+		EventOrderVO eventOrderVO = registrationEventManager.groupRegistration(memberCache, dto);
+
 		return R.ok(eventOrderVO);
 	}
 

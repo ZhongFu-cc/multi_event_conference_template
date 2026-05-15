@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
+import tw.com.conference.enums.CommonStatusEnum;
 
 /**
  * <p>
@@ -28,66 +29,84 @@ import lombok.Setter;
 @Schema(name = "Event", description = "活動事件表")
 public class Event implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    @Schema(description = "主鍵ID")
-    @TableId("event_id")
-    private Long eventId;
+	@Schema(description = "主鍵ID")
+	@TableId("event_id")
+	private Long eventId;
 
-    @Schema(description = "父ID , 允許活動內有子活動選項")
-    @TableField("parent_id")
-    private Long parentId;
+	@Schema(description = "父ID , 允許活動內有子活動選項")
+	@TableField("parent_id")
+	private Long parentId;
 
-    @Schema(description = "活動主題")
-    @TableField("title")
-    private String title;
+	@Schema(description = "活動主題")
+	@TableField("title")
+	private String title;
 
-    @Schema(description = "活動描述")
-    @TableField("description")
-    private String description;
+	@Schema(description = "活動描述")
+	@TableField("description")
+	private String description;
 
-    @Schema(description = "活動開始時間")
-    @TableField("start_at")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime startAt;
+	@Schema(description = "活動當天開始時間")
+	@TableField("start_at")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	private LocalDateTime startAt;
 
-    @Schema(description = "活動結束時間")
-    @TableField("end_at")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime endAt;
+	@Schema(description = "活動當天結束時間")
+	@TableField("end_at")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	private LocalDateTime endAt;
 
-    @Schema(description = "活動地點")
-    @TableField("location")
-    private String location;
+	@Schema(description = "活動地點")
+	@TableField("location")
+	private String location;
 
-    @Schema(description = "人數限制,預設為0,0為不限人數")
-    @TableField("capacity")
-    private Integer capacity;
+	@Schema(description = "人數限制,預設為0,0為不限人數")
+	@TableField("capacity")
+	private Integer capacity;
 
-    @Schema(description = "活動啟用狀態,預設為0,啟用")
-    @TableField("is_active")
-    private Integer isActive;
+	@Schema(description = "報名開放時間")
+	@TableField("registration_open_at")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	private LocalDateTime registrationOpenAt;
 
-    @Schema(description = "創建者")
-    @TableField("create_by")
-    private String createBy;
+	@Schema(description = "報名關閉時間")
+	@TableField("registration_close_at")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	private LocalDateTime registrationCloseAt;
 
-    @Schema(description = "創建時間")
-    @TableField(value = "create_date", fill = FieldFill.INSERT)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime createDate;
+	@Schema(description = "是否為主活動;0=否,1=是;只允許有一個主活動")
+	@TableField("is_main")
+	private CommonStatusEnum isMain;
 
-    @Schema(description = "最後修改者")
-    @TableField("update_by")
-    private String updateBy;
+	@Schema(description = "是否允許團體報名;0=否,1=是")
+	@TableField("allow_group_registration")
+	private CommonStatusEnum allowGroupRegistration;
 
-    @Schema(description = "最後修改時間")
-    @TableField(value = "update_date", fill = FieldFill.UPDATE)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime updateDate;
+	@Schema(description = "是否啟用;0=否,1=是")
+	@TableField("is_active")
+	private CommonStatusEnum isActive;
 
-    @Schema(description = "邏輯刪除,預設為0活耀,1為刪除")
-    @TableField("is_deleted")
-    @TableLogic
-    private Integer isDeleted;
+	@Schema(description = "創建者")
+	@TableField("create_by")
+	private String createBy;
+
+	@Schema(description = "創建時間")
+	@TableField(value = "create_date", fill = FieldFill.INSERT)
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	private LocalDateTime createDate;
+
+	@Schema(description = "最後修改者")
+	@TableField("update_by")
+	private String updateBy;
+
+	@Schema(description = "最後修改時間")
+	@TableField(value = "update_date", fill = FieldFill.UPDATE)
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	private LocalDateTime updateDate;
+
+	@Schema(description = "邏輯刪除,預設為0活耀,1為刪除")
+	@TableField("is_deleted")
+	@TableLogic
+	private Integer isDeleted;
 }

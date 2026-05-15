@@ -55,21 +55,6 @@ public class Setting implements Serializable {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime abstractSubmissionStartTime;
 
-	@Schema(description = "早鳥優惠_一階段截止時間")
-	@TableField("early_bird_discount_phase_one_deadline")
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	private LocalDateTime earlyBirdDiscountPhaseOneDeadline;
-
-	@Schema(description = "早鳥優惠_三階段截止時間 (備用)")
-	@TableField("early_bird_discount_phase_three_deadline")
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	private LocalDateTime earlyBirdDiscountPhaseThreeDeadline;
-
-	@Schema(description = "早鳥優惠_二階段截止時間 (備用)")
-	@TableField("early_bird_discount_phase_two_deadline")
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	private LocalDateTime earlyBirdDiscountPhaseTwoDeadline;
-
 	@Schema(description = "最後下訂單 (訂房 or City Tour ) 時間")
 	@TableField("last_order_time")
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

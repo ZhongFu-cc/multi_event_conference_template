@@ -12,18 +12,6 @@ public class PutSettingDTO {
 
 	@Schema(description = "主鍵ID")
 	private Long settingId;
-
-	@Schema(description = "早鳥優惠_一階段截止時間")
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	private LocalDateTime earlyBirdDiscountPhaseOneDeadline;
-	
-	@Schema(description = "早鳥優惠_二階段截止時間 (備用)")
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	private LocalDateTime earlyBirdDiscountPhaseTwoDeadline;
-	
-	@Schema(description = "早鳥優惠_三階段截止時間 (備用)")
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	private LocalDateTime earlyBirdDiscountPhaseThreeDeadline;
 	
 	@Schema(description = "摘要開放投稿時間")
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

@@ -28,22 +28,6 @@ public interface SettingService extends IService<Setting> {
 	void updateSetting(PutSettingDTO putSettingDTO);
 
 
-	 /**
-     * 判斷當前時間屬於早鳥優惠的哪一個階段。
-     *
-     * @return 返回表示早鳥階段的枚舉。
-     * 如果當前時間不在任何早鳥階段或設置不完整，則返回 "NONE"。
-     */
-	RegistrationPhaseEnum getRegistrationPhaseEnum();
-	
-	 /**
-     * 判斷 指定時間 屬於早鳥優惠的哪一個階段。
-     *
-     * @return 返回表示早鳥階段的枚舉。
-     * 如果當前時間不在任何早鳥階段或設置不完整，則返回 "NONE"。
-     */
-	RegistrationPhaseEnum getRegistrationPhaseEnum(LocalDateTime targetDateTime);
-
 	/**
 	 * 檢查是否仍可下訂單 (例如：訂房或城市觀光)。
 	 * 判斷依據為當前時間是否在最後下訂單時間之前或等於最後下訂單時間。

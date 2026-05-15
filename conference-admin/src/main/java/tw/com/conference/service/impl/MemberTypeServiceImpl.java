@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import lombok.RequiredArgsConstructor;
 import tw.com.conference.convert.MemberTypeConvert;
+import tw.com.conference.enums.UsageContextEnum;
 import tw.com.conference.mapper.MemberTypeMapper;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddMemberTypeDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutMemberTypeDTO;
@@ -42,6 +43,16 @@ public class MemberTypeServiceImpl extends ServiceImpl<MemberTypeMapper, MemberT
 	@Override
 	public List<MemberType> list() {
 		return baseMapper.selectList(null);
+	}
+
+	@Override
+	public List<MemberType> findFrontend() {
+		return baseMapper.selectByUsageContext(UsageContextEnum.FRONTEND);
+	}
+
+	@Override
+	public List<MemberType> findBackend() {
+		return baseMapper.selectByUsageContext(UsageContextEnum.BACKEND);
 	}
 
 	@Override

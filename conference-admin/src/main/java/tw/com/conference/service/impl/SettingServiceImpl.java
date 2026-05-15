@@ -64,48 +64,6 @@ public class SettingServiceImpl extends ServiceImpl<SettingMapper, Setting> impl
 	}
 
 	/**
-	 * 根據 給予的時間 判斷處於哪個早鳥階段
-	 * 
-	 * @param time
-	 * @return
-	 */
-	private RegistrationPhaseEnum resolvePhase(LocalDateTime time) {
-		Setting setting = this.getSetting();
-
-		// 如果拿不到setting 則返回一般報名費用
-		if (setting == null) {
-			return RegistrationPhaseEnum.REGULAR;
-		}
-
-		// 如果有設置早鳥一階段，且當下時間符合 早鳥優惠一階段時段 , 則返回PHASE_ONE
-		// 「沒有」設置會直接為false進入下一個判斷
-		if (isInPhase(time, setting.getEarlyBirdDiscountPhaseOneDeadline())) {
-			return RegistrationPhaseEnum.PHASE_ONE;
-		}
-
-		// 如果有設置早鳥二階段，且當下時間符合 早鳥優惠二階段時段 , 則返回PHASE_TWO
-		// 「沒有」設置會直接為false進入下一個判斷
-		if (isInPhase(time, setting.getEarlyBirdDiscountPhaseTwoDeadline())) {
-			return RegistrationPhaseEnum.PHASE_TWO;
-		}
-
-		// 如果有設置早鳥三階段，且當下時間符合 早鳥優惠三階段時段 , 則返回PHASE_THREE
-		// 「沒有」設置會直接為false進入下一個判斷
-		if (isInPhase(time, setting.getEarlyBirdDiscountPhaseThreeDeadline())) {
-			return RegistrationPhaseEnum.PHASE_THREE;
-		}
-
-		// 如果時間位於活動日，則套用現場繳費的金額
-		if (isDuringTheEvent(time, setting.getEventStartDate(), setting.getEventEndDate())) {
-			return RegistrationPhaseEnum.ON_SITE;
-		}
-
-		// 如果前面判斷都不符合，基本上就處於早鳥優惠結束 ~ 現場報名前 , 則返回REGULAR
-		return RegistrationPhaseEnum.REGULAR;
-
-	}
-
-	/**
 	 * 判斷某個時間 time 是否落在「某個截止時間」之前（含等於）。
 	 * 
 	 * @param time
@@ -128,16 +86,6 @@ public class SettingServiceImpl extends ServiceImpl<SettingMapper, Setting> impl
 		LocalDateTime startDateTime = eventStartDate.atStartOfDay(); // 當天 00:00:00
 		LocalDateTime endDateTime = eventEndDate.atTime(LocalTime.MAX); // 當天 23:59:59.999999999
 		return !targetTime.isBefore(startDateTime) && !targetTime.isAfter(endDateTime);
-	}
-
-	@Override
-	public RegistrationPhaseEnum getRegistrationPhaseEnum() {
-		return resolvePhase(LocalDateTime.now());
-	}
-
-	@Override
-	public RegistrationPhaseEnum getRegistrationPhaseEnum(LocalDateTime targetDateTime) {
-		return resolvePhase(targetDateTime);
 	}
 
 	@Override
@@ -166,18 +114,18 @@ public class SettingServiceImpl extends ServiceImpl<SettingMapper, Setting> impl
 
 		// 獲取當前時間
 		LocalDateTime now = LocalDateTime.now();
-		
-	    // 條件 A：當前時間是否在「最後註冊時間」之前 (精確到秒)
-	    boolean isBeforeLastRegistration = !now.isAfter(setting.getLastRegistrationTime());
 
-	    // 條件 B：當前日期是否落在活動區間內 (包含起訖日當天)
-	    LocalDate eventStartDate = setting.getEventStartDate();
-	    LocalDate eventEndDate = setting.getEventEndDate();
-	    // 判斷是否處於活動時間
-	    boolean isInEventPeriod = isDuringTheEvent(now,eventStartDate,eventEndDate);
+		// 條件 A：當前時間是否在「最後註冊時間」之前 (精確到秒)
+		boolean isBeforeLastRegistration = !now.isAfter(setting.getLastRegistrationTime());
 
-	    // 只要符合其中一個條件，就允許註冊
-	    return isBeforeLastRegistration || isInEventPeriod;
+		// 條件 B：當前日期是否落在活動區間內 (包含起訖日當天)
+		LocalDate eventStartDate = setting.getEventStartDate();
+		LocalDate eventEndDate = setting.getEventEndDate();
+		// 判斷是否處於活動時間
+		boolean isInEventPeriod = isDuringTheEvent(now, eventStartDate, eventEndDate);
+
+		// 只要符合其中一個條件，就允許註冊
+		return isBeforeLastRegistration || isInEventPeriod;
 	}
 
 	@Override
@@ -222,13 +170,13 @@ public class SettingServiceImpl extends ServiceImpl<SettingMapper, Setting> impl
 	@Override
 	public SettingVO getFrontSetting() {
 		SettingVO vo = new SettingVO();
-		
+
 		// 設定各類功能 「當前」的開啟狀態
 		vo.setIsRegistrationOpen(isRegistrationOpen());
 		vo.setIsGroupRegistrationOpen(isGroupRegistrationOpen());
 		vo.setIsAbstractSubmissionOpen(isAbstractSubmissionOpen());
 		vo.setIsSlideUploadOpen(isSlideUploadOpen());
-		
+
 		return vo;
 	}
 

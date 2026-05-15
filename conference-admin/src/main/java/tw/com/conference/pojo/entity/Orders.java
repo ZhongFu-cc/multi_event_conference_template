@@ -1,19 +1,24 @@
 package tw.com.conference.pojo.entity;
 
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 import tw.com.conference.enums.OrderStatusEnum;
+import tw.com.conference.pojo.BO.AppliedDiscountBO;
 
 /**
  * <p>
@@ -25,7 +30,7 @@ import tw.com.conference.enums.OrderStatusEnum;
  */
 @Getter
 @Setter
-@TableName("orders")
+@TableName(value = "orders",autoResultMap = true)
 @Schema(name = "Orders", description = "訂單表")
 public class Orders implements Serializable {
 
@@ -43,9 +48,21 @@ public class Orders implements Serializable {
 	@TableField("items_summary")
 	private String itemsSummary;
 
+	@Schema(description = "原價訂單價格總額")
+	@TableField("original_total_amount")
+	private BigDecimal originalTotalAmount;
+	
+	@Schema(description = "總折扣金額")
+	@TableField("total_discount_amount")
+	private BigDecimal totalDiscountAmount;
+	
 	@Schema(description = "訂單總金額")
 	@TableField("total_amount")
 	private BigDecimal totalAmount;
+	
+	@Schema(description = "應用的折扣明細")
+	@TableField(value = "applied_discounts",typeHandler = JacksonTypeHandler.class)
+	private List<AppliedDiscountBO> appliedDiscounts ;
 
 	@Schema(description = "訂單狀態: 未付款,已付款-待審核,付款成功,付款失敗")
 	@TableField("status")

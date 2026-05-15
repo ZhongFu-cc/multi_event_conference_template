@@ -9,12 +9,14 @@ import java.util.Map;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import tw.com.conference.enums.NationalityEnum;
 import tw.com.conference.enums.OrderStatusEnum;
 import tw.com.conference.helper.CalculateDiscountHelper;
 import tw.com.conference.pojo.BO.CalculateResultBO;
 import tw.com.conference.pojo.BO.EventPriceBO;
+import tw.com.conference.pojo.DTO.GroupRegistrationDTO;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddOrderDTO;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddOrderItemDTO;
 import tw.com.conference.pojo.VO.EventOrderVO;
@@ -42,6 +44,20 @@ public class RegistrationEventManager {
 	private final MemberTypeService memberTypeService;
 	private final PricingRuleService pricingRuleService;
 	private final CalculateDiscountHelper calculateDiscountHelper;
+
+	/**
+	 * 獲取當下可報名的Event
+	 */
+	public void findAvailableEvent() {
+
+		// 1.先拿到當下時間，符合報名時段 及 啟用中兩個條件的活動
+		List<Event> availableEvent = eventService.findAvailable();
+
+		// 2.將活動ID 再去與 attendEvent 表去做人數的比對,確定沒有達到限制人數
+
+		// 
+
+	}
 
 	/**
 	 * 會員申請參加活動
@@ -78,18 +94,21 @@ public class RegistrationEventManager {
 		CalculateResultBO calculateFinalPrices = calculateDiscountHelper.calculateFinalPrices(pricingRuleByEventId,
 				eventIds);
 
-		
 		AddOrderDTO addOrderDTO = new AddOrderDTO();
 		// 創建訂單
-		if(calculateFinalPrices.getFinalPrice().equals(BigDecimal.ZERO)) {
+		if (calculateFinalPrices.getFinalPrice().equals(BigDecimal.ZERO)) {
 			addOrderDTO.setStatus(OrderStatusEnum.PAYMENT_SUCCESS);
-		}else {
+		} else {
 			addOrderDTO.setStatus(OrderStatusEnum.UNPAID);
 		}
 		addOrderDTO.setMemberId(member.getMemberId());
+		addOrderDTO.setOriginalTotalAmount(calculateFinalPrices.getOriginalTotal());
+		addOrderDTO.setTotalDiscountAmount(calculateFinalPrices.getOriginalTotal());
 		addOrderDTO.setTotalAmount(calculateFinalPrices.getFinalPrice());
+		addOrderDTO.setAppliedDiscounts(calculateFinalPrices.getAppliedDiscounts());
 		Long orderId = ordersService.addOrder(addOrderDTO);
 
+		// 創建返回對象
 		EventOrderVO eventOrderVO = new EventOrderVO();
 
 		// 創建訂單細項
@@ -100,7 +119,7 @@ public class RegistrationEventManager {
 
 			// VO中塞進這次報名的Event
 			System.out.println("活動:" + event.getTitle() + " " + "金額" + pricingRule.getAmount());
-			
+
 			eventOrderVO.getEventPrices().add(new EventPriceBO(event.getTitle(), pricingRule.getAmount()));
 
 			AddOrderItemDTO addOrderItemDTO = new AddOrderItemDTO();
@@ -118,6 +137,34 @@ public class RegistrationEventManager {
 		BeanUtils.copyProperties(calculateFinalPrices, eventOrderVO);
 
 		return eventOrderVO;
+	}
+
+	/**
+	 * 個人報名活動<br>
+	 * 可一次報名 **多個** 事件
+	 * 
+	 * @param memberCache
+	 * @param eventIds
+	 * @return
+	 */
+	public EventOrderVO individualRegistration(Member memberCache, @Valid List<Long> eventIds) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * 
+	 * 團體報名活動事件<br>
+	 * 一次僅可報名 **一個** 事件<br>
+	 * 需帶上團體報名者的專屬code號 (memberId)
+	 * 
+	 * @param memberCache
+	 * @param dto
+	 * @return
+	 */
+	public EventOrderVO groupRegistration(Member memberCache, @Valid GroupRegistrationDTO dto) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

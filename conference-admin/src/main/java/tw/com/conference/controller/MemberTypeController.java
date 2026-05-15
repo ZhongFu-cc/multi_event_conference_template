@@ -1,5 +1,7 @@
 package tw.com.conference.controller;
 
+import java.util.List;
+
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import tw.com.conference.manager.CategoryPricingRuleManager;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddMemberTypeDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutMemberTypeDTO;
+import tw.com.conference.pojo.entity.Event;
 import tw.com.conference.pojo.entity.MemberType;
 import tw.com.conference.service.MemberTypeService;
 import tw.com.conference.utils.R;
@@ -59,6 +62,30 @@ public class MemberTypeController {
 	public R<MemberType> getMemberType(@PathVariable("id") Long memberTypeId) {
 		MemberType memberType = memberTypeService.get(memberTypeId);
 		return R.ok(memberType);
+	}
+
+	@GetMapping
+	@Operation(summary = "查詢所有會員身分類別")
+	@SaCheckRole("super-admin")
+	public R<List<MemberType>> listMemberType() {
+		List<MemberType> list = memberTypeService.list();
+		return R.ok(list);
+	}
+
+	@GetMapping("frontend")
+	@Operation(summary = "查詢一般網站報名會員身分類別")
+	@SaCheckRole("super-admin")
+	public R<List<MemberType>> listFrontendMemberType() {
+		List<MemberType> list = memberTypeService.findFrontend();
+		return R.ok(list);
+	}
+
+	@GetMapping("backend")
+	@Operation(summary = "查詢管理後台報名會員身分類別")
+	@SaCheckRole("super-admin")
+	public R<List<MemberType>> listBackendMemberType() {
+		List<MemberType> list = memberTypeService.findBackend();
+		return R.ok(list);
 	}
 
 	@PostMapping

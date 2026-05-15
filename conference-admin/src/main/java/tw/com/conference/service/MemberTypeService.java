@@ -20,12 +20,14 @@ public interface MemberTypeService extends IService<MemberType> {
 
 	/**
 	 * 判斷是否有任何會員身份類別
+	 * 
 	 * @return
 	 */
 	boolean existAny();
 
 	/**
 	 * 獲取單一會員身份類別
+	 * 
 	 * @param memberTypeId
 	 * @return
 	 */
@@ -35,23 +37,40 @@ public interface MemberTypeService extends IService<MemberType> {
 	 * 獲取所有會員類別
 	 */
 	List<MemberType> list();
-	
+
+	/**
+	 * 獲取一般網站報名的類別
+	 * 
+	 * @return
+	 */
+	List<MemberType> findFrontend();
+
+	/**
+	 * 獲取後台管理的類別
+	 * 
+	 * @return
+	 */
+	List<MemberType> findBackend();
+
 	/**
 	 * 新增會員身份類別
+	 * 
 	 * @param addMemberTypeDTO
 	 */
 	MemberType create(AddMemberTypeDTO addMemberTypeDTO);
 
 	/**
 	 * 修改會員身份類別
+	 * 
 	 * @param putMemberTypeDTO
 	 */
 	void update(PutMemberTypeDTO putMemberTypeDTO);
 
 	/**
 	 * 刪除會員身份類別
+	 * 
 	 * @param memberTypeId
 	 */
 	void remove(Long memberTypeId);
-	
+
 }
