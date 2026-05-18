@@ -23,6 +23,7 @@ public interface EventMapper extends BaseMapper<Event> {
 
 	/**
 	 * 查詢主會議
+	 * 
 	 * @return
 	 */
 	default Event selectMain() {

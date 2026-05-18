@@ -38,6 +38,10 @@ public class OrdersItem implements Serializable {
 	@Schema(description = "訂單ID")
 	@TableField("orders_id")
 	private Long ordersId;
+	
+	@Schema(description = "活動事件ID")
+	@TableField("event_id")
+	private Long eventId;
 
 	@Schema(description = "產品類型")
 	@TableField("product_type")

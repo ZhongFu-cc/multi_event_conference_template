@@ -54,7 +54,8 @@ public class RegistrationEventManager {
 		List<Event> availableEvent = eventService.findAvailable();
 
 		// 2.將活動ID 再去與 attendEvent 表去做人數的比對,確定沒有達到限制人數
-
+		
+		
 		// 
 
 	}
@@ -126,6 +127,7 @@ public class RegistrationEventManager {
 
 			AddOrderItemDTO addOrderItemDTO = new AddOrderItemDTO();
 			addOrderItemDTO.setOrdersId(orderId);
+			addOrderItemDTO.setEventId(eventId);
 			addOrderItemDTO.setProductType("event");
 			addOrderItemDTO.setProductName(event.getTitle());
 			addOrderItemDTO.setQuantity(1);

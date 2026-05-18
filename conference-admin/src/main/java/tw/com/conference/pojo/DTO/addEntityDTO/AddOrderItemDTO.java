@@ -3,6 +3,8 @@ package tw.com.conference.pojo.DTO.addEntityDTO;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -12,6 +14,9 @@ public class AddOrderItemDTO {
 	@Schema(description = "訂單ID")
 	private Long ordersId;
 
+	@Schema(description = "活動事件ID")
+	private Long eventId;
+	
 	@Schema(description = "產品名稱")
 	private String productName;
 
