@@ -32,5 +32,13 @@ public enum CommonStatusEnum {
 		}
 		throw new IllegalArgumentException("無效的值: " + value);
 	}
+	
+	public static CommonStatusEnum fromBoolean(Boolean value) {
+		for (CommonStatusEnum commonStatusEnum : values()) {
+			if (commonStatusEnum.booleanValue.equals(value))
+				return commonStatusEnum;
+		}
+		throw new IllegalArgumentException("無效的布爾值: " + value);
+	}
 
 }

@@ -167,8 +167,6 @@ public class OrdersController {
 
 	}
 	
-	
-	
 	@GetMapping("payment")
 	@Operation(summary = "根據訂單編號付款", description = "會得到綠界付款的表單，觸發後會直接開啟一個綠界的付款頁面")
 	public R<String> payment(@RequestParam Long id) {

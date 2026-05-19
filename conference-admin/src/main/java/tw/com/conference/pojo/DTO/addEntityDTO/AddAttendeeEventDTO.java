@@ -3,6 +3,7 @@ package tw.com.conference.pojo.DTO.addEntityDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import tw.com.conference.enums.CommonStatusEnum;
 
 @Data
 public class AddAttendeeEventDTO {
@@ -21,6 +22,6 @@ public class AddAttendeeEventDTO {
 	private String receiptNo;
 
 	@Schema(description = "是否付款;0=否,1=是")
-	private Integer isPaid;
+	private CommonStatusEnum isPaid;
 
 }

@@ -36,8 +36,15 @@ public interface OrdersItemService extends IService<OrdersItem> {
 	void createGroupRegistrationOrderItem(Orders order);
 
 	OrdersItem getOrdersItem(Long oredersItemId);
-
+	
 	List<OrdersItem> getOrdersItemList();
+	
+	/**
+	 * 根據 orderId 拿到訂單細項 
+	 * @param orderId
+	 * @return
+	 */
+	List<OrdersItem> findOrderItemsByOrderId(Long orderId);
 
 	IPage<OrdersItem> getOrdersItemPage(Page<OrdersItem> page);
 

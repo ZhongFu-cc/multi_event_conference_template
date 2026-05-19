@@ -26,6 +26,7 @@ import tw.com.conference.pojo.DTO.GroupRegistrationDTO;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddEventDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutEventDTO;
 import tw.com.conference.pojo.VO.EventOrderVO;
+import tw.com.conference.pojo.VO.EventVO;
 import tw.com.conference.pojo.entity.Event;
 import tw.com.conference.pojo.entity.Member;
 import tw.com.conference.service.EventService;
@@ -76,6 +77,13 @@ public class EventController {
 	@SaCheckRole("super-admin")
 	public R<List<Event>> listEvent() {
 		List<Event> list = eventService.list();
+		return R.ok(list);
+	}
+
+	@GetMapping("available")
+	@Operation(summary = "查詢所有活動事件(含可報名狀態)")
+	public R<List<EventVO>> findAvailableEvent() {
+		List<EventVO> list = registrationEventManager.findAvailableEvent();
 		return R.ok(list);
 	}
 

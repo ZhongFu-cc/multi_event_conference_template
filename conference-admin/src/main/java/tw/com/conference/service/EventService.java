@@ -46,14 +46,10 @@ public interface EventService extends IService<Event> {
 	Event getMain();
 
 	/**
-	 * 查詢可用的Event<br>
-	 * 1.處於啟用狀態
-	 * 2.處於報名期間
-	 * 3.人數未達上限
-	 * 
+	 * 查詢所有Event
 	 * @return
 	 */
-	List<Event> findAvailable();
+	List<Event> list();
 
 	/**
 	 * 新增活動事件

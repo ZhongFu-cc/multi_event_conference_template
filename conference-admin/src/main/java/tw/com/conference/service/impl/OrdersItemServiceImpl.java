@@ -91,6 +91,11 @@ public class OrdersItemServiceImpl extends ServiceImpl<OrdersItemMapper, OrdersI
 		List<OrdersItem> ordersItemList = baseMapper.selectList(null);
 		return ordersItemList;
 	}
+	
+	@Override
+	public List<OrdersItem> findOrderItemsByOrderId(Long orderId) {
+		return baseMapper.selectByOrdersId(orderId);
+	}
 
 	@Override
 	public IPage<OrdersItem> getOrdersItemPage(Page<OrdersItem> page) {
@@ -128,5 +133,7 @@ public class OrdersItemServiceImpl extends ServiceImpl<OrdersItemMapper, OrdersI
 		baseMapper.delete(ordersItemWrapper);
 
 	}
+
+
 
 }

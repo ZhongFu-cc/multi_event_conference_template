@@ -2,6 +2,7 @@ package tw.com.conference.manager;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Component;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import tw.com.conference.convert.EventConvert;
+import tw.com.conference.enums.CommonStatusEnum;
 import tw.com.conference.enums.NationalityEnum;
 import tw.com.conference.enums.OrderStatusEnum;
 import tw.com.conference.helper.CalculateDiscountHelper;
@@ -20,10 +23,12 @@ import tw.com.conference.pojo.DTO.GroupRegistrationDTO;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddOrderDTO;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddOrderItemDTO;
 import tw.com.conference.pojo.VO.EventOrderVO;
+import tw.com.conference.pojo.VO.EventVO;
 import tw.com.conference.pojo.entity.Event;
 import tw.com.conference.pojo.entity.Member;
 import tw.com.conference.pojo.entity.MemberType;
 import tw.com.conference.pojo.entity.PricingRule;
+import tw.com.conference.service.AttendeeEventService;
 import tw.com.conference.service.EventService;
 import tw.com.conference.service.MemberTypeService;
 import tw.com.conference.service.OrdersItemService;
@@ -39,24 +44,57 @@ import tw.com.conference.utils.CountryUtil;
 public class RegistrationEventManager {
 
 	private final EventService eventService;
+	private final EventConvert eventConvert;
 	private final OrdersService ordersService;
 	private final OrdersItemService ordersItemService;
 	private final MemberTypeService memberTypeService;
+	private final AttendeeEventService attendeeEventService;
 	private final PricingRuleService pricingRuleService;
 	private final CalculateDiscountHelper calculateDiscountHelper;
 
 	/**
-	 * 獲取當下可報名的Event
+	 * 獲取當下可報名的Event<br>
+	 * 以isAvailable為主要條件
 	 */
-	public void findAvailableEvent() {
+	public List<EventVO> findAvailableEvent() {
 
-		// 1.先拿到當下時間，符合報名時段 及 啟用中兩個條件的活動
-		List<Event> availableEvent = eventService.findAvailable();
+		// 1.先拿到所有活動
+		List<Event> allEvents = eventService.list();
+		if (allEvents.isEmpty()) {
+			return Collections.emptyList();
+		}
 
-		// 2.將活動ID 再去與 attendEvent 表去做人數的比對,確定沒有達到限制人數
-		
-		
-		// 
+		LocalDateTime now = LocalDateTime.now();
+
+		// 2.遍歷活動進行過濾，根據資格設定 isAvailable
+		return allEvents.stream().map(event -> {
+			EventVO eventVO = eventConvert.entityToVO(event);
+
+			// 2-1直接查當前人數 
+			long currentCount = attendeeEventService.countByEventId(event.getEventId());
+			eventVO.setCurrentCount(currentCount);
+
+			// 2-2判斷狀態
+			// 限制人數不為0時,且當前人數大於限制人數
+			CommonStatusEnum isActive = event.getIsActive();
+			CommonStatusEnum isFull = CommonStatusEnum
+					.fromBoolean(!event.getCapacity().equals(0) && currentCount >= event.getCapacity());
+			CommonStatusEnum isOverdue = CommonStatusEnum.fromBoolean(
+					now.isAfter(event.getRegistrationOpenAt()) && now.isBefore(event.getRegistrationCloseAt()));
+
+			eventVO.setIsFull(isFull);
+			eventVO.setIsOverdue(isOverdue);
+
+			// 2-3. 綜合判斷：啟用中(YES) + 未逾期(NO) + 未滿員(NO) = 可報名
+			// 或者是：isActive == YES && isOverdue == NO && isFull == NO
+			boolean availableResult = (isActive.equals(CommonStatusEnum.YES)) && (isOverdue.equals(CommonStatusEnum.NO))
+					&& (isFull.equals(CommonStatusEnum.NO));
+
+			// 2-4. 設置 eventVO 的 isAvailable
+			eventVO.setIsAvailable(CommonStatusEnum.fromBoolean(availableResult));
+
+			return eventVO;
+		}).toList();
 
 	}
 
@@ -82,7 +120,7 @@ public class RegistrationEventManager {
 		// 獲取當前時間
 		LocalDateTime now = LocalDateTime.now();
 
-		// 初始化一個以eventId為key,PricingRule為值的Map對象,
+		// 初始化一個以eventId為key,PricingRule為值的Map對象
 		Map<Long, PricingRule> pricingRuleByEventId = new HashMap<>();
 
 		// 遍歷他所報名的活動,搭配會員的身分及報名時間,得到當前匹配的價格規則 (該場活動要付的錢)
@@ -99,7 +137,7 @@ public class RegistrationEventManager {
 
 		AddOrderDTO addOrderDTO = new AddOrderDTO();
 		// 創建訂單
-		if (calculateFinalPrices.getFinalPrice().equals(BigDecimal.ZERO)) {
+		if (calculateFinalPrices.getFinalPrice().compareTo(BigDecimal.ZERO) == 0) {
 			addOrderDTO.setStatus(OrderStatusEnum.PAYMENT_SUCCESS);
 		} else {
 			addOrderDTO.setStatus(OrderStatusEnum.UNPAID);
@@ -139,6 +177,9 @@ public class RegistrationEventManager {
 
 		// 將BO的值copy過去VO
 		BeanUtils.copyProperties(calculateFinalPrices, eventOrderVO);
+
+		// 報名剛剛選擇參加的活動
+		attendeeEventService.batchCreateUnpaidRecords(member.getMemberId(), eventIds);
 
 		return eventOrderVO;
 	}

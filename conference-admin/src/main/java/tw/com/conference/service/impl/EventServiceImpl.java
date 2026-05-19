@@ -51,8 +51,8 @@ public class EventServiceImpl extends ServiceImpl<EventMapper, Event> implements
 	}
 
 	@Override
-	public List<Event> findAvailable() {
-		return baseMapper.selectCurrentAvailable();
+	public List<Event> list() {
+		return baseMapper.selectList(null);
 	}
 
 	@Override

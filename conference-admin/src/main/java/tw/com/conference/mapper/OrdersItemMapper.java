@@ -1,5 +1,8 @@
 package tw.com.conference.mapper;
 
+import java.util.List;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 import tw.com.conference.pojo.entity.OrdersItem;
@@ -14,4 +17,10 @@ import tw.com.conference.pojo.entity.OrdersItem;
  */
 public interface OrdersItemMapper extends BaseMapper<OrdersItem> {
 
+	default List<OrdersItem> selectByOrdersId(Long ordersId){
+		LambdaQueryWrapper<OrdersItem> queryWrapper = new LambdaQueryWrapper<>();
+		queryWrapper.eq(OrdersItem::getOrdersId,ordersId);
+		return this.selectList(queryWrapper);
+	}
+	
 }

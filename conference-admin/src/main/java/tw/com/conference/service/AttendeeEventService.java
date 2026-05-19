@@ -1,5 +1,7 @@
 package tw.com.conference.service;
 
+import java.util.Collection;
+
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import tw.com.conference.pojo.DTO.addEntityDTO.AddAttendeeEventDTO;
@@ -25,6 +27,14 @@ public interface AttendeeEventService extends IService<AttendeeEvent> {
 	AttendeeEvent get(Long attendeeEventId);
 
 	/**
+	 * 查詢該活動的報名人數
+	 * 
+	 * @param eventId
+	 * @return
+	 */
+	long countByEventId(Long eventId);
+
+	/**
 	 * 新增活動參與
 	 * 
 	 * @param addAttendeeEventDTO
@@ -32,11 +42,23 @@ public interface AttendeeEventService extends IService<AttendeeEvent> {
 	AttendeeEvent create(AddAttendeeEventDTO addAttendeeEventDTO);
 
 	/**
+	 * 新增未付款的報名紀錄
+	 * 
+	 * @param memberId
+	 * @param eventIds
+	 * @return
+	 */
+	void batchCreateUnpaidRecords(Long memberId, Collection<Long> eventIds);
+
+	/**
 	 * 修改活動參與
 	 * 
 	 * @param putAttendeeEventDTO
 	 */
 	void update(PutAttendeeEventDTO putAttendeeEventDTO);
+	
+	
+	void batchConfirmPayment(Long memberId, Collection<Long> eventIds);
 
 	/**
 	 * 刪除活動參與
