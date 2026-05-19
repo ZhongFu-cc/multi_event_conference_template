@@ -1,0 +1,63 @@
+package tw.com.conference.service;
+
+import tw.com.conference.pojo.DTO.EmailBodyContent;
+import tw.com.conference.pojo.entity.Member;
+import tw.com.conference.pojo.entity.MemberType;
+import tw.com.conference.pojo.entity.Paper;
+
+public interface NotificationService {
+
+	/**
+	 * 生成註冊成功的通知信件內容
+	 * 
+	 * @param member
+	 * @param memberType
+	 * @return
+	 */
+	EmailBodyContent generateRegistrationSuccessContent(Member member, MemberType memberType);
+	
+	/**
+	 * 生成 團體報名 註冊成功的通知信件內容
+	 * 
+	 * @param member
+	 * @param memberType
+	 * @return
+	 */
+	EmailBodyContent generateGroupRegistrationSuccessContent(Member member,  MemberType memberType);
+	
+	/**
+	 * 生成 找回密碼 的通知信件內容
+	 * 
+	 * @param password
+	 * @return
+	 */
+	EmailBodyContent generateRetrieveContent(String password);
+	
+
+	/**
+	 * 生成 投稿成功 的通知信件內容
+	 * 
+	 * @param paper
+	 * @return
+	 */
+	EmailBodyContent generateAbstractSuccessContent(Paper paper);
+	
+	/**
+	 * 生成講者更新CV 或 照片時的通知信件內容
+	 * 
+	 * @param speakerName
+	 * @param adminDashboardUrl
+	 * @return
+	 */
+	EmailBodyContent generateSpeakerUpdateContent(String speakerName, String adminDashboardUrl);
+
+	/**
+	 * 生成現場註冊後的通知信
+	 * 
+	 * @param attendeesId
+	 * @param bannerPhotoUrl
+	 * @return
+	 */
+	EmailBodyContent generateWalkInRegistrationContent(Long attendeesId, String bannerPhotoUrl);
+	
+}

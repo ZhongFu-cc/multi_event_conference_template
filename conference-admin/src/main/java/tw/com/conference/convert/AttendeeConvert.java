@@ -1,0 +1,96 @@
+package tw.com.conference.convert;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+
+import tw.com.conference.enums.MemberCategoryEnum;
+import tw.com.conference.pojo.DTO.addEntityDTO.AddAttendeeDTO;
+import tw.com.conference.pojo.VO.AttendeeTagVO;
+import tw.com.conference.pojo.VO.AttendeeVO;
+import tw.com.conference.pojo.entity.Attendee;
+import tw.com.conference.pojo.excelPojo.AttendeeExcel;
+import tw.com.conference.pojo.excelPojo.AttendeeUpdateExcel;
+
+@Mapper(componentModel = "spring")
+public interface AttendeeConvert {
+
+	Attendee addDTOToEntity(AddAttendeeDTO addAttendeeDTO);
+
+	// Attendee putDTOToEntity(PutAttendeeDTO putAttendeesDTO);
+
+	AttendeeVO entityToVO(Attendee attendee);
+
+	AttendeeTagVO entityToAttendeeTagVO(Attendee attendee);
+
+	@Mapping(source = "attendeeId", target = "attendeeId", qualifiedByName = "convertLongToString")
+	@Mapping(source = "member.memberId", target = "memberId", qualifiedByName = "convertLongToString")
+	@Mapping(source = "member.idCard", target = "idCard")
+	@Mapping(source = "member.chineseName", target = "chineseName")
+	@Mapping(source = "member.groupCode", target = "groupCode")
+	@Mapping(source = "member.groupRole", target = "groupRole")
+	@Mapping(source = "member.email", target = "email")
+	@Mapping(source = "member.title", target = "title")
+	@Mapping(source = "member.firstName", target = "firstName")
+	@Mapping(source = "member.lastName", target = "lastName")
+	@Mapping(source = "member.country", target = "country")
+	@Mapping(source = "member.remitAccountLast5", target = "remitAccountLast5")
+	@Mapping(source = "member.affiliation", target = "affiliation")
+	@Mapping(source = "member.jobTitle", target = "jobTitle")
+	@Mapping(source = "member.phone", target = "phone")
+	@Mapping(source = "member.receipt", target = "receipt")
+	@Mapping(source = "member.food", target = "food")
+	@Mapping(source = "member.foodTaboo", target = "foodTaboo")
+//	@Mapping(source = "member.memberTypeId", target = "category", qualifiedByName = "convertCategory")
+	@Mapping(source = "member.categoryExtra", target = "categoryExtra")
+	@Mapping(source = "sequenceNo", target = "sequenceNo", qualifiedByName = "convertInteger2FormatString")
+	@Mapping(source = "receiptNo", target = "receiptNo")
+	AttendeeExcel voToExcel(AttendeeVO attendeeVO);
+
+	@Mapping(source = "attendeeId", target = "attendeeId", qualifiedByName = "convertStringToLong")
+	AttendeeUpdateExcel excelToUpdatePojo(AttendeeExcel atendeeExcel);
+	
+	Attendee updatePojoToEntity (AttendeeUpdateExcel attendeeUpdateExcel);
+	
+	@Named("convertCategory")
+	default String convertCategory(Integer category) {
+		return MemberCategoryEnum.fromValue(category).getLabelZh();
+	}
+
+	@Named("convertLongToString")
+	default String convertLongToString(Long id) {
+		return id.toString();
+	}
+	
+	@Named("convertStringToLong")
+	default Long convertStringToLong(String value) {
+
+	    if (value == null) {
+	        return null;
+	    }
+
+	    String trimmed = value.trim();
+	    if (trimmed.isEmpty()) {
+	        return null;
+	    }
+
+	    try {
+	        return Long.valueOf(trimmed);
+	    } catch (NumberFormatException ex) {
+	        throw new IllegalArgumentException(
+	            "無法轉換為 Long: [" + value + "]", ex
+	        );
+	    }
+	}
+
+	@Named("convertInteger2FormatString")
+	default String convertInteger2FormatString(Integer sequenceNo) {
+		if (sequenceNo != null) {
+			return String.format("%03d", sequenceNo);
+		}
+		return null;
+	}
+
+
+	
+}

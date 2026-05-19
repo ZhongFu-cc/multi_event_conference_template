@@ -1,0 +1,175 @@
+package tw.com.conference.service;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
+
+import tw.com.conference.pojo.BO.CheckinInfoBO;
+import tw.com.conference.pojo.BO.PresenceStatsBO;
+import tw.com.conference.pojo.DTO.addEntityDTO.AddCheckinRecordDTO;
+import tw.com.conference.pojo.DTO.putEntityDTO.PutCheckinRecordDTO;
+import tw.com.conference.pojo.VO.CheckinRecordVO;
+import tw.com.conference.pojo.entity.Attendee;
+import tw.com.conference.pojo.entity.CheckinRecord;
+
+/**
+ * <p>
+ * 簽到退紀錄 服务类
+ * </p>
+ *
+ * @author Joey
+ * @since 2025-05-14
+ */
+public interface CheckinRecordService extends IService<CheckinRecord> {
+
+	/**
+	 * 根據 checkinRecordId 獲取簽到/退紀錄
+	 * 
+	 * @param checkinRecordId
+	 * @return
+	 */
+	CheckinRecord getCheckinRecord(Long checkinRecordId);
+	
+	/**
+	 * 查詢所有簽到/退 紀錄
+	 * 
+	 * @return
+	 */
+	List<CheckinRecord> getCheckinRecordList();
+	
+	/**
+	 * mybatis 原始高速查詢所有CheckinRecord<br>
+	 * 輸出Excel數據適用
+	 * 
+	 * @return
+	 */
+	List<CheckinRecord> getCheckinRecordsEfficiently();
+	
+	/**
+	 * 根據 attendeesId 找到與會者所有簽到/退紀錄
+	 * 
+	 * @param attendeesId
+	 * @return
+	 */
+	List<CheckinRecord> getCheckinRecordByAttendeeId(Long attendeeId);
+	
+	/**
+	 * 根據 attendeesId 找到與會者簽到記錄的總數
+	 * 
+	 * @param attendeesId
+	 * @return
+	 */
+	long getCheckinRecordCountByAttendeeId(Long attendeeId);
+	
+	/**
+	 * 根據 attendeesIds 找到範圍內與會者 所有簽到/退紀錄
+	 * 
+	 * @param attendeesIds
+	 * @return
+	 */
+	List<CheckinRecord> getCheckinRecordByAttendeeIds(Collection<Long> attendeeIds);
+	
+	/**
+	 * 查詢所有簽到/退 紀錄(分頁)
+	 * 
+	 * @param page
+	 * @return
+	 */
+	IPage<CheckinRecord> getCheckinRecordPage(Page<CheckinRecord> page);
+
+	
+	/**
+	 * 根據 attendeesList 創建與會者ID 和 簽到記錄的映射
+	 * 
+	 * @param attendeesList
+	 * @return attendeesId 為key , List<CheckinRecord>為value的 Map對象
+	 */
+	public Map<Long, List<CheckinRecord>> getCheckinMapByAttendeeList(Collection<Attendee> attendeeList) ;
+	
+	/**
+	 * 透過 與會者ID 和 簽到記錄的映射，再創建一個與會者與最後簽到狀態的映射
+	 * 
+	 * @param checkinMap
+	 * @return
+	 */
+	public Map<Long, Boolean> getCheckinStatusMap(Map<Long, List<CheckinRecord>> checkinMap);
+	
+	/**
+	 * 現場註冊產生的簽到記錄
+	 * 
+	 * @param attendeesId
+	 * @return
+	 */
+	CheckinRecordVO walkInRegistration(Long attendeesId);
+	
+	/**
+	 * 新增簽到/退紀錄
+	 * 
+	 * @param addCheckinRecordDTO
+	 */
+	CheckinRecord addCheckinRecord(AddCheckinRecordDTO addCheckinRecordDTO);
+
+	/**
+	 * 根據與會者ID,撤銷最後一筆簽到記錄
+	 * 
+	 * @param attendeesId
+	 */
+	void undoLastCheckin(Long attendeesId);
+
+	/**
+	 * 修改簽到/退紀錄
+	 * 
+	 * @param putCheckinRecordDTO
+	 */
+	void updateCheckinRecord(PutCheckinRecordDTO putCheckinRecordDTO);
+
+	/**
+	 * 刪除簽到/退紀錄
+	 * 
+	 * @param checkinRecordId
+	 */
+	void deleteCheckinRecord(Long checkinRecordId);
+
+	/**
+	 * 根據與會者ID,刪除他的簽到/退紀錄
+	 * 
+	 * @param attendeesId
+	 */
+	void deleteCheckinRecordByAttendeeId(Long attendeesId);
+
+	/**
+	 * 批量刪除簽到/退紀錄
+	 * 
+	 * @param checkinRecordIds
+	 */
+	void deleteCheckinRecordList(List<Long> checkinRecordIds);
+
+	/**
+	 * 查詢簽到的總人數
+	 * 
+	 * @return
+	 */
+	Integer getCountCheckedIn();
+
+	/**
+	 * 獲取 尚在現場、已離場 人數
+	 * 
+	 * @return
+	 */
+	public PresenceStatsBO getPresenceStats();
+	
+	/**
+	 * 根據attendeeId , 找到這位與會者簡易的簽到退紀錄
+	 * <p>
+	 * (已最早的簽到紀錄 和 最晚的簽退紀錄組成)
+	 * 
+	 * @param attendeeId
+	 * @return
+	 */
+	public CheckinInfoBO getLastCheckinRecordByAttendeeId(Long attendeeId);
+
+}
