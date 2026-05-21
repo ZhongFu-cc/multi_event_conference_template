@@ -13,7 +13,7 @@ public class PutMemberTypeDTO {
 	@NotNull
 	private Long memberTypeId;
 
-	@NotBlank
+//	@NotBlank
 	@Schema(description = "英文小寫代號")
 	private String code;
 	

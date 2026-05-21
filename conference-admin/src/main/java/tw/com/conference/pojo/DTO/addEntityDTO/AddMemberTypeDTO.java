@@ -9,7 +9,7 @@ import tw.com.conference.enums.UsageContextEnum;
 @Data
 public class AddMemberTypeDTO {
 
-	@NotBlank
+//	@NotBlank
 	@Schema(description = "英文小寫代號")
 	private String code;
 	
