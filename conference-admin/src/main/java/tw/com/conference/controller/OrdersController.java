@@ -166,7 +166,17 @@ public class OrdersController {
 		return R.ok();
 
 	}
-	
+
+	@PutMapping("{id}/manual-approve")
+	@Parameters({
+			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
+	@Operation(summary = "後台人工審核通過訂單: 訂單改為付款完成並註記「手動審核」, 訂單內所有活動的報名皆視為已繳費, 並成為與會者")
+	@SaCheckRole("super-admin")
+	public R<Void> manualApprove(@PathVariable("id") Long ordersId) {
+		orderPaymentManager.manualApprove(ordersId);
+		return R.ok();
+	}
+
 	@GetMapping("payment")
 	@Operation(summary = "根據訂單編號付款", description = "會得到綠界付款的表單，觸發後會直接開啟一個綠界的付款頁面")
 	public R<String> payment(@RequestParam Long id) {

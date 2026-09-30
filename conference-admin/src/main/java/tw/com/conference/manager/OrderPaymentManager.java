@@ -16,30 +16,25 @@ import ecpay.payment.integration.domain.AioCheckOutOneTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import tw.com.conference.constants.I18nMessageKey;
+import tw.com.conference.constants.OrderConstants;
 import tw.com.conference.enums.ECpayRtnCodeEnum;
 import tw.com.conference.enums.GroupRegistrationEnum;
 import tw.com.conference.enums.OrderStatusEnum;
-import tw.com.conference.enums.TagTypeEnum;
 import tw.com.conference.exception.OrderPaymentException;
 import tw.com.conference.exception.RegistrationClosedException;
+import tw.com.conference.helper.AttendeeAdmissionHelper;
 import tw.com.conference.helper.MessageHelper;
-import tw.com.conference.helper.TagAssignmentHelper;
 import tw.com.conference.pojo.DTO.ECPayDTO.ECPayResponseDTO;
-import tw.com.conference.pojo.entity.Attendee;
 import tw.com.conference.pojo.entity.Member;
 import tw.com.conference.pojo.entity.Orders;
 import tw.com.conference.pojo.entity.OrdersItem;
 import tw.com.conference.pojo.entity.Payment;
 import tw.com.conference.service.AttendeeEventService;
-import tw.com.conference.service.AttendeeService;
-import tw.com.conference.service.AttendeeTagService;
 import tw.com.conference.service.MemberService;
-import tw.com.conference.service.MemberTagService;
 import tw.com.conference.service.OrdersItemService;
 import tw.com.conference.service.OrdersService;
 import tw.com.conference.service.PaymentService;
 import tw.com.conference.service.SettingService;
-import tw.com.conference.service.TagService;
 
 @Component
 @RequiredArgsConstructor
@@ -56,16 +51,12 @@ public class OrderPaymentManager {
 	private String PREFIX;
 
 	private final MessageHelper messageHelper;
-	private final TagAssignmentHelper tagAssignmentHelper;
+	private final AttendeeAdmissionHelper attendeeAdmissionHelper;
 	private final MemberService memberService;
-	private final MemberTagService memberTagService;
 	private final OrdersService ordersService;
 	private final OrdersItemService ordersItemService;
 	private final PaymentService paymentService;
-	private final AttendeeService attendeeService;
-	private final AttendeeTagService attendeeTagService;
 	private final AttendeeEventService attendeeEventService;
-	private final TagService tagService;
 	private final SettingService settingService;
 
 	private static final AtomicInteger SEQ = new AtomicInteger(0);
@@ -209,32 +200,8 @@ public class OrderPaymentManager {
 
 			// 如果當前訂單狀態不是 '付款成功' 則變更狀態
 			if (!currentOrder.getStatus().equals(OrderStatusEnum.PAYMENT_SUCCESS)) {
-
-				// 4-1更新這筆訂單資料
-				currentOrder.setStatus(OrderStatusEnum.PAYMENT_SUCCESS);
-				ordersService.updateById(currentOrder);
+				this.markOrderPaid(currentOrder, member, null);
 				log.info(currentOrder.getOrdersId() + " 付款成功，更新資料狀態");
-
-				// 4-2先獲取這個訂單的細項，才知道這次付款包含哪些eventId
-				List<OrdersItem> orderItems = ordersItemService.findOrderItemsByOrderId(currentOrder.getOrdersId());
-
-				// 4-3拿到所有要更新付款狀態的 attendeeEvent，並更新報名的付款狀態
-				Set<Long> eventIds = orderItems.stream().map(OrdersItem::getEventId).collect(Collectors.toSet());
-				attendeeEventService.batchConfirmPayment(currentOrder.getMemberId(), eventIds);
-
-				// 4-4.移除會員 註冊費未付款 Tag
-				tagAssignmentHelper.removeGroupTagsByPattern(member.getMemberId(), TagTypeEnum.MEMBER.getType(),
-						"註冊費未付款", tagService::getTagIdsByTypeAndNamePattern, memberTagService::removeTagsFromMember);
-
-				
-				
-				// 4-2 付款完成，所以將他新增進 與會者名單
-				//				Attendee attendee = attendeeService.addAttendee(member);
-
-				// 4-3.獲取當下與會者群體的Index,進行與會者標籤分組
-				//				tagAssignmentHelper.assignTag(attendee.getAttendeeId(), attendeeService::getAttendeeGroupIndex,
-				//						tagService::getOrCreateAttendeesGroupTag, attendeeTagService::addAttendeeTag);
-
 			}
 
 			// 5.付款失敗，更新訂單的付款狀態
@@ -248,37 +215,60 @@ public class OrderPaymentManager {
 			}
 		}
 
-		// 5.判斷這個member有沒有group code，且付款的更新者為master，從如果有才進行此方法塊
-		if (member.getGroupCode() != null && GroupRegistrationEnum.MASTER.getValue().equals(member.getGroupRole())) {
+		// 團體報名 (master 付款後同步 slave 訂單) 待團體報名功能重新實作後再補上
 
-			// 5-1 拿到所屬同一個團體報名的會員名單，並且是要group_role 為 slave的成員
-			List<Member> groupMemberList = memberService.getMembersByGroupCodeAndRole(member.getGroupCode(),
-					GroupRegistrationEnum.SLAVE.getValue());
+	}
 
-			// 5-2 遍歷去更新order 還有 添加與會者身分
-			for (Member slaveMember : groupMemberList) {
-				// 5-3 找到memberId為名單內成員且訂單的itemsSummary 為 註冊費的訂單，同步更新
-				ordersService.syncSlaveMemberOrderStatus(slaveMember.getMemberId(), currentOrder.getStatus());
+	/**
+	 * 後台人工審核通過訂單<br>
+	 * 適用於非系統金流收款 (匯款) 的情況
+	 *
+	 * @param ordersId
+	 */
+	@Transactional
+	public void manualApprove(Long ordersId) {
 
-				// 如果付款完成，將報名者添加到attendee表裡面，代表他已具備入場資格
-				if (OrderStatusEnum.PAYMENT_SUCCESS.getValue().equals(currentOrder.getStatus())) {
-					// 4-2 付款完成，所以將他新增進 與會者名單
-					Attendee attendee = attendeeService.addAttendee(slaveMember);
-					// 4-3.獲取當下與會者群體的Index,進行與會者標籤分組
-					tagAssignmentHelper.assignTag(attendee.getAttendeeId(), attendeeService::getAttendeeGroupIndex,
-							tagService::getOrCreateAttendeesGroupTag, attendeeTagService::addAttendeeTag);
-
-					// 4-4.移除會員 註冊費未付款 Tag
-					tagAssignmentHelper.removeGroupTagsByPattern(slaveMember.getMemberId(),
-							TagTypeEnum.MEMBER.getType(), "註冊費未付款", tagService::getTagIdsByTypeAndNamePattern,
-							memberTagService::removeTagsFromMember);
-
-				}
-
-			}
-
+		Orders order = ordersService.getOrders(ordersId);
+		if (order == null) {
+			throw new OrderPaymentException(messageHelper.get(I18nMessageKey.Payment.ORDER_NOT_FOUND));
 		}
 
+		// 已付款成功的訂單不重複處理
+		if (OrderStatusEnum.PAYMENT_SUCCESS.equals(order.getStatus())) {
+			return;
+		}
+
+		Member member = memberService.getMember(order.getMemberId());
+		this.markOrderPaid(order, member, OrderConstants.REMARK_MANUAL_APPROVED);
+		log.info(order.getOrdersId() + " 人工審核通過，更新資料狀態");
+	}
+
+	/**
+	 * 訂單付款成功後的共用處理：<br>
+	 * 更新訂單狀態 → 更新訂單內所有活動的報名付款狀態 → 移除未付款標籤 → 成為與會者
+	 *
+	 * @param order  訂單
+	 * @param member 訂單持有者
+	 * @param remark 訂單備註，null 為不變更
+	 */
+	private void markOrderPaid(Orders order, Member member, String remark) {
+
+		// 1.更新這筆訂單資料
+		order.setStatus(OrderStatusEnum.PAYMENT_SUCCESS);
+		if (remark != null) {
+			order.setRemark(remark);
+		}
+		ordersService.updateById(order);
+
+		// 2.先獲取這個訂單的細項，才知道這次付款包含哪些eventId
+		List<OrdersItem> orderItems = ordersItemService.findOrderItemsByOrderId(order.getOrdersId());
+		Set<Long> eventIds = orderItems.stream().map(OrdersItem::getEventId).collect(Collectors.toSet());
+
+		// 3.更新報名的付款狀態
+		attendeeEventService.batchConfirmPayment(order.getMemberId(), eventIds);
+
+		// 4.移除未付款標籤，成為與會者 (任一活動付清即具備與會者身分)
+		attendeeAdmissionHelper.admitAfterPayment(member);
 	}
 
 }

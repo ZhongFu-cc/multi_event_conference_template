@@ -25,7 +25,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import tw.com.conference.constants.I18nMessageKey;
-import tw.com.conference.context.ProjectModeContext;
 import tw.com.conference.convert.PaperConvert;
 import tw.com.conference.enums.PaperStatusEnum;
 import tw.com.conference.enums.PaperTagEnum;
@@ -46,6 +45,8 @@ import tw.com.conference.pojo.entity.Paper;
 import tw.com.conference.pojo.entity.PaperFileUpload;
 import tw.com.conference.pojo.excelPojo.PaperScoreExcel;
 import tw.com.conference.service.AsyncService;
+import tw.com.conference.service.AttendeeEventService;
+import tw.com.conference.service.EventService;
 import tw.com.conference.service.NotificationService;
 import tw.com.conference.service.PaperFileUploadService;
 import tw.com.conference.service.PaperService;
@@ -68,7 +69,6 @@ public class PaperManager {
 	@Value("${project.group-size}")
 	private int GROUP_SIZE;
 
-	private final ProjectModeContext projectModeContext;
 	private final MessageHelper messageHelper;
 	private final TagAssignmentHelper tagAssignmentHelper;
 
@@ -77,6 +77,8 @@ public class PaperManager {
 	private final PaperTagService paperTagService;
 	private final TagService tagService;
 	private final PaperFileUploadService paperFileUploadService;
+	private final EventService eventService;
+	private final AttendeeEventService attendeeEventService;
 
 	private final SettingService settingService;
 	private final NotificationService notificationService;
@@ -276,8 +278,13 @@ public class PaperManager {
 	@Transactional
 	public void addPaper(MultipartFile[] files, @Valid AddPaperDTO addPaperDTO) {
 
-		// 1.查看當前付款模式,根據策略決定是否阻擋投稿
-		projectModeContext.getStrategy().handlePaperSubmission(addPaperDTO.getMemberId());
+		// 1.若系統設定要求先付費才能投稿，則檢查是否已付清主活動費用
+		if (settingService.isPaymentRequiredForSubmission()) {
+			Long mainEventId = eventService.getMain().getEventId();
+			if (!attendeeEventService.isEventPaid(addPaperDTO.getMemberId(), mainEventId)) {
+				throw new PaperClosedException(messageHelper.get(I18nMessageKey.Paper.PREPAID));
+			}
+		}
 
 		// 2.直接呼叫 SettingService 中的方法來判斷摘要投稿是否開放
 		if (!settingService.isAbstractSubmissionOpen()) {

@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import com.google.common.base.Strings;
 
 import lombok.RequiredArgsConstructor;
-import tw.com.conference.enums.MemberCategoryEnum;
 import tw.com.conference.exception.EmailException;
 import tw.com.conference.pojo.DTO.SendEmailDTO;
 import tw.com.conference.pojo.entity.Member;

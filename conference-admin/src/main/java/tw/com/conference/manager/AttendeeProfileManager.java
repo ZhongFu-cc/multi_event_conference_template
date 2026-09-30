@@ -40,13 +40,13 @@ import tw.com.conference.pojo.entity.Member;
 import tw.com.conference.pojo.excelPojo.AttendeeExcel;
 import tw.com.conference.pojo.excelPojo.AttendeeUpdateExcel;
 import tw.com.conference.service.AsyncService;
+import tw.com.conference.exception.CheckinRecordException;
 import tw.com.conference.service.AttendeeService;
-import tw.com.conference.service.AttendeeTagService;
 import tw.com.conference.service.CheckinRecordService;
+import tw.com.conference.service.EventService;
 import tw.com.conference.service.MemberService;
 import tw.com.conference.service.MemberTagService;
 import tw.com.conference.service.NotificationService;
-import tw.com.conference.service.OrdersService;
 import tw.com.conference.service.TagService;
 import tw.com.conference.utils.QrcodeUtil;
 
@@ -68,9 +68,9 @@ public class AttendeeProfileManager {
 	private final MemberService memberService;
 	private final MemberTagService memberTagService;
 	private final AttendeeService attendeeService;
-	private final AttendeeTagService attendeeTagService;
 	private final AttendeeConvert attendeeConvert;
-	private final OrdersService ordersService;
+	private final EventService eventService;
+	private final RegistrationEventManager registrationEventManager;
 	private final CheckinRecordService checkinRecordService;
 	private final TagService tagService;
 	private final NotificationService notificationService;
@@ -157,19 +157,24 @@ public class AttendeeProfileManager {
 		// 1.創建Member對象，新增進member table
 		Member member = memberService.addMemberOnSite(walkInRegistrationDTO);
 
-		// 2.創建已繳費訂單-預設他會在現場繳費完成
-		ordersService.createFreeRegistrationOrder(member);
-
-		// 3.獲取當下Member群體的Index,進行會員標籤分組
+		// 2.獲取當下Member群體的Index,進行會員標籤分組
 		tagAssignmentHelper.assignTag(member.getMemberId(), memberService::getMemberGroupIndex,
 				tagService::getOrCreateMemberGroupTag, memberTagService::addMemberTag);
 
-		// 4.由後台新增的Member , 自動付款完成，新增進與會者名單
-		Attendee attendee = attendeeService.addAttendee(member);
+		// 3.現場報到未指定活動時，預設報名主活動
+		List<Long> eventIds = walkInRegistrationDTO.getEventIds();
+		if (eventIds == null || eventIds.isEmpty()) {
+			eventIds = List.of(eventService.getMain().getEventId());
+		}
 
-		// 5.獲取當下與會者群體的Index,進行與會者標籤分組
-		tagAssignmentHelper.assignTag(attendee.getAttendeeId(), attendeeService::getAttendeeGroupIndex,
-				tagService::getOrCreateAttendeesGroupTag, attendeeTagService::addAttendeeTag);
+		// 4.免費報名 (預設他會在現場繳費完成)：產生 0 元已付款訂單、報名紀錄，並成為與會者
+		registrationEventManager.freeRegistration(member, eventIds);
+
+		// 5.免費報名完成後即為與會者，取回與會者資料
+		Attendee attendee = attendeeService.getAttendeeByMemberId(member.getMemberId());
+		if (attendee == null) {
+			throw new CheckinRecordException("現場報到失敗，未能建立與會者資料");
+		}
 
 		// 6.獲取AttendeesVO
 		AttendeeVO attendeeVO = this.getAttendeesVO(attendee.getAttendeeId());

@@ -1,6 +1,7 @@
 package tw.com.conference.mapper;
 
 import java.util.Collection;
+import java.util.List;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -51,5 +52,70 @@ public interface AttendeeEventMapper extends BaseMapper<AttendeeEvent> {
 
 		return this.selectCount(queryWrapper);
 
+	}
+
+	/**
+	 * 會員成為與會者後，回填該會員所有報名紀錄的 attendee_id
+	 *
+	 * @param memberId
+	 * @param attendeeId
+	 */
+	default void updateAttendeeIdByMemberId(Long memberId, Long attendeeId) {
+		LambdaUpdateWrapper<AttendeeEvent> updateWrapper = new LambdaUpdateWrapper<>();
+		updateWrapper.set(AttendeeEvent::getAttendeeId, attendeeId)
+				.eq(AttendeeEvent::getMemberId, memberId)
+				.isNull(AttendeeEvent::getAttendeeId);
+		this.update(updateWrapper);
+	}
+
+	/**
+	 * 查詢會員在某活動的報名紀錄
+	 *
+	 * @param memberId
+	 * @param eventId
+	 * @return 沒有報名則為 null
+	 */
+	default AttendeeEvent selectByMemberAndEvent(Long memberId, Long eventId) {
+		LambdaQueryWrapper<AttendeeEvent> queryWrapper = new LambdaQueryWrapper<>();
+		queryWrapper.eq(AttendeeEvent::getMemberId, memberId).eq(AttendeeEvent::getEventId, eventId);
+		return this.selectOne(queryWrapper);
+	}
+
+	/**
+	 * 查詢某會員的所有報名紀錄
+	 *
+	 * @param memberId
+	 * @return
+	 */
+	default List<AttendeeEvent> selectByMemberId(Long memberId) {
+		LambdaQueryWrapper<AttendeeEvent> queryWrapper = new LambdaQueryWrapper<>();
+		queryWrapper.eq(AttendeeEvent::getMemberId, memberId);
+		return this.selectList(queryWrapper);
+	}
+
+	/**
+	 * 查詢某活動 + 付款狀態 的報名紀錄
+	 *
+	 * @param eventId
+	 * @param isPaid  null 為不限
+	 * @return
+	 */
+	default List<AttendeeEvent> selectByEventIdAndPaid(Long eventId, CommonStatusEnum isPaid) {
+		LambdaQueryWrapper<AttendeeEvent> queryWrapper = new LambdaQueryWrapper<>();
+		queryWrapper.eq(AttendeeEvent::getEventId, eventId).eq(isPaid != null, AttendeeEvent::getIsPaid, isPaid);
+		return this.selectList(queryWrapper);
+	}
+
+	/**
+	 * 查詢某活動中，指定會員的報名紀錄
+	 *
+	 * @param eventId
+	 * @param memberIds
+	 * @return
+	 */
+	default List<AttendeeEvent> selectByEventIdAndMemberIds(Long eventId, Collection<Long> memberIds) {
+		LambdaQueryWrapper<AttendeeEvent> queryWrapper = new LambdaQueryWrapper<>();
+		queryWrapper.eq(AttendeeEvent::getEventId, eventId).in(AttendeeEvent::getMemberId, memberIds);
+		return this.selectList(queryWrapper);
 	}
 }

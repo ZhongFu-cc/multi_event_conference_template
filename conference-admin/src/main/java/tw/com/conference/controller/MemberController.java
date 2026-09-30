@@ -36,6 +36,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import tw.com.conference.convert.MemberConvert;
+import tw.com.conference.enums.CommonStatusEnum;
 import tw.com.conference.exception.RegistrationInfoException;
 import tw.com.conference.manager.MemberAuthManager;
 import tw.com.conference.manager.MemberManager;
@@ -48,7 +49,6 @@ import tw.com.conference.pojo.DTO.GroupRegistrationDTO;
 import tw.com.conference.pojo.DTO.MemberEmailLogin;
 import tw.com.conference.pojo.DTO.MemberIdCardLogin;
 import tw.com.conference.pojo.DTO.MemberLoginDTO;
-import tw.com.conference.pojo.DTO.PutMemberIdDTO;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddMemberDTO;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddTagToMemberDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutMemberDTO;
@@ -57,7 +57,6 @@ import tw.com.conference.pojo.VO.MemberOrderVO;
 import tw.com.conference.pojo.VO.MemberTagVO;
 import tw.com.conference.pojo.VO.MemberVO;
 import tw.com.conference.pojo.entity.Member;
-import tw.com.conference.pojo.entity.Orders;
 import tw.com.conference.saToken.StpKit;
 import tw.com.conference.service.MemberService;
 import tw.com.conference.utils.R;
@@ -149,43 +148,37 @@ public class MemberController {
 		return R.ok(memberCount);
 	}
 
-	@GetMapping("count-by-order-status")
+	@GetMapping("count-by-event")
 	@SaCheckRole("super-admin")
 	@Parameters({
 			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
-	@Operation(summary = "根據訂單繳費狀態,查詢相符的會員總數")
-	public R<Integer> getMemberCountByStatus(Integer status) {
-		Integer memberCount = memberOrderManager.getMemberOrderCount(status);
+	@Operation(summary = "查詢報名某活動 且 符合繳費狀態 的會員總數; isPaid 0=未付,1=已付,不帶為不限")
+	public R<Integer> getMemberCountByEvent(@RequestParam Long eventId,
+			@RequestParam(value = "isPaid", required = false) Integer isPaid) {
+		Integer memberCount = memberOrderManager.getMemberCountByEvent(eventId, toStatusEnum(isPaid));
 		return R.ok(memberCount);
 	}
 
-	// 暫時沒用到,因為沒有註冊費之外的訂單
 	@GetMapping("member-and-order")
 	@SaCheckRole("super-admin")
 	@Parameters({
 			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
-	@Operation(summary = "根據訂單繳費狀態,查詢相符的會員列表")
+	@Operation(summary = "查詢報名某活動 且 符合繳費狀態 的會員列表(含此活動的訂單); isPaid 0=未付,1=已付,不帶為不限")
 	public R<IPage<MemberOrderVO>> getMemberOrder(@RequestParam Integer page, @RequestParam Integer size,
-			@RequestParam(value = "status", required = false) Integer status,
+			@RequestParam Long eventId, @RequestParam(value = "isPaid", required = false) Integer isPaid,
 			@RequestParam(value = "queryText", required = false) String queryText) {
-		Page<Orders> pageable = new Page<Orders>(page, size);
-		IPage<MemberOrderVO> memberOrderVO = memberOrderManager.getMemberOrderVO(pageable, status, queryText);
+		Page<Member> pageable = new Page<Member>(page, size);
+		IPage<MemberOrderVO> memberOrderVO = memberOrderManager.getMemberOrderVO(pageable, eventId,
+				toStatusEnum(isPaid), queryText);
 
 		return R.ok(memberOrderVO);
 	}
 
-	@GetMapping("unpaid-member")
-	@SaCheckRole("super-admin")
-	@Parameters({
-			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
-	@Operation(summary = "根據條件,查詢註冊費未付款的會員列表")
-	public R<IPage<MemberTagVO>> getUnpaidMember(@RequestParam Integer page, @RequestParam Integer size,
-			@RequestParam(value = "country", required = true) String country,
-			@RequestParam(value = "queryText", required = false) String queryText) {
-		Page<Member> pageable = new Page<Member>(page, size);
-		IPage<MemberTagVO> unpaidMemberPage = memberOrderManager.getUnpaidMemberPage(pageable, country, queryText);
-
-		return R.ok(unpaidMemberPage);
+	/**
+	 * request param 的 0/1 轉成 CommonStatusEnum, null 維持 null (不限)
+	 */
+	private static CommonStatusEnum toStatusEnum(Integer value) {
+		return value == null ? null : CommonStatusEnum.fromValue(value);
 	}
 
 	@PostMapping
@@ -281,16 +274,6 @@ public class MemberController {
 		memberService.updateMemberForAdmin(putMemberForAdminDTO);
 		return R.ok();
 
-	}
-
-	@PutMapping("unpaid-member")
-	@SaCheckRole("super-admin")
-	@Parameters({
-			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
-	@Operation(summary = "更新註冊費未付款的會員，狀態改為已付款")
-	public R<Void> updateUnpaidMember(@RequestBody @Valid PutMemberIdDTO putMemberIdDTO) {
-		memberOrderManager.approveUnpaidMember(putMemberIdDTO.getMemberId());
-		return R.ok();
 	}
 
 	@DeleteMapping("{id}")
@@ -482,12 +465,14 @@ public class MemberController {
 			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
 	@GetMapping("tag/pagination")
 	public R<IPage<MemberTagVO>> getMemberTagVOsByQuery(@RequestParam Integer page, @RequestParam Integer size,
-			@RequestParam(required = false) String queryText, @RequestParam(required = false) Integer status) {
+			@RequestParam(required = false) String queryText, @RequestParam(required = false) Long eventId,
+			@RequestParam(required = false) Integer isPaid) {
 
 		Page<Member> pageInfo = new Page<>(page, size);
 		IPage<MemberTagVO> memberList;
 
-		memberList = memberTagManager.getMemberTagVOByQuery(pageInfo, queryText, status);
+		// eventId 有帶時，才會依該活動的繳費狀態篩選並填入 status
+		memberList = memberTagManager.getMemberTagVOByQuery(pageInfo, queryText, eventId, toStatusEnum(isPaid));
 
 		return R.ok(memberList);
 	}
@@ -503,13 +488,13 @@ public class MemberController {
 
 	}
 
-	@Operation(summary = "下載會員excel列表")
+	@Operation(summary = "下載 報名某活動 的會員excel列表 (含該活動的付款狀態與費用)")
 	@SaCheckRole("super-admin")
 	@Parameters({
 			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
 	@GetMapping("/download-excel")
-	public void downloadExcel(HttpServletResponse response) throws IOException {
-		memberOrderManager.downloadExcel(response);
+	public void downloadExcel(HttpServletResponse response, @RequestParam Long eventId) throws IOException {
+		memberOrderManager.downloadExcel(response, eventId);
 	}
 
 }

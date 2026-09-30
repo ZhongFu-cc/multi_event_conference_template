@@ -136,6 +136,10 @@ public class TagAssignmentHelper {
 		// 在 Helper 內部組合完整的 pattern
 		String fullPattern = tagNamePattern + GROUP_TAG_SUFFIX;
 		Set<Long> tagIds = tagIdsFetcher.apply(tagType, fullPattern);
+		// 沒有符合的標籤就不用移除，避免產生 IN () 的無效 SQL
+		if (tagIds == null || tagIds.isEmpty()) {
+			return;
+		}
 		tagRemover.accept(entityId, tagIds);
 	}
 	

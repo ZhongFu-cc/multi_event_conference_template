@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import tw.com.conference.enums.CommonStatusEnum;
 
 @Data
 public class PutSettingDTO {
@@ -36,7 +37,10 @@ public class PutSettingDTO {
 	@Schema(description = "最後註冊時間")
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime lastRegistrationTime;
-	
+
+	@Schema(description = "投稿是否需先付清主活動費用;0=否,1=是")
+	private CommonStatusEnum requirePaymentForSubmission;
+
 	
 	
 }

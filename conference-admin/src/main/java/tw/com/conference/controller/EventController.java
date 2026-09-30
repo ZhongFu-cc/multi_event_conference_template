@@ -10,7 +10,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import cn.dev33.satoken.annotation.SaCheckRole;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,11 +25,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import tw.com.conference.manager.EventPriceRuleManager;
+import tw.com.conference.manager.MemberOrderManager;
 import tw.com.conference.manager.RegistrationEventManager;
 import tw.com.conference.pojo.DTO.GroupRegistrationDTO;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddEventDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutEventDTO;
 import tw.com.conference.pojo.VO.EventOrderVO;
+import tw.com.conference.pojo.VO.EventUnpaidMemberVO;
 import tw.com.conference.pojo.VO.EventVO;
 import tw.com.conference.pojo.entity.Event;
 import tw.com.conference.pojo.entity.Member;
@@ -53,6 +59,7 @@ public class EventController {
 	private final MemberService memberService;
 	private final EventPriceRuleManager eventPriceRuleManager;
 	private final RegistrationEventManager registrationEventManager;
+	private final MemberOrderManager memberOrderManager;
 
 	@GetMapping("exist-any")
 	@Operation(summary = "是否存在任何活動事件")
@@ -115,6 +122,19 @@ public class EventController {
 	public R<Void> deleteEvent(@PathVariable("id") Long eventId) {
 		eventPriceRuleManager.removeEvent(eventId);
 		return R.ok();
+	}
+
+	@GetMapping("{id}/unpaid-members")
+	@Operation(summary = "後台審核用: 查詢報名此活動但尚未繳費的會員(分頁), 附上包含此活動的未付訂單")
+	@Parameters({
+			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
+	@SaCheckRole("super-admin")
+	public R<IPage<EventUnpaidMemberVO>> getUnpaidMembers(@PathVariable("id") Long eventId,
+			@RequestParam Integer page, @RequestParam Integer size,
+			@RequestParam(value = "queryText", required = false) String queryText) {
+		Page<Member> pageable = new Page<>(page, size);
+		IPage<EventUnpaidMemberVO> result = memberOrderManager.getUnpaidMembersByEvent(pageable, eventId, queryText);
+		return R.ok(result);
 	}
 
 	/** ------------------- 以下為用戶報名參加活動事件用 ------------------------------------ */

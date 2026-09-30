@@ -35,4 +35,7 @@ public class AddOrderDTO {
 	@Schema(description = "訂單狀態: 未付款,已付款-待審核,付款成功,付款失敗")
 	private OrderStatusEnum status;
 
+	@Schema(description = "備註; 例: 手動審核")
+	private String remark;
+
 }

@@ -68,6 +68,10 @@ public class Orders implements Serializable {
 	@TableField("status")
 	private OrderStatusEnum status;
 
+	@Schema(description = "備註; 例: 手動審核")
+	@TableField("remark")
+	private String remark;
+
 	@Schema(description = "創建者")
 	@TableField(value = "create_by", fill = FieldFill.INSERT)
 	private String createBy;

@@ -1,5 +1,7 @@
 package tw.com.conference.pojo.DTO;
 
+import java.util.List;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,8 +24,15 @@ public class WalkInRegistrationDTO {
 	private String email;
 	
 	@NotNull
-	@Schema(description = "用於分類會員資格, 1為 Member，2為 Others，3為 Non-Member，4為 MVP，5為 Speaker，6為 Moderator，7為 Staff")
-	private Integer category;
+	@Schema(description = "會員類別ID")
+	private Long memberTypeId;
+
+	@NotBlank
+	@Schema(description = "國家, 用於判斷本國/外國籍價格")
+	private String country;
+
+	@Schema(description = "要報名的活動ID列表; 未提供時預設報名主活動")
+	private List<Long> eventIds;
 	
 	
 	

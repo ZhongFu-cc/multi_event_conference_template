@@ -18,6 +18,7 @@ public class I18nMessageKey {
 	// 註冊相關key
 	public static final class Registration {
 		public static final String CLOSED = "registration.closed";
+		public static final String EVENT_ALREADY_REGISTERED = "registration.event-already-registered";
 		
 		// 團體註冊
 		public static final class Group {
@@ -40,6 +41,7 @@ public class I18nMessageKey {
 	public static final class Payment {
 		
 		public static final String CLOSED = "payment.closed";
+		public static final String ORDER_NOT_FOUND = "payment.order-not-found";
 
 		// 團體付款
 		public static final class Group {

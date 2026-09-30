@@ -4,7 +4,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-import tw.com.conference.enums.MemberCategoryEnum;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddAttendeeDTO;
 import tw.com.conference.pojo.VO.AttendeeTagVO;
 import tw.com.conference.pojo.VO.AttendeeVO;
@@ -52,11 +51,6 @@ public interface AttendeeConvert {
 	
 	Attendee updatePojoToEntity (AttendeeUpdateExcel attendeeUpdateExcel);
 	
-	@Named("convertCategory")
-	default String convertCategory(Integer category) {
-		return MemberCategoryEnum.fromValue(category).getLabelZh();
-	}
-
 	@Named("convertLongToString")
 	default String convertLongToString(Long id) {
 		return id.toString();

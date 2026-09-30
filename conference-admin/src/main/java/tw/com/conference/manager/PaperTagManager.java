@@ -16,15 +16,17 @@ import com.google.common.collect.Sets.SetView;
 
 import lombok.RequiredArgsConstructor;
 import tw.com.conference.convert.PaperConvert;
+import tw.com.conference.enums.CommonStatusEnum;
+import tw.com.conference.enums.OrderStatusEnum;
 import tw.com.conference.pojo.VO.AssignedReviewersVO;
 import tw.com.conference.pojo.VO.PaperTagVO;
-import tw.com.conference.pojo.entity.Orders;
 import tw.com.conference.pojo.entity.Paper;
 import tw.com.conference.pojo.entity.PaperFileUpload;
 import tw.com.conference.pojo.entity.PaperReviewer;
 import tw.com.conference.pojo.entity.PaperTag;
 import tw.com.conference.pojo.entity.Tag;
-import tw.com.conference.service.OrdersService;
+import tw.com.conference.service.AttendeeEventService;
+import tw.com.conference.service.EventService;
 import tw.com.conference.service.PaperAndPaperReviewerService;
 import tw.com.conference.service.PaperFileUploadService;
 import tw.com.conference.service.PaperReviewerService;
@@ -35,7 +37,8 @@ import tw.com.conference.service.PaperTagService;
 @RequiredArgsConstructor
 public class PaperTagManager {
 
-	private final OrdersService ordersService;
+	private final EventService eventService;
+	private final AttendeeEventService attendeeEventService;
 	private final PaperService paperService;
 	private final PaperConvert paperConvert;
 	private final PaperFileUploadService paperFileUploadService;
@@ -76,8 +79,8 @@ public class PaperTagManager {
 		paperTagVO.setTagList(tagList);
 
 		// 7.根據memberId找到 註冊費訂單狀態，並塞進VO
-		Orders registrationOrder = ordersService.getRegistrationOrderByMemberId(paper.getMemberId());
-		paperTagVO.setMemberPaymentStatus(registrationOrder.getStatus().getLabelEn());
+		boolean isMainEventPaid = attendeeEventService.isEventPaid(paper.getMemberId(), eventService.getMain().getEventId());
+		paperTagVO.setMemberPaymentStatus(toPaymentStatusLabel(isMainEventPaid));
 
 		return paperTagVO;
 	}
@@ -121,7 +124,8 @@ public class PaperTagManager {
 				.getAssignedReviewersMapByPaperId(paperPage.getRecords());
 
 		// 7. 拿到memberId 與 註冊費訂單的映射
-		Map<Long, Orders> registrationOrderMapByMemberId = ordersService.getRegistrationOrderMapByMemberId(memberIds);
+		Map<Long, CommonStatusEnum> paidMapByMemberId = attendeeEventService
+				.getPaidMapByEventAndMemberIds(eventService.getMain().getEventId(), memberIds);
 
 		// 8.對paperPage做stream流處理
 		List<PaperTagVO> voList = paperPage.getRecords().stream().map(paper -> {
@@ -146,8 +150,8 @@ public class PaperTagManager {
 					assignedReviewersMapByPaperId.getOrDefault(paper.getPaperId(), Collections.emptyList()));
 
 			// 8-6 拿到會員繳費狀態塞進vo
-			Orders orders = registrationOrderMapByMemberId.get(paper.getMemberId());
-			vo.setMemberPaymentStatus(orders.getStatus().getLabelZh());
+			CommonStatusEnum isPaid = paidMapByMemberId.get(paper.getMemberId());
+			vo.setMemberPaymentStatus(toPaymentStatusLabel(CommonStatusEnum.YES.equals(isPaid)));
 
 			return vo;
 
@@ -194,6 +198,13 @@ public class PaperTagManager {
 		if (!tagsToAdd.isEmpty()) {
 			paperTagService.addTagsToPaper(paperId, tagsToAdd);
 		}
+	}
+
+	/**
+	 * 主活動繳費狀態 → 顯示用文字 (沿用訂單狀態的標籤)
+	 */
+	private static String toPaymentStatusLabel(boolean isPaid) {
+		return isPaid ? OrderStatusEnum.PAYMENT_SUCCESS.getLabelZh() : OrderStatusEnum.UNPAID.getLabelZh();
 	}
 
 }

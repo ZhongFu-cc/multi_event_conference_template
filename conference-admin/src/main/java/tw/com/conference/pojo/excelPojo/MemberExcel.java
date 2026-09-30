@@ -43,9 +43,8 @@ public class MemberExcel {
 	@ExcelProperty("電話號碼")
 	private String phone;
 
-	// Entity中為Integer , Excel 為String 
-	@ExcelProperty("會員資格")
-	private String category;
+	@ExcelProperty("會員類別")
+	private String memberType;
 
 	@ExcelProperty("資格的補充")
 	private String categoryExtra;
@@ -68,11 +67,10 @@ public class MemberExcel {
 	@ExcelProperty("註冊時間")
 	private LocalDateTime createDate;
 	
-	// Entity中為Integer , Excel 為String 
 	@ExcelProperty("付款狀態")
 	private String status;
 
-	@ExcelProperty("註冊費金額")
+	@ExcelProperty("該活動費用")
 	private BigDecimal registrationFee;
 	
 }

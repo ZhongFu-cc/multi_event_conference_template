@@ -1,6 +1,6 @@
 package tw.com.conference.service;
 
-import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.List;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -9,31 +9,25 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 import tw.com.conference.pojo.DTO.addEntityDTO.AddOrderItemDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutOrdersItemDTO;
-import tw.com.conference.pojo.entity.Orders;
 import tw.com.conference.pojo.entity.OrdersItem;
 
 public interface OrdersItemService extends IService<OrdersItem> {
 
 	/**
-	 * 現場註冊者, 立刻產生他的免費訂單
-	 * 
-	 * @param orderId
-	 * @param amount
+	 * 查詢某活動的所有訂單細項
+	 *
+	 * @param eventId
+	 * @return
 	 */
-	void addRegistrationOrderItem(Long orderId, BigDecimal amount);
+	List<OrdersItem> findOrderItemsByEventId(Long eventId);
 
 	/**
-	 * 創建 註冊費訂單的 訂單細項
-	 * 
-	 * @param order
+	 * 查詢多張訂單的所有細項
+	 *
+	 * @param orderIds
+	 * @return
 	 */
-	void createRegistrationOrderItem(Orders order);
-	
-	/**
-	 * 創建 團體報名 註冊費訂單的 訂單細項
-	 * @param order
-	 */
-	void createGroupRegistrationOrderItem(Orders order);
+	List<OrdersItem> findOrderItemsByOrderIds(Collection<Long> orderIds);
 
 	OrdersItem getOrdersItem(Long oredersItemId);
 	
