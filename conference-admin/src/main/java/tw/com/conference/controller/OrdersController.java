@@ -159,7 +159,7 @@ public class OrdersController {
 	@PutMapping("offline-transfer")
 	@Parameters({
 		@Parameter(name = "Authorization-member", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
-	@Operation(summary = "離線/人工匯款，使用者表示繳費等待管理者確認")
+	@Operation(summary = "離線/人工匯款，使用者表示繳費等待管理者確認(舊)")
 	@SaCheckLogin(type = StpKit.MEMBER_TYPE)
 	public R<Void> offlineTransfer(@RequestBody @Valid OfflineTransferDTO offlineTransferDTO) {
 		memberOrderManager.offlineTransfer(offlineTransferDTO);

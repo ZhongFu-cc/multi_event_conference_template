@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -35,6 +36,7 @@ import tw.com.conference.pojo.VO.EventUnpaidMemberVO;
 import tw.com.conference.pojo.VO.EventVO;
 import tw.com.conference.pojo.entity.Event;
 import tw.com.conference.pojo.entity.Member;
+import tw.com.conference.saToken.StpKit;
 import tw.com.conference.service.EventService;
 import tw.com.conference.service.MemberService;
 import tw.com.conference.utils.R;
@@ -129,9 +131,8 @@ public class EventController {
 	@Parameters({
 			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
 	@SaCheckRole("super-admin")
-	public R<IPage<EventUnpaidMemberVO>> getUnpaidMembers(@PathVariable("id") Long eventId,
-			@RequestParam Integer page, @RequestParam Integer size,
-			@RequestParam(value = "queryText", required = false) String queryText) {
+	public R<IPage<EventUnpaidMemberVO>> getUnpaidMembers(@PathVariable("id") Long eventId, @RequestParam Integer page,
+			@RequestParam Integer size, @RequestParam(value = "queryText", required = false) String queryText) {
 		Page<Member> pageable = new Page<>(page, size);
 		IPage<EventUnpaidMemberVO> result = memberOrderManager.getUnpaidMembersByEvent(pageable, eventId, queryText);
 		return R.ok(result);
@@ -141,6 +142,9 @@ public class EventController {
 
 	@PostMapping("individual")
 	@Operation(summary = "個人報名活動")
+	@Parameters({
+			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
+	@SaCheckLogin(type = StpKit.MEMBER_TYPE)
 	public R<EventOrderVO> individualRegistration(@Valid @RequestBody List<Long> eventIds) {
 
 		Member memberCache = memberService.getMemberInfo();

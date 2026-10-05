@@ -263,6 +263,8 @@ public class RegistrationEventManager {
 			attendeeAdmissionHelper.admitAfterPayment(member);
 		} else {
 			attendeeEventService.batchCreateUnpaidRecords(member.getMemberId(), eventIds);
+			// 標記未付款，供後台篩選與批次寄催款信
+			attendeeAdmissionHelper.markUnpaid(member.getMemberId());
 		}
 
 		return eventOrderVO;

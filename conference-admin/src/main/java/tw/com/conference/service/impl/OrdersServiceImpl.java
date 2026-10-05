@@ -49,6 +49,20 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 	}
 
 	@Override
+	public boolean hasUnpaidOrders(Long memberId) {
+		LambdaQueryWrapper<Orders> queryWrapper = new LambdaQueryWrapper<>();
+		queryWrapper.eq(Orders::getMemberId, memberId).ne(Orders::getStatus, OrderStatusEnum.PAYMENT_SUCCESS);
+		return baseMapper.selectCount(queryWrapper) > 0;
+	}
+
+	@Override
+	public int getUnpaidMemberGroupIndex(int groupSize) {
+		// 與 hasUnpaidOrders 同一判斷基準：status != PAYMENT_SUCCESS 即視為未付清
+		Long unpaidMemberCount = baseMapper.countUnpaidMembers(OrderStatusEnum.PAYMENT_SUCCESS.getValue());
+		return (int) Math.ceil(unpaidMemberCount / (double) groupSize);
+	}
+
+	@Override
 	public Orders getOrders(Long ordersId) {
 		Orders orders = baseMapper.selectById(ordersId);
 		return orders;

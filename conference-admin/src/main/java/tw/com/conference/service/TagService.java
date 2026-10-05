@@ -26,6 +26,13 @@ import tw.com.conference.pojo.entity.Tag;
 public interface TagService extends IService<Tag> {
 
 	/**
+	 * 「未付款」標籤的名稱前綴，實際標籤為 未付款-group-NN<br>
+	 * 新增 (getOrCreateNotPaidGroupTag) 與 移除 (AttendeeAdmissionHelper) 必須共用此常數，
+	 * 否則移除時的 LIKE '<prefix>-group-%' 會比對不到
+	 */
+	String UNPAID_TAG_PATTERN = "未付款";
+
+	/**
 	 * 校驗 tagIds 並獲得 Tag類型<br>
 	 * 當tag的type沒有全部一致時,報錯
 	 * 

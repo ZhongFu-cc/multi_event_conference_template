@@ -31,6 +31,24 @@ public interface OrdersService extends IService<Orders> {
 	 */
 	List<Orders> findPaidOrdersByMemberId(Long memberId);
 
+	/**
+	 * 會員是否還有尚未付款成功的訂單<br>
+	 * (未付款、付款-待確認、付款失敗 皆視為尚未付清)
+	 *
+	 * @param memberId
+	 * @return
+	 */
+	boolean hasUnpaidOrders(Long memberId);
+
+	/**
+	 * 拿到「有未付款訂單的會員」群體的 index<br>
+	 * 用於寄信批次分組 (寄信對象是會員，所以以會員數分組，非訂單數)
+	 *
+	 * @param groupSize 一組的數量(人數)
+	 * @return
+	 */
+	int getUnpaidMemberGroupIndex(int groupSize);
+
 	Orders getOrders(Long OrdersId);
 
 	Orders getOrders(Long memberId, Long OrdersId);
