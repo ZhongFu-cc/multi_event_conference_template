@@ -91,6 +91,31 @@ public interface AttendeeEventService extends IService<AttendeeEvent> {
 	AttendeeEvent getByMemberAndEvent(Long memberId, Long eventId);
 
 	/**
+	 * 查詢與會者在某活動的報名紀錄 (報到端使用)
+	 *
+	 * @param attendeeId
+	 * @param eventId
+	 * @return 沒有報名則為 null
+	 */
+	AttendeeEvent getByAttendeeAndEvent(Long attendeeId, Long eventId);
+
+	/**
+	 * 查詢某場次的應到人數 (已繳費的報名者)
+	 *
+	 * @param eventId
+	 * @return
+	 */
+	long countPaidByEventId(Long eventId);
+
+	/**
+	 * 查詢某場次所有已繳費的報名紀錄 (單場報到名單的基底)
+	 *
+	 * @param eventId
+	 * @return
+	 */
+	List<AttendeeEvent> findPaidByEventId(Long eventId);
+
+	/**
 	 * 查詢會員所有的報名紀錄
 	 *
 	 * @param memberId

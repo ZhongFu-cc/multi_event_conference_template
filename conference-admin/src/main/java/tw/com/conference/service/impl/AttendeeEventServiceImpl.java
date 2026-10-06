@@ -114,6 +114,21 @@ public class AttendeeEventServiceImpl extends ServiceImpl<AttendeeEventMapper, A
 	}
 
 	@Override
+	public AttendeeEvent getByAttendeeAndEvent(Long attendeeId, Long eventId) {
+		return baseMapper.selectByAttendeeAndEvent(attendeeId, eventId);
+	}
+
+	@Override
+	public long countPaidByEventId(Long eventId) {
+		return baseMapper.countPaidByEventId(eventId);
+	}
+
+	@Override
+	public List<AttendeeEvent> findPaidByEventId(Long eventId) {
+		return baseMapper.selectByEventIdAndPaid(eventId, CommonStatusEnum.YES);
+	}
+
+	@Override
 	public List<AttendeeEvent> findByMemberId(Long memberId) {
 		return baseMapper.selectByMemberId(memberId);
 	}

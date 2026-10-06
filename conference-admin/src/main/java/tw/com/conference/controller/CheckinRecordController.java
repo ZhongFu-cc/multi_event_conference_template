@@ -94,10 +94,10 @@ public class CheckinRecordController {
 	@PutMapping("undo-checkin")
 	@Parameters({
 			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
-	@Operation(summary = "撤銷最後一筆簽到紀錄")
+	@Operation(summary = "撤銷該與會者在指定場次的最後一筆簽到紀錄")
 	@SaCheckRole("super-admin")
 	public R<CheckinRecord> undoCheckin(@RequestBody @Valid UndoCheckinDTO undoCheckinDTO) {
-		checkinRecordService.undoLastCheckin(undoCheckinDTO.getAttendeesId());
+		checkinRecordService.undoLastCheckin(undoCheckinDTO.getAttendeesId(), undoCheckinDTO.getEventId());
 		return R.ok();
 	}
 
@@ -137,8 +137,10 @@ public class CheckinRecordController {
 	@Parameters({
 			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
 	@GetMapping("/download-excel")
-	public void downloadExcel(HttpServletResponse response) throws IOException {
-		checkinRecordManager.downloadExcel(response);
+	public void downloadExcel(HttpServletResponse response,
+			@RequestParam(value = "eventId", required = false) Long eventId) throws IOException {
+		// eventId 不帶時匯出全部場次
+		checkinRecordManager.downloadExcel(response, eventId);
 	}
 
 }

@@ -13,6 +13,9 @@ public class CheckinRecordExcel {
 	@ExcelProperty("主鍵ID")
 	private String checkinRecordId;
 
+	@ExcelProperty("活動場次")
+	private String eventTitle;
+
 	@ExcelProperty("簽到/退地點")
 	private String location;
 

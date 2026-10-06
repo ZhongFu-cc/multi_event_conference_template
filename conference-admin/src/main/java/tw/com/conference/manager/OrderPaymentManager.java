@@ -267,8 +267,7 @@ public class OrderPaymentManager {
 		// 3.更新報名的付款狀態
 		attendeeEventService.batchConfirmPayment(order.getMemberId(), eventIds);
 
-		// 4.移除未付款標籤，成為與會者 (任一活動付清即具備與會者身分)
-		attendeeAdmissionHelper.admitAfterPayment(member);
+
 	}
 
 }

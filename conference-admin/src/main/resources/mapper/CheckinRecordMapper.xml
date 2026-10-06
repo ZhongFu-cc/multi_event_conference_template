@@ -48,4 +48,29 @@
         WHERE rn = 1;
     </select>
 
+    <!--
+      場次版本：改以 attendee_event_id 分區，所以同一個人在不同場次各自獨立計算
+      (他可能已經離開醫師場，但還在護理場)
+      並透過 join attendee_event 篩出指定場次
+    -->
+    <select id="selectPresenceStatsByEventId" resultMap="PresenceStatsResultMap">
+        SELECT
+        COALESCE(SUM(CASE WHEN last_action = 1 THEN 1 ELSE 0 END), 0) AS total_onsite,
+        COALESCE(SUM(CASE WHEN last_action = 2 THEN 1 ELSE 0 END), 0) AS total_left
+        FROM (
+        SELECT
+        cr.attendee_event_id,
+        cr.action_type AS last_action,
+        ROW_NUMBER() OVER (
+        PARTITION BY cr.attendee_event_id
+        ORDER BY cr.action_time DESC
+        ) AS rn
+        FROM checkin_record cr
+        JOIN attendee_event ae ON ae.attendee_event_id = cr.attendee_event_id
+        WHERE cr.is_deleted = 0
+        AND ae.event_id = #{eventId}
+        ) AS ranked
+        WHERE rn = 1;
+    </select>
+
 </mapper>

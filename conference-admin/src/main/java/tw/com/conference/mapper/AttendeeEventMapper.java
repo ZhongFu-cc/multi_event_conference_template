@@ -40,6 +40,18 @@ public interface AttendeeEventMapper extends BaseMapper<AttendeeEvent> {
 	}
 
 	/**
+	 * 查詢某場次的應到人數 (已繳費的報名者)
+	 *
+	 * @param eventId
+	 * @return
+	 */
+	default long countPaidByEventId(Long eventId) {
+		LambdaQueryWrapper<AttendeeEvent> queryWrapper = new LambdaQueryWrapper<>();
+		queryWrapper.eq(AttendeeEvent::getEventId, eventId).eq(AttendeeEvent::getIsPaid, CommonStatusEnum.YES);
+		return this.selectCount(queryWrapper);
+	}
+
+	/**
 	 * 查詢符合eventId的總數
 	 * 
 	 * @param eventId
@@ -66,6 +78,19 @@ public interface AttendeeEventMapper extends BaseMapper<AttendeeEvent> {
 				.eq(AttendeeEvent::getMemberId, memberId)
 				.isNull(AttendeeEvent::getAttendeeId);
 		this.update(updateWrapper);
+	}
+
+	/**
+	 * 查詢與會者在某活動的報名紀錄 (報到端使用，手上拿到的是 attendeeId)
+	 *
+	 * @param attendeeId
+	 * @param eventId
+	 * @return 沒有報名則為 null
+	 */
+	default AttendeeEvent selectByAttendeeAndEvent(Long attendeeId, Long eventId) {
+		LambdaQueryWrapper<AttendeeEvent> queryWrapper = new LambdaQueryWrapper<>();
+		queryWrapper.eq(AttendeeEvent::getAttendeeId, attendeeId).eq(AttendeeEvent::getEventId, eventId);
+		return this.selectOne(queryWrapper);
 	}
 
 	/**

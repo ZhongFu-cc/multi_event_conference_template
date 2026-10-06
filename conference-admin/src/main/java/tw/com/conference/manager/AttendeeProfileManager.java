@@ -36,11 +36,13 @@ import tw.com.conference.pojo.VO.AttendeeVO;
 import tw.com.conference.pojo.VO.CheckinRecordVO;
 import tw.com.conference.pojo.VO.ImportResultVO;
 import tw.com.conference.pojo.entity.Attendee;
+import tw.com.conference.pojo.entity.AttendeeEvent;
 import tw.com.conference.pojo.entity.Member;
 import tw.com.conference.pojo.excelPojo.AttendeeExcel;
 import tw.com.conference.pojo.excelPojo.AttendeeUpdateExcel;
 import tw.com.conference.service.AsyncService;
 import tw.com.conference.exception.CheckinRecordException;
+import tw.com.conference.service.AttendeeEventService;
 import tw.com.conference.service.AttendeeService;
 import tw.com.conference.service.CheckinRecordService;
 import tw.com.conference.service.EventService;
@@ -68,6 +70,7 @@ public class AttendeeProfileManager {
 	private final MemberService memberService;
 	private final MemberTagService memberTagService;
 	private final AttendeeService attendeeService;
+	private final AttendeeEventService attendeeEventService;
 	private final AttendeeConvert attendeeConvert;
 	private final EventService eventService;
 	private final RegistrationEventManager registrationEventManager;
@@ -126,20 +129,29 @@ public class AttendeeProfileManager {
 	 * 
 	 * @return
 	 */
-	public AttendeeStatsVO getAttendeeStatsVO() {
+	public AttendeeStatsVO getAttendeeStatsVO(Long eventId) {
+
+		// eventId 為 null 時維持整體統計 (與會者層級)，有帶時改為該場次的統計
+		boolean byEvent = eventId != null;
+
 		AttendeeStatsVO attendeeStatsVO = new AttendeeStatsVO();
+
 		//1.查詢 應到 人數
-		Integer countTotalShouldAttend = attendeeService.countTotalShouldAttend();
+		// 場次：該場已繳費的報名數；整體：所有與會者
+		Integer countTotalShouldAttend = byEvent ? (int) attendeeEventService.countPaidByEventId(eventId)
+				: attendeeService.countTotalShouldAttend();
 		attendeeStatsVO.setTotalShouldAttend(countTotalShouldAttend);
 
 		//2.查詢 已簽到 人數
-		Integer countCheckedIn = checkinRecordService.getCountCheckedIn();
+		Integer countCheckedIn = byEvent ? checkinRecordService.getCountCheckedInByEventId(eventId)
+				: checkinRecordService.getCountCheckedIn();
 		attendeeStatsVO.setTotalCheckedIn(countCheckedIn);
 		//未簽到人數
 		attendeeStatsVO.setTotalNotArrived(countTotalShouldAttend - countCheckedIn);
 
 		//3.查詢 尚在現場、已離場 人數
-		PresenceStatsBO presenceStatsBO = checkinRecordService.getPresenceStats();
+		PresenceStatsBO presenceStatsBO = byEvent ? checkinRecordService.getPresenceStatsByEventId(eventId)
+				: checkinRecordService.getPresenceStats();
 		attendeeStatsVO.setTotalOnSite(presenceStatsBO.getTotalOnsite());
 		attendeeStatsVO.setTotalLeft(presenceStatsBO.getTotalLeft());
 
@@ -179,15 +191,24 @@ public class AttendeeProfileManager {
 		// 6.獲取AttendeesVO
 		AttendeeVO attendeeVO = this.getAttendeesVO(attendee.getAttendeeId());
 
-		// 7.產生簽到記錄並組裝返回VO
-		CheckinRecordVO checkinRecordVO = checkinRecordService.walkInRegistration(attendee.getAttendeeId());
+		// 7.現場報到當下簽到的是「第一個指定的場次」(未指定時即為主活動)
+		Long checkinEventId = eventIds.get(0);
+		AttendeeEvent attendeeEvent = attendeeEventService.getByAttendeeAndEvent(attendee.getAttendeeId(),
+				checkinEventId);
+		if (attendeeEvent == null) {
+			throw new CheckinRecordException("現場報到失敗，未能建立該場活動的報名紀錄");
+		}
+
+		// 8.產生簽到記錄並組裝返回VO
+		CheckinRecordVO checkinRecordVO = checkinRecordService.walkInRegistration(attendee.getAttendeeId(),
+				attendeeEvent.getAttendeeEventId());
 		checkinRecordVO.setAttendeeVO(attendeeVO);
 
-		// 8.產生現場註冊的信件,包含QRcode信息
+		// 9.產生現場註冊的信件,包含QRcode信息
 		EmailBodyContent walkInRegistrationContent = notificationService
 				.generateWalkInRegistrationContent(attendee.getAttendeeId(), BANNER_PHOTO_URL);
 
-		// 9.透過異步工作去寄送郵件，因為使用了事務，在事務提交後才執行寄信的異步操作，安全做法
+		// 10.透過異步工作去寄送郵件，因為使用了事務，在事務提交後才執行寄信的異步操作，安全做法
 		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
 			@Override
 			public void afterCommit() {
@@ -196,7 +217,7 @@ public class AttendeeProfileManager {
 			}
 		});
 
-		// 10.返回簽到顯示格式
+		// 11.返回簽到顯示格式
 		return checkinRecordVO;
 	}
 

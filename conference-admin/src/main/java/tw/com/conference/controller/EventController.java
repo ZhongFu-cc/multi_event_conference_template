@@ -26,11 +26,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import tw.com.conference.manager.EventPriceRuleManager;
+import tw.com.conference.manager.CheckinRecordManager;
 import tw.com.conference.manager.MemberOrderManager;
 import tw.com.conference.manager.RegistrationEventManager;
 import tw.com.conference.pojo.DTO.GroupRegistrationDTO;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddEventDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutEventDTO;
+import tw.com.conference.enums.CommonStatusEnum;
+import tw.com.conference.pojo.VO.EventCheckinVO;
 import tw.com.conference.pojo.VO.EventOrderVO;
 import tw.com.conference.pojo.VO.EventUnpaidMemberVO;
 import tw.com.conference.pojo.VO.EventVO;
@@ -62,6 +65,7 @@ public class EventController {
 	private final EventPriceRuleManager eventPriceRuleManager;
 	private final RegistrationEventManager registrationEventManager;
 	private final MemberOrderManager memberOrderManager;
+	private final CheckinRecordManager checkinRecordManager;
 
 	@GetMapping("exist-any")
 	@Operation(summary = "是否存在任何活動事件")
@@ -136,6 +140,18 @@ public class EventController {
 		Page<Member> pageable = new Page<>(page, size);
 		IPage<EventUnpaidMemberVO> result = memberOrderManager.getUnpaidMembersByEvent(pageable, eventId, queryText);
 		return R.ok(result);
+	}
+
+	@GetMapping("{id}/checkin-list")
+	@Operation(summary = "單場活動的報到名單; isCheckedIn 0=只看未報到,1=只看已報到,不帶為全部")
+	@Parameters({
+			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
+	@SaCheckRole("super-admin")
+	public R<List<EventCheckinVO>> getEventCheckinList(@PathVariable("id") Long eventId,
+			@RequestParam(value = "isCheckedIn", required = false) Integer isCheckedIn) {
+		List<EventCheckinVO> list = checkinRecordManager.getEventCheckinList(eventId,
+				isCheckedIn == null ? null : CommonStatusEnum.fromValue(isCheckedIn));
+		return R.ok(list);
 	}
 
 	/** ------------------- 以下為用戶報名參加活動事件用 ------------------------------------ */
