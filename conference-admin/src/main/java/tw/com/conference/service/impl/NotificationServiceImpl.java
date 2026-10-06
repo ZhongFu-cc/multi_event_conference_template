@@ -10,7 +10,7 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import lombok.RequiredArgsConstructor;
-import tw.com.conference.enums.ProjectModeEnum;
+import tw.com.conference.service.SettingService;
 import tw.com.conference.pojo.DTO.EmailBodyContent;
 import tw.com.conference.pojo.entity.Member;
 import tw.com.conference.pojo.entity.MemberType;
@@ -35,8 +35,15 @@ public class NotificationServiceImpl implements NotificationService {
 	@Value("${project.language}")
 	private String LANGUAGE;
 
-	@Value("${project.mode}")
-	private ProjectModeEnum mode;
+	private final SettingService settingService;
+
+	/**
+	 * 信件模板以 mode 決定文案：<br>
+	 * prepaid = 投稿前需先付清主活動費用 ; postpaid = 可先投稿再付費
+	 */
+	private String resolveMode() {
+		return Boolean.TRUE.equals(settingService.isPaymentRequiredForSubmission()) ? "prepaid" : "postpaid";
+	}
 
 	/**
 	 * 固定通用的信件變量
@@ -66,7 +73,7 @@ public class NotificationServiceImpl implements NotificationService {
 		// 1.設置通用變量
 		context.setVariable(FIELD_CONFERENCE_NAME, PROJECT_NAME);
 		context.setVariable(FIELD_BANNER_PHOTO_URL, BANNER_PHOTO_URL);
-		context.setVariable(FIELD_MODE, mode.getValue());
+		context.setVariable(FIELD_MODE, resolveMode());
 		context.setVariable(FIELD_UPDATE_TIME,
 				LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 		context.setVariable(FIELD_CURRENT_YEAR, String.valueOf(LocalDate.now().getYear()));
@@ -104,7 +111,7 @@ public class NotificationServiceImpl implements NotificationService {
 		// 1.設置通用變量
 		context.setVariable(FIELD_CONFERENCE_NAME, PROJECT_NAME);
 		context.setVariable(FIELD_BANNER_PHOTO_URL, BANNER_PHOTO_URL);
-		context.setVariable(FIELD_MODE, mode.getValue());
+		context.setVariable(FIELD_MODE, resolveMode());
 		context.setVariable(FIELD_UPDATE_TIME,
 				LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 		context.setVariable(FIELD_CURRENT_YEAR, String.valueOf(LocalDate.now().getYear()));

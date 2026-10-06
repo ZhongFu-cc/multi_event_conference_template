@@ -1,6 +1,5 @@
 package tw.com.conference.manager;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -17,13 +16,14 @@ import com.google.common.collect.Sets;
 
 import lombok.RequiredArgsConstructor;
 import tw.com.conference.convert.MemberConvert;
+import tw.com.conference.enums.CommonStatusEnum;
+import tw.com.conference.enums.OrderStatusEnum;
 import tw.com.conference.pojo.VO.MemberTagVO;
 import tw.com.conference.pojo.entity.Member;
-import tw.com.conference.pojo.entity.Orders;
 import tw.com.conference.pojo.entity.Tag;
+import tw.com.conference.service.AttendeeEventService;
 import tw.com.conference.service.MemberService;
 import tw.com.conference.service.MemberTagService;
-import tw.com.conference.service.OrdersService;
 import tw.com.conference.service.TagService;
 
 @Component
@@ -34,21 +34,21 @@ public class MemberTagManager {
 	private final MemberService memberService;
 	private final MemberTagService memberTagService;
 	private final TagService tagService;
-	private final OrdersService ordersService;
+	private final AttendeeEventService attendeeEventService;
 
 	/**
 	 * 根據 memberId, 獲取MemberTagVO 對象
-	 * 
+	 *
 	 * @param memberId
 	 * @return
 	 */
 	public MemberTagVO getMemberTagVOByMember(Long memberId) {
+
 		// 1.獲取基本的 memberTagVO 對象
 		MemberTagVO memberTagVO = memberService.getMemberTagVOByMember(memberId);
 
-		// 2.獲取註冊費訂單，放入VO中
-		Orders registrationOrder = ordersService.getRegistrationOrderByMemberId(memberId);
-		memberTagVO.setAmount(registrationOrder.getTotalAmount());
+		// 2.獲取已報名活動及各自繳費狀態，放入VO中
+		memberTagVO.setEventStatusList(attendeeEventService.findEventStatusByMemberId(memberId));
 
 		// 3.查詢該member所有關聯的tagId Set
 		Set<Long> tagIdSet = memberTagService.getTagIdsByMemberId(memberId);
@@ -63,80 +63,84 @@ public class MemberTagManager {
 
 		// 6.最後填入memberTagVO對象並返回
 		memberTagVO.setTagList(tagList);
+
 		return memberTagVO;
 	};
 
 	/**
 	 * 根據搜尋條件 獲取會員資料及持有的tag集合(分頁)
-	 * 
+	 *
 	 * @param page
 	 * @param queryText
-	 * @param status
+	 * @param eventId   選填; 有帶時只列出報名此活動的會員，並填入該活動的繳費狀態
+	 * @param isPaid    選填; 需搭配 eventId, null 為不限
 	 * @return
 	 */
-	public IPage<MemberTagVO> getMemberTagVOByQuery(Page<Member> page, String queryText, Integer status) {
+	public IPage<MemberTagVO> getMemberTagVOByQuery(Page<Member> page, String queryText, Long eventId,
+			CommonStatusEnum isPaid) {
+
 		// 初始化返回對象
 		IPage<MemberTagVO> voPage = new Page<>(page.getCurrent(), page.getSize());
-		// 初始化,符合status條件的memberIds
-		List<Long> memberIdsByStatus = new ArrayList<>();
 
-		// 1.status 為註冊費訂單的付款狀態,所以得先抽出判斷
-		if (status != null) {
-			// 1-1 找到items_summary 符合 Registration Fee ，且status符合篩選條件的資料
-			List<Orders> registrationOrderList = ordersService.getRegistrationOrderListByStatus(status);
-			// 1-2 如果沒查到符合的訂單,直接返回VO對象,因為同時沒有符合的會員資料
-			if (registrationOrderList.isEmpty()) {
+		// 初始化,符合活動 + 繳費狀態 條件的memberIds
+		List<Long> memberIdsByEvent = Collections.emptyList();
+
+		// 1.有指定活動時，先抽出報名此活動且符合繳費狀態的會員
+		if (eventId != null) {
+			memberIdsByEvent = attendeeEventService.findMemberIdsByEventAndPaid(eventId, isPaid);
+			// 1-1 沒有任何符合的會員,直接返回空VO
+			if (memberIdsByEvent.isEmpty()) {
 				return voPage;
 			}
-
-			// 1-3 將符合的memberIds提取出
-			memberIdsByStatus = registrationOrderList.stream()
-					.map(order -> order.getMemberId())
-					.collect(Collectors.toList());
 		}
 
-		IPage<Member> memberPage = memberService.getMemberPageByQuery(page, queryText, memberIdsByStatus);
-
 		// 2.放入條件,找到符合的Member 分頁對象，如果沒有會員成返回空對象
+		IPage<Member> memberPage = memberService.getMemberPageByQuery(page, queryText, memberIdsByEvent);
 		if (memberPage.getRecords().isEmpty()) {
 			return voPage;
 		}
 
-		// 3.如果有,則獲取memberRegistrationOrderMap 和 memberTagMap 
+		// 3.獲取 memberTagMap
 		Map<Long, List<Tag>> groupTagsByMemberId = memberTagService.groupTagsByMemberId(memberPage.getRecords());
-		Map<Long, Orders> registrationOrderMapByMemberId = ordersService
-				.getRegistrationOrderMapByMemberId(memberPage.getRecords());
 
-		// 4.遍歷memberPage時組裝
+		// 4.有指定活動時，獲取這頁會員對該活動的繳費狀態
+		Map<Long, CommonStatusEnum> paidMapByMemberId = Collections.emptyMap();
+		if (eventId != null) {
+			Set<Long> pageMemberIds = memberPage.getRecords().stream().map(Member::getMemberId)
+					.collect(Collectors.toSet());
+			paidMapByMemberId = attendeeEventService.getPaidMapByEventAndMemberIds(eventId, pageMemberIds);
+		}
+		final Map<Long, CommonStatusEnum> finalPaidMap = paidMapByMemberId;
+
+		// 5.遍歷memberPage時組裝
 		List<MemberTagVO> memberTagVOList = memberPage.getRecords().stream().map(member -> {
-			// 4-1 member轉換成vo對象
+
+			// 5-1 member轉換成vo對象
 			MemberTagVO vo = memberConvert.entityToMemberTagVO(member);
 
-			// 4-2 找到items_summary 符合 Registration Fee 或者 Group Registration Fee
-			// 以及 訂單 與 會員ID相符的資料，不用getOrDefault 是因為註冊訂單關係為 1:1
-			Orders order = registrationOrderMapByMemberId.get(member.getMemberId());
+			// 5-2 有指定活動時，填入該活動的繳費狀態 (沿用訂單狀態的標籤)
+			if (eventId != null) {
+				boolean paid = CommonStatusEnum.YES.equals(finalPaidMap.get(member.getMemberId()));
+				vo.setStatus(paid ? OrderStatusEnum.PAYMENT_SUCCESS.getLabelZh() : OrderStatusEnum.UNPAID.getLabelZh());
+			}
 
-			// 4-3 取出付款狀態 和 金額 並放入VO對象中
-			vo.setStatus(order.getStatus().getLabelZh());
-			vo.setAmount(order.getTotalAmount());
-
-			// 4.4 查詢到並將tag放入
+			// 5-3 查詢到並將tag放入
 			List<Tag> tagList = groupTagsByMemberId.getOrDefault(member.getMemberId(), Collections.emptyList());
 			vo.setTagList(tagList);
 
 			return vo;
 		}).collect(Collectors.toList());
 
-		// 5.最後組裝分頁對象返回
+		// 6.最後組裝分頁對象返回
 		voPage = new Page<>(page.getCurrent(), page.getSize(), memberPage.getTotal());
 		voPage.setRecords(memberTagVOList);
-		return voPage;
 
+		return voPage;
 	}
 
 	/**
 	 * 為用戶新增/更新/刪除 複數tag
-	 * 
+	 *
 	 * @param targetTagIdList
 	 * @param memberId
 	 */

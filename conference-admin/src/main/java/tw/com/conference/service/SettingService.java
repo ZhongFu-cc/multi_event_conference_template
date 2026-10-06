@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 
-import tw.com.conference.enums.RegistrationPhaseEnum;
 import tw.com.conference.exception.SettingException;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutSettingDTO;
 import tw.com.conference.pojo.VO.SettingVO;
@@ -73,6 +72,14 @@ public interface SettingService extends IService<Setting> {
 	 * @throws SettingException 如果 Slide 上傳相關的設定時間不完整，則拋出此異常。
 	 */
 	Boolean isSlideUploadOpen();
+
+	/**
+	 * 投稿是否需要先付清主活動費用。<br>
+	 * 未設定時視為不需要。
+	 *
+	 * @return
+	 */
+	Boolean isPaymentRequiredForSubmission();
 
 	
 	SettingVO getFrontSetting();

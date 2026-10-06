@@ -18,11 +18,9 @@ import tw.com.conference.pojo.DTO.WalkInRegistrationDTO;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddMemberDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutMemberDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutMemberForAdminDTO;
-import tw.com.conference.pojo.VO.MemberOrderVO;
 import tw.com.conference.pojo.VO.MemberTagVO;
 import tw.com.conference.pojo.entity.Attendee;
 import tw.com.conference.pojo.entity.Member;
-import tw.com.conference.pojo.entity.Orders;
 
 public interface MemberService extends IService<Member> {
 
@@ -65,8 +63,6 @@ public interface MemberService extends IService<Member> {
 
 	Long getMemberCount();
 
-	Integer getMemberOrderCount(List<Orders> orderList);
-
 	/**
 	 * 根據email查詢是否有這個會員
 	 * 
@@ -83,19 +79,6 @@ public interface MemberService extends IService<Member> {
 	 * @return
 	 */
 	List<Member> getMembersByGroupCodeAndRole(String groupCode, String groupRole);
-
-	IPage<MemberOrderVO> getMemberOrderVO(IPage<Orders> orderPage, Integer status, String queryText);
-
-	/**
-	 * 獲取尚未付款的會員列表
-	 * 
-	 * @param page
-	 * @param orderList
-	 * @param country
-	 * @param queryText
-	 * @return
-	 */
-	IPage<MemberTagVO> getUnpaidMemberPage(Page<Member> page, List<Orders> orderList,String country, String queryText);
 
 	/**
 	 * 拿到當前團體標籤的index

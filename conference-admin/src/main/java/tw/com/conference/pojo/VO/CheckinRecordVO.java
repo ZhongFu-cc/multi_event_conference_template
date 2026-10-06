@@ -16,6 +16,15 @@ public class CheckinRecordVO {
 	@Schema(description = "與會者VO對象(含基本資料)")
 	private AttendeeVO attendeeVO;
 
+	@Schema(description = "報名紀錄ID, 代表這筆報到屬於哪一場")
+	private Long attendeeEventId;
+
+	@Schema(description = "活動事件ID")
+	private Long eventId;
+
+	@Schema(description = "活動主題")
+	private String eventTitle;
+
 	@Schema(description = "簽到/退地點,保留欄位，未來擴展")
 	private String location;
 

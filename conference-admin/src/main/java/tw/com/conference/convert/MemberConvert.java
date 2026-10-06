@@ -3,11 +3,7 @@ package tw.com.conference.convert;
 import java.util.List;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
 
-import tw.com.conference.enums.MemberCategoryEnum;
-import tw.com.conference.enums.OrderStatusEnum;
 import tw.com.conference.pojo.BO.MemberExcelRaw;
 import tw.com.conference.pojo.DTO.AddGroupMemberDTO;
 import tw.com.conference.pojo.DTO.AddMemberForAdminDTO;
@@ -45,18 +41,6 @@ public interface MemberConvert {
 	MemberExcelRaw entityToExcelRaw(Member member);
 
 	// BO對象轉成真正的Excel 對象
-	@Mapping(target = "status", source = "status" )
-	@Mapping(target = "category", source = "category", qualifiedByName = "convertCategory")
 	MemberExcel memberExcelRawToExcel(MemberExcelRaw memberExcelRaw);
-
-//	@Named("convertStatus")
-//	default String convertStatus(Integer status) {
-//		return OrderStatusEnum.fromValue(status).getLabelZh();
-//	}
-
-	@Named("convertCategory")
-	default String convertCategory(Integer category) {
-		return MemberCategoryEnum.fromValue(category).getLabelZh();
-	}
 
 }

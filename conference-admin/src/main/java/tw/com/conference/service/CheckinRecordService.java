@@ -48,6 +48,15 @@ public interface CheckinRecordService extends IService<CheckinRecord> {
 	 * @return
 	 */
 	List<CheckinRecord> getCheckinRecordsEfficiently();
+
+	/**
+	 * mybatis 原始高速查詢某場次的簽到/退紀錄<br>
+	 * 輸出Excel數據適用
+	 *
+	 * @param eventId
+	 * @return
+	 */
+	List<CheckinRecord> getCheckinRecordsEfficiently(Long eventId);
 	
 	/**
 	 * 根據 attendeesId 找到與會者所有簽到/退紀錄
@@ -104,7 +113,7 @@ public interface CheckinRecordService extends IService<CheckinRecord> {
 	 * @param attendeesId
 	 * @return
 	 */
-	CheckinRecordVO walkInRegistration(Long attendeesId);
+	CheckinRecordVO walkInRegistration(Long attendeesId, Long attendeeEventId);
 	
 	/**
 	 * 新增簽到/退紀錄
@@ -118,7 +127,7 @@ public interface CheckinRecordService extends IService<CheckinRecord> {
 	 * 
 	 * @param attendeesId
 	 */
-	void undoLastCheckin(Long attendeesId);
+	void undoLastCheckin(Long attendeesId, Long eventId);
 
 	/**
 	 * 修改簽到/退紀錄
@@ -154,6 +163,30 @@ public interface CheckinRecordService extends IService<CheckinRecord> {
 	 * @return
 	 */
 	Integer getCountCheckedIn();
+
+	/**
+	 * 查詢某場次的 實到 人數
+	 *
+	 * @param eventId
+	 * @return
+	 */
+	Integer getCountCheckedInByEventId(Long eventId);
+
+	/**
+	 * 查詢某場次的 尚在會場 和 已離場 人數
+	 *
+	 * @param eventId
+	 * @return
+	 */
+	PresenceStatsBO getPresenceStatsByEventId(Long eventId);
+
+	/**
+	 * 查詢多筆報名紀錄(場次)的簽到/退紀錄
+	 *
+	 * @param attendeeEventIds
+	 * @return 以 attendeeEventId 為 key 的映射
+	 */
+	Map<Long, List<CheckinRecord>> getCheckinMapByAttendeeEventIds(Collection<Long> attendeeEventIds);
 
 	/**
 	 * 獲取 尚在現場、已離場 人數

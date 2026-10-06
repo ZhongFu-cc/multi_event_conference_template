@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import tw.com.conference.enums.CommonStatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -79,6 +80,10 @@ public class Setting implements Serializable {
 	@TableField("slide_upload_start_time")
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime slideUploadStartTime;
+
+	@Schema(description = "投稿是否需先付清主活動費用;0=否,1=是")
+	@TableField("require_payment_for_submission")
+	private CommonStatusEnum requirePaymentForSubmission;
 
 	@Schema(description = "創建者")
 	@TableField(value = "create_by", fill = FieldFill.INSERT)

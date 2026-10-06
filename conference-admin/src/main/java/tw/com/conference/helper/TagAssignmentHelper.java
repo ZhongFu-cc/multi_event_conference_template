@@ -121,9 +121,23 @@ public class TagAssignmentHelper {
 	}
 
 	/**
+	 * 查詢某個群組化標籤前綴底下的所有 tagId (例如 未付款-group-01、-02 ...)<br>
+	 * 讓呼叫端不需要自己拼接 "-group-" 字面值
+	 *
+	 * @param tagType       標籤類型
+	 * @param tagNamePrefix 標籤名稱前綴(不含 "-group-")
+	 * @param tagIdsFetcher 透過 pattern 查詢 tagIds 的邏輯
+	 * @return
+	 */
+	public Set<Long> getGroupTagIdsByPrefix(String tagType, String tagNamePrefix,
+			BiFunction<String, String, Set<Long>> tagIdsFetcher) {
+		return tagIdsFetcher.apply(tagType, tagNamePrefix + GROUP_TAG_SUFFIX);
+	}
+
+	/**
 	 * 移除群組化標籤(帶有-group-的標籤)
 	 * 透過 pattern 批量移除標籤<br>
-	 * 
+	 *
 	 * @param entityId       實體ID
 	 * @param tagType        標籤類型
 	 * @param tagNamePattern 標籤名稱前綴(不含 "-group-")
@@ -136,6 +150,10 @@ public class TagAssignmentHelper {
 		// 在 Helper 內部組合完整的 pattern
 		String fullPattern = tagNamePattern + GROUP_TAG_SUFFIX;
 		Set<Long> tagIds = tagIdsFetcher.apply(tagType, fullPattern);
+		// 沒有符合的標籤就不用移除，避免產生 IN () 的無效 SQL
+		if (tagIds == null || tagIds.isEmpty()) {
+			return;
+		}
 		tagRemover.accept(entityId, tagIds);
 	}
 	

@@ -1,9 +1,14 @@
 package tw.com.conference.manager;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
@@ -14,121 +19,216 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import tw.com.conference.convert.MemberConvert;
+import tw.com.conference.enums.CommonStatusEnum;
 import tw.com.conference.enums.OrderStatusEnum;
-import tw.com.conference.enums.TagTypeEnum;
-import tw.com.conference.helper.TagAssignmentHelper;
 import tw.com.conference.pojo.BO.MemberExcelRaw;
 import tw.com.conference.pojo.DTO.OfflineTransferDTO;
+import tw.com.conference.pojo.VO.EventUnpaidMemberVO;
 import tw.com.conference.pojo.VO.MemberOrderVO;
-import tw.com.conference.pojo.VO.MemberTagVO;
 import tw.com.conference.pojo.VO.MemberVO;
-import tw.com.conference.pojo.entity.Attendee;
+import tw.com.conference.pojo.entity.Event;
 import tw.com.conference.pojo.entity.Member;
+import tw.com.conference.pojo.entity.MemberType;
 import tw.com.conference.pojo.entity.Orders;
+import tw.com.conference.pojo.entity.OrdersItem;
 import tw.com.conference.pojo.excelPojo.MemberExcel;
-import tw.com.conference.service.AttendeeService;
-import tw.com.conference.service.AttendeeTagService;
+import tw.com.conference.service.AttendeeEventService;
+import tw.com.conference.service.EventService;
 import tw.com.conference.service.MemberService;
-import tw.com.conference.service.MemberTagService;
+import tw.com.conference.service.MemberTypeService;
+import tw.com.conference.service.OrdersItemService;
 import tw.com.conference.service.OrdersService;
-import tw.com.conference.service.TagService;
 
 /**
- * 管理會員 和 訂單的需求,<br>
- * 以及成為與會者流程組裝
+ * 管理會員 和 訂單的需求<br>
+ * 所有「繳費狀態」皆以 活動(eventId) 為單位，透過 attendee_event 判斷
  */
 @Component
 @RequiredArgsConstructor
 public class MemberOrderManager {
 
-	private final TagAssignmentHelper tagAssignmentHelper;
 	private final MemberConvert memberConvert;
 	private final MemberService memberService;
-	private final MemberTagService memberTagService;
+	private final MemberTypeService memberTypeService;
+	private final EventService eventService;
+	private final AttendeeEventService attendeeEventService;
 	private final OrdersService ordersService;
-	private final AttendeeService attendeeService;
-	private final AttendeeTagService attendeeTagService;
-	private final TagService tagService;
+	private final OrdersItemService ordersItemService;
 
 	// --------------------------- 查詢相關 ---------------------------------------
 
 	/**
-	 * 拿到帶有註冊費繳費狀態的VO對象
-	 * 
+	 * 拿到帶有各活動繳費狀態的VO對象 (會員本人查看)
+	 *
 	 * @param memberId
 	 * @return
 	 */
 	public MemberVO getMemberVO(Long memberId) {
-
 		Member member = memberService.getMember(memberId);
 		MemberVO vo = memberConvert.entityToVO(member);
-
-		Orders registrationOrder = ordersService.getRegistrationOrderByMemberId(memberId);
-		vo.setStatus(registrationOrder.getStatus());
+		vo.setEventStatusList(attendeeEventService.findEventStatusByMemberId(memberId));
 		return vo;
-
 	}
 
 	/**
-	 * 獲得訂單狀態的會員人數
-	 * 
-	 * @param status
+	 * 獲得 報名某活動 且 符合繳費狀態 的會員人數
+	 *
+	 * @param eventId
+	 * @param isPaid  null 為不限
 	 * @return
 	 */
-	public Integer getMemberOrderCount(Integer status) {
-
-		// 1.查找符合訂單狀態的訂單
-		List<Orders> registrationOrderList = ordersService.getRegistrationOrderListByStatus(status);
-
-		// 2.返回當前訂單狀態的會員總人數
-		return memberService.getMemberOrderCount(registrationOrderList);
-
+	public Integer getMemberCountByEvent(Long eventId, CommonStatusEnum isPaid) {
+		return attendeeEventService.findMemberIdsByEventAndPaid(eventId, isPaid).size();
 	}
 
 	/**
-	 * 獲得會員及其訂單的VO對象
-	 * 
+	 * 獲得 報名某活動 且 符合繳費狀態 的會員及其(含此活動的)訂單 VO對象
+	 *
 	 * @param page
-	 * @param status
+	 * @param eventId
+	 * @param isPaid    null 為不限
 	 * @param queryText
 	 * @return
 	 */
-	public IPage<MemberOrderVO> getMemberOrderVO(Page<Orders> page, Integer status, String queryText) {
-		// 1.根據分頁 和 訂單狀態, 拿到分頁對象
-		Page<Orders> orderPage = ordersService.getRegistrationOrderPageByStatus(page, status);
+	public IPage<MemberOrderVO> getMemberOrderVO(Page<Member> page, Long eventId, CommonStatusEnum isPaid,
+			String queryText) {
 
-		// 2.再把訂單分頁 和 會員的查詢條件放入,拿到VO對象並返回
-		IPage<MemberOrderVO> memberOrderVO = memberService.getMemberOrderVO(orderPage, status, queryText);
-		return memberOrderVO;
+		// 1.找出報名此活動且符合繳費狀態的會員
+		List<Long> memberIds = attendeeEventService.findMemberIdsByEventAndPaid(eventId, isPaid);
+		if (memberIds.isEmpty()) {
+			return new Page<>(page.getCurrent(), page.getSize());
+		}
+
+		// 2.分頁查詢會員
+		IPage<Member> memberPage = memberService.getMemberPageByQuery(page, queryText, memberIds);
+		if (memberPage.getRecords().isEmpty()) {
+			return new Page<>(page.getCurrent(), page.getSize(), memberPage.getTotal());
+		}
+
+		// 3.找出這頁會員 含此活動 的訂單
+		Set<Long> pageMemberIds = memberPage.getRecords().stream().map(Member::getMemberId)
+				.collect(Collectors.toSet());
+		Map<Long, List<Orders>> ordersByMemberId = this.findOrdersContainingEvent(eventId, pageMemberIds);
+
+		// 4.組裝VO
+		List<MemberOrderVO> voList = memberPage.getRecords().stream().map(member -> {
+			MemberOrderVO vo = memberConvert.entityToMemberOrderVO(member);
+			vo.setOrdersList(ordersByMemberId.getOrDefault(member.getMemberId(), Collections.emptyList()));
+			return vo;
+		}).toList();
+
+		IPage<MemberOrderVO> resultPage = new Page<>(memberPage.getCurrent(), memberPage.getSize(),
+				memberPage.getTotal());
+		resultPage.setRecords(voList);
+		return resultPage;
 	}
 
 	/**
-	 * 適用於不使用金流,人工審核<br>
-	 * 獲得未付款的 會員及其訂單的VO對象
-	 * 
+	 * 後台審核用：列出 報名某活動但尚未繳費 的會員，附上包含此活動的未付訂單
+	 *
 	 * @param page
+	 * @param eventId
 	 * @param queryText
 	 * @return
 	 */
-	public IPage<MemberTagVO> getUnpaidMemberPage(Page<Member> page, String country, String queryText) {
+	public IPage<EventUnpaidMemberVO> getUnpaidMembersByEvent(Page<Member> page, Long eventId, String queryText) {
 
-		// 1.獲取未付款的個人訂單 (外國團體報名不在此限)
-		List<Orders> unpaidRegistrationOrderList = ordersService.getUnpaidRegistrationOrderList();
+		// 1.找出報名此活動且未繳費的會員
+		List<Long> memberIds = attendeeEventService.findMemberIdsByEventAndPaid(eventId, CommonStatusEnum.NO);
+		if (memberIds.isEmpty()) {
+			return new Page<>(page.getCurrent(), page.getSize());
+		}
 
-		// 2.獲取未付款的分頁對象
-		IPage<MemberTagVO> unpaidMemberPage = memberService.getUnpaidMemberPage(page, unpaidRegistrationOrderList,
-				country, queryText);
-		return unpaidMemberPage;
+		// 2.分頁查詢會員
+		IPage<Member> memberPage = memberService.getMemberPageByQuery(page, queryText, memberIds);
+		if (memberPage.getRecords().isEmpty()) {
+			return new Page<>(page.getCurrent(), page.getSize(), memberPage.getTotal());
+		}
+
+		// 3.找出這頁會員 含此活動 且 尚未付款成功 的訂單
+		Set<Long> pageMemberIds = memberPage.getRecords().stream().map(Member::getMemberId)
+				.collect(Collectors.toSet());
+		List<Orders> unpaidOrders = ordersService.findOrdersByMemberIdsAndStatus(pageMemberIds,
+				List.of(OrderStatusEnum.UNPAID, OrderStatusEnum.PENDING_CONFIRMATION));
+		Map<Long, List<OrdersItem>> itemsByOrderId = ordersItemService
+				.findOrderItemsByOrderIds(unpaidOrders.stream().map(Orders::getOrdersId).toList())
+				.stream()
+				.collect(Collectors.groupingBy(OrdersItem::getOrdersId));
+
+		// 一個會員對同一活動只會有一張訂單 (registerEvents 已擋重複報名)，直接以 memberId 為 key
+		Map<Long, Orders> orderByMemberId = unpaidOrders.stream()
+				.filter(order -> itemsByOrderId.getOrDefault(order.getOrdersId(), Collections.emptyList())
+						.stream()
+						.anyMatch(item -> eventId.equals(item.getEventId())))
+				.collect(Collectors.toMap(Orders::getMemberId, Function.identity()));
+
+		// 4.組裝VO
+		List<EventUnpaidMemberVO> voList = memberPage.getRecords().stream().map(member -> {
+			EventUnpaidMemberVO vo = new EventUnpaidMemberVO();
+			vo.setMemberId(member.getMemberId());
+			vo.setChineseName(member.getChineseName());
+			vo.setFirstName(member.getFirstName());
+			vo.setLastName(member.getLastName());
+			vo.setEmail(member.getEmail());
+			vo.setPhone(member.getPhone());
+			vo.setCountry(member.getCountry());
+			vo.setRemitAccountLast5(member.getRemitAccountLast5());
+
+			Orders order = orderByMemberId.get(member.getMemberId());
+			if (order != null) {
+				vo.setOrdersId(order.getOrdersId());
+				vo.setOrderStatus(order.getStatus());
+				vo.setOriginalTotalAmount(order.getOriginalTotalAmount());
+				vo.setTotalDiscountAmount(order.getTotalDiscountAmount());
+				vo.setTotalAmount(order.getTotalAmount());
+				vo.setAppliedDiscounts(order.getAppliedDiscounts());
+				vo.setOrderEventTitles(itemsByOrderId.getOrDefault(order.getOrdersId(), Collections.emptyList())
+						.stream()
+						.map(OrdersItem::getProductName)
+						.toList());
+			}
+			return vo;
+		}).toList();
+
+		IPage<EventUnpaidMemberVO> resultPage = new Page<>(memberPage.getCurrent(), memberPage.getSize(),
+				memberPage.getTotal());
+		resultPage.setRecords(voList);
+		return resultPage;
+	}
+
+	/**
+	 * 找出指定會員中，訂單細項包含某活動的訂單
+	 *
+	 * @param eventId
+	 * @param memberIds
+	 * @return memberId -> 訂單列表
+	 */
+	private Map<Long, List<Orders>> findOrdersContainingEvent(Long eventId, Set<Long> memberIds) {
+		// 這些會員的所有訂單
+		List<Orders> orders = ordersService.findOrdersByMemberIdsAndStatus(memberIds, null);
+		if (orders.isEmpty()) {
+			return Collections.emptyMap();
+		}
+		// 只留下細項含此活動的訂單
+		Set<Long> orderIdsWithEvent = ordersItemService
+				.findOrderItemsByOrderIds(orders.stream().map(Orders::getOrdersId).toList())
+				.stream()
+				.filter(item -> eventId.equals(item.getEventId()))
+				.map(OrdersItem::getOrdersId)
+				.collect(Collectors.toSet());
+
+		return orders.stream()
+				.filter(order -> orderIdsWithEvent.contains(order.getOrdersId()))
+				.collect(Collectors.groupingBy(Orders::getMemberId));
 	}
 
 	/**
 	 * 離線/人工 匯款<br>
 	 * 使用者送出確認，等待管理員審核
-	 * 
+	 *
 	 * @param offlineTransferDTO
 	 */
 	public void offlineTransfer(OfflineTransferDTO offlineTransferDTO) {
-
 		Orders order = ordersService.getOrders(offlineTransferDTO.getOrderId());
 		Member member = memberService.getMember(order.getMemberId());
 
@@ -138,77 +238,75 @@ public class MemberOrderManager {
 
 		// 不管狀態為何,觸發則將訂單狀態改為 付款-待確認
 		order.setStatus(OrderStatusEnum.PENDING_CONFIRMATION);
-
-		// 更新訂單狀態 , 改為已付款-確認中
 		ordersService.updateById(order);
-
 	}
 
 	/**
-	 * 管理者手動更改付款狀態<br>
-	 * 適用於非系統金流收款的狀態<br>
-	 * 變更成付款狀態時,新增進與會者名單,並配置Tag
-	 * 
-	 * @param memberId
-	 */
-	public void approveUnpaidMember(Long memberId) {
-		// 1.新會員的註冊費訂單狀態 => 已付款
-		ordersService.approveUnpaidMember(memberId);
-
-		// 2.拿到Member資訊
-		Member member = memberService.getMember(memberId);
-
-		// 3.由後台新增的Member , 自動付款完成，新增進與會者名單
-		Attendee attendee = attendeeService.addAttendee(member);
-
-		// 4.獲取當下與會者群體的Index,進行與會者標籤分組
-		tagAssignmentHelper.assignTag(attendee.getAttendeeId(), attendeeService::getAttendeeGroupIndex,
-				tagService::getOrCreateAttendeesGroupTag, attendeeTagService::addAttendeeTag);
-
-		// 5.移除會員 註冊費未付款 Tag
-		tagAssignmentHelper.removeGroupTagsByPattern(member.getMemberId(), TagTypeEnum.MEMBER.getType(), "註冊費未付款",
-				tagService::getTagIdsByTypeAndNamePattern, memberTagService::removeTagsFromMember);
-
-	}
-
-	/**
-	 * 下載所有會員列表, 其中包含他們當前的付款狀態
-	 * 
+	 * 下載 報名某活動 的會員列表, 其中包含他們對此活動的付款狀態與費用
+	 *
 	 * @param response
+	 * @param eventId
 	 * @throws IOException
 	 */
-	public void downloadExcel(HttpServletResponse response) throws IOException {
+	public void downloadExcel(HttpServletResponse response, Long eventId) throws IOException {
+
+		Event event = eventService.get(eventId);
+
 		// 1.設置Excel 檔案資訊
 		response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 		response.setCharacterEncoding("utf-8");
 		// 这里URLEncoder.encode可以防止中文乱码 ， 和easyexcel没有关系
-		String fileName = URLEncoder.encode("會員名單", "UTF-8").replaceAll("\\+", "%20");
+		String fileName = URLEncoder.encode("會員名單-" + event.getTitle(), "UTF-8").replaceAll("\\+", "%20");
 		response.setHeader("Content-disposition", "attachment;filename*=" + fileName + ".xlsx");
 
-		// 2.獲取 會員ID-註冊費訂單 的映射對象
-		Map<Long, Orders> ordersMap = ordersService.getRegistrationOrderMapByMemberId();
+		// 2.報名此活動的會員 及 其繳費狀態
+		List<Long> memberIds = attendeeEventService.findMemberIdsByEventAndPaid(eventId, null);
+		Map<Long, CommonStatusEnum> paidMapByMemberId = attendeeEventService.getPaidMapByEventAndMemberIds(eventId,
+				memberIds);
 
-		// 3.高效率獲取所有會員資料
-		List<Member> memberList = memberService.getMembersEfficiently();
+		// 3.此活動的訂單細項 (取該會員此活動的實付小計)
+		Map<Long, BigDecimal> subtotalByMemberId = this.findEventSubtotalByMemberId(eventId, memberIds);
 
-		// 4.遍歷會員資料,組裝excelVO對象
+		// 4.會員類別名稱
+		Map<Long, String> memberTypeLabelById = memberTypeService.list()
+				.stream()
+				.collect(Collectors.toMap(MemberType::getMemberTypeId, MemberType::getLabelZh, (a, b) -> a));
+
+		// 5.遍歷會員資料,組裝excelVO對象
+		List<Member> memberList = memberIds.isEmpty() ? Collections.emptyList()
+				: memberService.getMemberPageByQuery(new Page<>(1, Long.MAX_VALUE), null, memberIds).getRecords();
+
 		List<MemberExcel> excelData = memberList.stream().map(member -> {
-			// 4-1 獲取該會員的訂單
-			Orders orders = ordersMap.get(member.getMemberId());
-
-			// 4-2 轉換設置資料
 			MemberExcelRaw memberExcelRaw = memberConvert.entityToExcelRaw(member);
-			memberExcelRaw.setStatus(orders.getStatus().getLabelZh());
-			memberExcelRaw.setRegistrationFee(orders.getTotalAmount());
-			MemberExcel memberExcel = memberConvert.memberExcelRawToExcel(memberExcelRaw);
-
-			return memberExcel;
-
+			boolean isPaid = CommonStatusEnum.YES.equals(paidMapByMemberId.get(member.getMemberId()));
+			memberExcelRaw.setStatus(
+					isPaid ? OrderStatusEnum.PAYMENT_SUCCESS.getLabelZh() : OrderStatusEnum.UNPAID.getLabelZh());
+			memberExcelRaw.setRegistrationFee(subtotalByMemberId.getOrDefault(member.getMemberId(), BigDecimal.ZERO));
+			memberExcelRaw.setMemberType(memberTypeLabelById.get(member.getMemberTypeId()));
+			return memberConvert.memberExcelRawToExcel(memberExcelRaw);
 		}).toList();
 
-		// 5.輸出成Excel
+		// 6.輸出成Excel
 		EasyExcel.write(response.getOutputStream(), MemberExcel.class).sheet("會員列表").doWrite(excelData);
+	}
 
+	/**
+	 * 找出各會員對某活動的訂單細項小計 (一個會員對同一活動只會有一筆細項)
+	 */
+	private Map<Long, BigDecimal> findEventSubtotalByMemberId(Long eventId, List<Long> memberIds) {
+		List<OrdersItem> items = ordersItemService.findOrderItemsByEventId(eventId);
+		if (items.isEmpty()) {
+			return Collections.emptyMap();
+		}
+		Map<Long, Orders> orderById = ordersService
+				.listByIds(items.stream().map(OrdersItem::getOrdersId).distinct().toList())
+				.stream()
+				.collect(Collectors.toMap(Orders::getOrdersId, Function.identity()));
+
+		return items.stream()
+				.filter(item -> orderById.containsKey(item.getOrdersId()))
+				.collect(Collectors.toMap(item -> orderById.get(item.getOrdersId()).getMemberId(),
+						OrdersItem::getSubtotal));
 	}
 
 }

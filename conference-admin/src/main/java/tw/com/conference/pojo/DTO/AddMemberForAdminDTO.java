@@ -1,7 +1,10 @@
 package tw.com.conference.pojo.DTO;
 
+import java.util.List;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -69,6 +72,9 @@ public class AddMemberForAdminDTO {
 	
 	@Schema(description = "備註")
 	private String remark;
-	
-	
+
+	@NotEmpty
+	@Schema(description = "要報名的活動ID列表; 後台新增的會員視為免費報名並直接付款完成")
+	private List<Long> eventIds;
+
 }

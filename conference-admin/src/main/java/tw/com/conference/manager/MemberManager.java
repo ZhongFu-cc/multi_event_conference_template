@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
@@ -29,11 +29,6 @@ import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
-import tw.com.conference.config.RegistrationFeeConfig;
-import tw.com.conference.constants.OrderConstants;
-import tw.com.conference.enums.MemberCategoryEnum;
-import tw.com.conference.enums.OrderStatusEnum;
-import tw.com.conference.enums.RegistrationPhaseEnum;
 import tw.com.conference.exception.CheckinRecordException;
 import tw.com.conference.exception.MemberException;
 import tw.com.conference.pojo.entity.Attendee;
@@ -57,9 +52,6 @@ public class MemberManager {
 	@Value("${project.rate}")
 	private Long RATE;
 
-	@Value("${project.group-discount}")
-	private Double GROUP_DISCOUNT;
-
 	// 參加證明 Template Path
 	private final String CERTIFICATE_TEMPLATE_PATH = "jasperTemplate/certificate.jasper";
 	private final String CERTIFICATE_TEMPLATE_BG_PATH = "jasperTemplate/certificate.jpg";
@@ -69,7 +61,6 @@ public class MemberManager {
 	private final String INVOICE_SUBREPORT_TEMPLATE_PATH = "jasperTemplate/orderItems.jasper";
 	private final String INVOICE_TEMPLATE_BG_PATH = "jasperTemplate/conference_invoice.jpg";
 
-	private final RegistrationFeeConfig registrationFeeConfig;
 	private final MemberService memberService;
 	private final OrdersService ordersService;
 	private final AttendeeService attendeeService;
@@ -177,10 +168,10 @@ public class MemberManager {
 	 */
 	public void generateConferenceInvoice(HttpServletResponse response, Long memberId) throws IOException {
 
-		// 1.判斷會員是否有繳註冊費(報名費)
-		Orders order = ordersService.getRegistrationOrderByMemberId(memberId);
-		if (order.getStatus().equals(OrderStatusEnum.UNPAID.getValue())) {
-			throw new MemberException("會員未繳註冊費 , 不給予Invoice");
+		// 1.該會員所有已付款的訂單，全部列入繳費證明；沒有任何已付款訂單則不給予
+		List<Orders> paidOrders = ordersService.findPaidOrdersByMemberId(memberId);
+		if (paidOrders.isEmpty()) {
+			throw new MemberException("會員未繳任何活動費用 , 不給予Invoice");
 		}
 
 		// 2.引入 Invoice(繳費證明) Jasper文件(模板) + 子報表模板
@@ -219,43 +210,25 @@ public class MemberManager {
 			// 5-5與會者資料
 			Attendee attendee = attendeeService.getAttendeeByMemberId(memberId);
 
-			// 先拿到訂單 台幣價格
-			BigDecimal twdAmount = order.getTotalAmount();
-
-			// 5-6 如果itemsSummary為Group Registration Fee , 代表是團體報名 , 那台幣金額要重算
-//			if (order.getItemsSummary().equals(OrderConstants.GROUP_ITEMS_SUMMARY_REGISTRATION)) {
-//
-//				// 1.拿到配置設定,知道處於哪個註冊階段
-//				RegistrationPhaseEnum registrationPhaseEnum = settingService
-//						.getRegistrationPhaseEnum(member.getCreateDate());
-//
-//				// 2.拿到身分
-//				MemberCategoryEnum memberCategoryEnum = MemberCategoryEnum.fromValue(member.getCategory());
-//
-//				// 3.透過階段、國籍、身分，得到金額
-//				BigDecimal membershipFee = registrationFeeConfig.getFee(registrationPhaseEnum.getValue(),
-//						member.getCountry(), memberCategoryEnum.getConfigKey());
-//
-//				// 4.金額還要再打團體報名的優惠折扣
-//				twdAmount = membershipFee.multiply(BigDecimal.valueOf(GROUP_DISCOUNT));
-//			}
-
-			// 5-7訂單資料,拿到美金折算匯率,計算並保留兩位小數,四捨五入規則,最後固定小數點後兩位
+			// 5-6 每張已付款訂單的台幣金額，以美金折算匯率換算，保留兩位小數，四捨五入
 			BigDecimal rate = new BigDecimal(RATE);
-			BigDecimal usdAmount = twdAmount.divide(rate, 2, RoundingMode.HALF_UP);
-
-			//目前只有繳註冊費的功能,所以只有一筆訂單,直接修改成美元金額就好
-			order.setTotalAmount(usdAmount);
+			BigDecimal usdTotal = BigDecimal.ZERO;
+			for (Orders order : paidOrders) {
+				BigDecimal usdAmount = order.getTotalAmount().divide(rate, 2, RoundingMode.HALF_UP);
+				// 報表直接顯示美元金額
+				order.setTotalAmount(usdAmount);
+				usdTotal = usdTotal.add(usdAmount);
+			}
 
 			parameters.put("finalName", enName);
 			parameters.put("eventDate", eventDate);
 			parameters.put("sequenceNo", String.format("%03d", attendee.getSequenceNo()));
-			parameters.put("totalAmount", usdAmount);
+			parameters.put("totalAmount", usdTotal);
 			parameters.put("contactEmail", EMAIL_REPLY_TO);
 			parameters.put("bg", bgInputStream);
 			parameters.put("subReport", subReportInputStream);
 
-			parameters.put("orderItems", Arrays.asList(order));
+			parameters.put("orderItems", paidOrders);
 
 			/**
 			 * 填充報表

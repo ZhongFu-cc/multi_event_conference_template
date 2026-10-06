@@ -18,4 +18,7 @@ public class SettingVO {
 	@Schema(description = "Slide上傳是否開啟")
 	private Boolean isSlideUploadOpen;
 
+	@Schema(description = "投稿是否需先付清主活動費用")
+	private Boolean requirePaymentForSubmission;
+
 }

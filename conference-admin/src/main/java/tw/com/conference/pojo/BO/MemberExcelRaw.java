@@ -42,9 +42,12 @@ public class MemberExcelRaw {
 	@Schema(description = "電話號碼,這邊要使用 國碼-號碼")
 	private String phone;
 
-	// Entity中為Integer , Excel最終 為String 
-	@Schema(description = "用於分類會員資格, 1為 Member ，2為 Others ，3為Non-Member，4為MVP")
-	private Integer category;
+	@Schema(description = "會員類別ID")
+	private Long memberTypeId;
+
+	// 由 memberTypeId 查出的中文名稱，手動塞入
+	@Schema(description = "會員類別名稱")
+	private String memberType;
 
 	@Schema(description = "會員資格的身份補充")
 	private String categoryExtra;

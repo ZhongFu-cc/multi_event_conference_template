@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import lombok.RequiredArgsConstructor;
 import tw.com.conference.convert.SettingConvert;
+import tw.com.conference.enums.CommonStatusEnum;
 import tw.com.conference.exception.SettingException;
 import tw.com.conference.mapper.SettingMapper;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutSettingDTO;
@@ -142,6 +143,12 @@ public class SettingServiceImpl extends ServiceImpl<SettingMapper, Setting> impl
 				setting.getSlideUploadEndTime());
 	}
 
+	@Override
+	public Boolean isPaymentRequiredForSubmission() {
+		Setting setting = this.getSetting();
+		return setting != null && CommonStatusEnum.YES.equals(setting.getRequirePaymentForSubmission());
+	}
+
 	/**
 	 * 輔助方法：判斷目標時間是否在一個時間區間內 (包含起始時間，但不包含結束時間)。
 	 * 這個邏輯常用於表示某個事件在指定結束時間點之前都有效，但到達或超過結束時間點後就無效。
@@ -165,6 +172,7 @@ public class SettingServiceImpl extends ServiceImpl<SettingMapper, Setting> impl
 		vo.setIsGroupRegistrationOpen(isGroupRegistrationOpen());
 		vo.setIsAbstractSubmissionOpen(isAbstractSubmissionOpen());
 		vo.setIsSlideUploadOpen(isSlideUploadOpen());
+		vo.setRequirePaymentForSubmission(isPaymentRequiredForSubmission());
 
 		return vo;
 	}

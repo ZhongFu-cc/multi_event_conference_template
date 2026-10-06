@@ -25,13 +25,15 @@ import lombok.RequiredArgsConstructor;
 import tw.com.conference.constants.PaperFileConstants;
 import tw.com.conference.convert.PaperConvert;
 import tw.com.conference.enums.OrderStatusEnum;
+import tw.com.conference.enums.CommonStatusEnum;
+import tw.com.conference.enums.OrderStatusEnum;
 import tw.com.conference.enums.ReviewStageEnum;
-import tw.com.conference.pojo.entity.Orders;
 import tw.com.conference.pojo.entity.Paper;
 import tw.com.conference.pojo.entity.PaperAndPaperReviewer;
 import tw.com.conference.pojo.entity.PaperFileUpload;
 import tw.com.conference.pojo.excelPojo.PaperScoreExcel;
-import tw.com.conference.service.OrdersService;
+import tw.com.conference.service.AttendeeEventService;
+import tw.com.conference.service.EventService;
 import tw.com.conference.service.PaperAndPaperReviewerService;
 import tw.com.conference.service.PaperFileUploadService;
 import tw.com.conference.service.PaperService;
@@ -49,7 +51,8 @@ public class PaperDownloadManager {
 	@Value("${spring.cloud.aws.s3.bucketName}")
 	private String bucketName;
 
-	private final OrdersService ordersService;
+	private final EventService eventService;
+	private final AttendeeEventService attendeeEventService;
 	private final PaperService paperService;
 	private final PaperFileUploadService paperFileUploadService;
 	private final PaperAndPaperReviewerService paperAndPaperReviewerService;
@@ -88,8 +91,9 @@ public class PaperDownloadManager {
 		Map<Long, List<PaperAndPaperReviewer>> paperReviewersMap = paperAndPaperReviewerService
 				.groupPaperReviewersByPaperId(reviewStage);
 
-		// 5. 拿到memberId 與 註冊費訂單的映射
-		Map<Long, Orders> registrationOrderMapByMemberId = ordersService.getRegistrationOrderMapByMemberId(memberIds);
+		// 5. 拿到memberId 與 主活動繳費狀態 的映射
+		Map<Long, CommonStatusEnum> paidMapByMemberId = attendeeEventService
+				.getPaidMapByEventAndMemberIds(eventService.getMain().getEventId(), memberIds);
 
 		// 6.開始遍歷並組裝成Excel對象
 		List<PaperScoreExcel> excelData = paperList.stream().map(paper -> {
@@ -129,9 +133,10 @@ public class PaperDownloadManager {
 					.orElse(0.0); // 如果沒有分數，預設為 0.0
 			paperScoreExcel.setAverageScore(averageScore);
 
-			// 拿到會員繳費狀態塞進vo
-			Orders orders = registrationOrderMapByMemberId.get(paper.getMemberId());
-			paperScoreExcel.setMemberPaymentStatus(orders.getStatus().getLabelZh());
+			// 拿到會員主活動繳費狀態塞進vo (沿用訂單狀態的標籤)
+			boolean isPaid = CommonStatusEnum.YES.equals(paidMapByMemberId.get(paper.getMemberId()));
+			paperScoreExcel.setMemberPaymentStatus(
+					isPaid ? OrderStatusEnum.PAYMENT_SUCCESS.getLabelZh() : OrderStatusEnum.UNPAID.getLabelZh());
 
 			return paperScoreExcel;
 

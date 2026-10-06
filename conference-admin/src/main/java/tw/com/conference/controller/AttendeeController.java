@@ -186,8 +186,10 @@ public class AttendeeController {
 	@Parameters({
 			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
 	@GetMapping("stats")
-	public R<AttendeeStatsVO> getAttendeesStatsVO() {
-		return R.ok(attendeeProfileManager.getAttendeeStatsVO());
+	public R<AttendeeStatsVO> getAttendeesStatsVO(
+			@RequestParam(value = "eventId", required = false) Long eventId) {
+		// eventId 不帶時為整體統計，帶了則為該場次的應到/已到/在場/離場
+		return R.ok(attendeeProfileManager.getAttendeeStatsVO(eventId));
 	}
 
 	/** 跟QRcode產生有關 */

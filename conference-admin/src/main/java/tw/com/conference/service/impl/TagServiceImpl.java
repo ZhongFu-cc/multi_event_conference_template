@@ -244,7 +244,10 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
 	
 	@Override
 	public Tag getOrCreateNotPaidGroupTag(int groupIndex) {
-		return getOrCreateGroupTag(TagTypeEnum.MEMBER.getType(), "註冊費未付款", groupIndex, "#da0808", "未付款會員分組標籤 (第 %d 組)");
+		// namePrefix 使用介面常數，與移除標籤端 (AttendeeAdmissionHelper) 共用，
+		// 否則移除標籤時的 LIKE '<pattern>-group-%' 會找不到
+		return getOrCreateGroupTag(TagTypeEnum.MEMBER.getType(), UNPAID_TAG_PATTERN, groupIndex, "#da0808",
+				"未付款會員分組標籤 (第 %d 組)");
 	}
 
 

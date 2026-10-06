@@ -35,6 +35,10 @@ public class CheckinRecord implements Serializable {
     @TableField("attendee_id")
     private Long attendeeId;
 
+    @Schema(description = "報名紀錄ID, 指向 attendee_event, 代表這筆報到屬於哪一場")
+    @TableField("attendee_event_id")
+    private Long attendeeEventId;
+
     @Schema(description = "簽到/退地點,保留欄位，未來擴展")
     @TableField("location")
     private String location;

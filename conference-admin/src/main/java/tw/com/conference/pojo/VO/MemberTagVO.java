@@ -1,10 +1,10 @@
 package tw.com.conference.pojo.VO;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import tw.com.conference.pojo.BO.MemberEventStatusBO;
 import tw.com.conference.pojo.entity.Tag;
 
 @Data
@@ -70,11 +70,11 @@ public class MemberTagVO {
 	@Schema(description = "備註")
 	private String remark;
 
-	@Schema(description = "訂單狀態")
+	@Schema(description = "指定活動的繳費狀態 (列表查詢帶 eventId 時填入)")
 	private String status;
-	
-	@Schema(description = "註冊費金額")
-	private BigDecimal amount;
+
+	@Schema(description = "已報名的活動 及 各自的繳費狀態 (單筆查詢時填入)")
+	private List<MemberEventStatusBO> eventStatusList;
 
 	@Schema(description = "持有的標籤")
 	private List<Tag> tagList;
