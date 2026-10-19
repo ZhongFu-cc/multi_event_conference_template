@@ -97,7 +97,8 @@ public class CalculateDiscountHelper {
 				// 折扣總額
 				totalDiscount = totalDiscount.add(best.getDiscount());
 				// 應用折扣列表
-				appliedDiscounts.add(new AppliedDiscountBO(packageId, discountPackage.getName(), best.getDiscount()));
+				appliedDiscounts
+						.add(AppliedDiscountBO.ofBundle(packageId, discountPackage.getName(), best.getDiscount()));
 			}
 		}
 

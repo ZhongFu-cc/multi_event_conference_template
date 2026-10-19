@@ -34,6 +34,7 @@ import tw.com.conference.service.MemberService;
 import tw.com.conference.service.OrdersItemService;
 import tw.com.conference.service.OrdersService;
 import tw.com.conference.service.PaymentService;
+import tw.com.conference.service.PromoCodeRedemptionService;
 import tw.com.conference.service.SettingService;
 
 @Component
@@ -57,6 +58,7 @@ public class OrderPaymentManager {
 	private final OrdersItemService ordersItemService;
 	private final PaymentService paymentService;
 	private final AttendeeEventService attendeeEventService;
+	private final PromoCodeRedemptionService promoCodeRedemptionService;
 	private final SettingService settingService;
 
 	private static final AtomicInteger SEQ = new AtomicInteger(0);
@@ -267,7 +269,13 @@ public class OrderPaymentManager {
 		// 3.更新報名的付款狀態
 		attendeeEventService.batchConfirmPayment(order.getMemberId(), eventIds);
 
+		// 4.若此訂單使用了優惠碼，將使用紀錄從 reserved 轉為 redeemed
+		// (付款失敗不處理，額度維持占用，因為訂單還在、折扣已寫進金額)
+		promoCodeRedemptionService.markRedeemed(order.getOrdersId());
 
+		// 5.移除未付款標籤，成為與會者 (任一活動付清即具備與會者身分)
+		// 這裡也會回填 attendee_event.attendee_id，場次報到要靠它關聯
+		attendeeAdmissionHelper.admitAfterPayment(member);
 	}
 
 }

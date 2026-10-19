@@ -30,6 +30,7 @@ import tw.com.conference.manager.CheckinRecordManager;
 import tw.com.conference.manager.MemberOrderManager;
 import tw.com.conference.manager.RegistrationEventManager;
 import tw.com.conference.pojo.DTO.GroupRegistrationDTO;
+import tw.com.conference.pojo.DTO.IndividualRegistrationDTO;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddEventDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutEventDTO;
 import tw.com.conference.enums.CommonStatusEnum;
@@ -156,16 +157,33 @@ public class EventController {
 
 	/** ------------------- 以下為用戶報名參加活動事件用 ------------------------------------ */
 
-	@PostMapping("individual")
-	@Operation(summary = "個人報名活動")
+	@PostMapping("registration/preview")
+	@Operation(summary = "報名金額試算; 不建立訂單、不占用優惠碼額度", description = "回傳結構與個人報名相同, 前端可用同一套渲染邏輯。"
+			+ "優惠碼額度此處僅做查詢, 真正報名時仍可能因額度被他人用完而失敗")
 	@Parameters({
 			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
 	@SaCheckLogin(type = StpKit.MEMBER_TYPE)
-	public R<EventOrderVO> individualRegistration(@Valid @RequestBody List<Long> eventIds) {
+	public R<EventOrderVO> previewRegistration(@Valid @RequestBody IndividualRegistrationDTO dto) {
 
 		Member memberCache = memberService.getMemberInfo();
 
-		EventOrderVO eventOrderVO = registrationEventManager.individualRegistration(memberCache, eventIds);
+		EventOrderVO eventOrderVO = registrationEventManager.previewRegistration(memberCache, dto.getEventIds(),
+				dto.getPromoCode());
+
+		return R.ok(eventOrderVO);
+	}
+
+	@PostMapping("individual")
+	@Operation(summary = "個人報名活動; 可帶優惠碼")
+	@Parameters({
+			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
+	@SaCheckLogin(type = StpKit.MEMBER_TYPE)
+	public R<EventOrderVO> individualRegistration(@Valid @RequestBody IndividualRegistrationDTO dto) {
+
+		Member memberCache = memberService.getMemberInfo();
+
+		EventOrderVO eventOrderVO = registrationEventManager.registerEvents(memberCache, dto.getEventIds(),
+				dto.getPromoCode(), false);
 
 		return R.ok(eventOrderVO);
 	}
