@@ -1,5 +1,7 @@
 package tw.com.conference.controller;
 
+import java.util.List;
+
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -65,6 +67,16 @@ public class PricingRuleController {
 	public R<PriceDashboardVO> getPricingTable(@RequestParam("eventId") Long eventId) {
 		PriceDashboardVO priceDashboard = eventPriceRuleManager.getPriceDashboard(eventId);
 		return R.ok(priceDashboard);
+	}
+
+	@GetMapping("list")
+	@Operation(summary = "查詢某活動的所有價格規則", description = "用於後台逐筆編輯/刪除")
+	@Parameters({
+			@Parameter(name = "Authorization", description = "請求頭token,token-value開頭必須為Bearer ", required = true, in = ParameterIn.HEADER) })
+	@SaCheckRole("super-admin")
+	public R<List<PricingRule>> getPricingRuleList(@RequestParam("eventId") Long eventId) {
+		List<PricingRule> pricingRuleList = pricingRuleService.findPricingRulesByEventId(eventId);
+		return R.ok(pricingRuleList);
 	}
 
 	@GetMapping("{id}")

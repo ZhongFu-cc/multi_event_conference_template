@@ -58,4 +58,8 @@ public class AddEventDTO {
 	@Schema(description = "是否允許團體報名;0=否,1=是")
 	private CommonStatusEnum allowGroupRegistration;
 
+	@NotNull
+	@Schema(description = "是否啟用;0=否,1=是")
+	private CommonStatusEnum isActive;
+
 }
