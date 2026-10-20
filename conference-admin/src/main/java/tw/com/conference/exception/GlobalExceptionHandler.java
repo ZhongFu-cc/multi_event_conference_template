@@ -69,6 +69,16 @@ public class GlobalExceptionHandler {
 	}
 
 	/**
+	 * 自定義優惠碼相關的業務邏輯錯誤<br>
+	 * 例如: 碼不存在、已過期、額度用完、不適用於所選活動
+	 */
+	@ExceptionHandler(value = PromoCodeException.class)
+	public R<Map<String, Object>> promoCodeException(PromoCodeException exception) {
+		String message = exception.getMessage();
+		return R.fail(409, message);
+	}
+
+	/**
 	 * 自定義表單相關的業務邏輯錯誤
 	 * 
 	 * @param exception

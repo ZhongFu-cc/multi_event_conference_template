@@ -51,6 +51,16 @@ public class I18nMessageKey {
 
 	}
 
+	// 優惠碼相關的key
+	public static final class PromoCode {
+		public static final String NOT_FOUND = "promo-code.not-found";
+		public static final String INACTIVE = "promo-code.inactive";
+		public static final String NOT_STARTED = "promo-code.not-started";
+		public static final String EXPIRED = "promo-code.expired";
+		public static final String EXHAUSTED = "promo-code.exhausted";
+		public static final String NOT_APPLICABLE = "promo-code.not-applicable";
+	}
+
 	// 投稿相關的key
 	public static final class Paper {
 		public static final String CLOSED = "paper.closed";

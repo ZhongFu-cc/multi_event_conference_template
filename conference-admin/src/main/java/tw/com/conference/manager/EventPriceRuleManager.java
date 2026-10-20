@@ -20,6 +20,7 @@ import tw.com.conference.service.DiscountPackageItemService;
 import tw.com.conference.service.EventService;
 import tw.com.conference.service.MemberTypeService;
 import tw.com.conference.service.PricingRuleService;
+import tw.com.conference.service.PromoCodeEventService;
 
 @Component
 @RequiredArgsConstructor
@@ -29,6 +30,7 @@ public class EventPriceRuleManager {
 	private final MemberTypeService memberTypeService;
 	private final PricingRuleService pricingRuleService;
 	private final DiscountPackageItemService discountPackageItemService;
+	private final PromoCodeEventService promoCodeEventService;
 
 	/**
 	 * 構建價格表
@@ -127,6 +129,9 @@ public class EventPriceRuleManager {
 
 		// 刪除事件活動 相關的 組合優惠
 		discountPackageItemService.removeByEventId(eventId);
+
+		// 刪除事件活動 相關的 優惠碼適用設定
+		promoCodeEventService.removeByEventId(eventId);
 
 		// 刪除事件活動 相關的 價格策略
 		pricingRuleService.removeByEventId(eventId);

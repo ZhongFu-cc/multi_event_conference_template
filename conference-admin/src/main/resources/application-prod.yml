@@ -239,7 +239,7 @@ project:
     # 付款相關
   payment:
     # 付款後客戶返回的頁面
-    client-back-url: https://tobss.org.tw/member
+    client-back-url: https://tobss.org.tw/payment-success
     # 付款後，金流系統返回結果的頁面，prod-api 為生產環境的判斷詞墜
     return-url: https://tobss.org.tw/prod-api/payment
     # 廠商訂單編號前墜,最多9碼,超過會被截斷

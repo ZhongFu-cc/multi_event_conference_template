@@ -19,8 +19,11 @@ import tw.com.conference.mapper.OrdersMapper;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddOrderDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutOrdersDTO;
 import tw.com.conference.pojo.entity.Orders;
+import tw.com.conference.pojo.entity.PromoCodeRedemption;
 import tw.com.conference.service.OrdersItemService;
 import tw.com.conference.service.OrdersService;
+import tw.com.conference.service.PromoCodeRedemptionService;
+import tw.com.conference.service.PromoCodeService;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +31,8 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 
 	private final OrdersConvert ordersConvert;
 	private final OrdersItemService ordersItemService;
+	private final PromoCodeService promoCodeService;
+	private final PromoCodeRedemptionService promoCodeRedemptionService;
 
 	@Override
 	public List<Orders> findOrdersByMemberIdsAndStatus(Collection<Long> memberIds,
@@ -122,10 +127,18 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 	}
 
 	@Override
+	@Transactional
 	public void deleteOrders(Long ordersId) {
-		// 1.刪除訂單的細項
+		// 1.若此訂單使用了優惠碼，釋放額度並移除使用紀錄
+		// (付款失敗不釋放，只有訂單真的被刪除才還回去)
+		PromoCodeRedemption redemption = promoCodeRedemptionService.getByOrdersId(ordersId);
+		if (redemption != null) {
+			promoCodeService.releaseQuota(redemption.getPromoCodeId());
+			promoCodeRedemptionService.removeByOrdersId(ordersId);
+		}
+		// 2.刪除訂單的細項
 		ordersItemService.deleteOrdersItemByOrderId(ordersId);
-		// 2.刪除訂單
+		// 3.刪除訂單
 		baseMapper.deleteById(ordersId);
 	}
 

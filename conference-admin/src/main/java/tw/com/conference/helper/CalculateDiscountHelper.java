@@ -72,8 +72,6 @@ public class CalculateDiscountHelper {
 			Long packageId = entry.getKey();
 			List<Long> bundleEventIds = entry.getValue();
 
-			System.out.println("packageId: " +packageId + "bundleEventIds: " + bundleEventIds);
-			
 			// 組合優惠資訊
 			DiscountPackage discountPackage = discountPackageService.get(packageId);
 
@@ -86,7 +84,10 @@ public class CalculateDiscountHelper {
 			if (bundleCart.isEmpty())
 				continue;
 
-			// 查詢此 bundle 的所有有效折扣規則（按 priority 降序）
+			// 查詢此 bundle 的所有有效折扣規則
+			// 注意：折扣以「最佳優惠」為準 —— 下方 solveBundleBest 會窮舉所有規則與組合取最大折扣，
+			// 規則的查詢順序不影響結果。DiscountPackageRule.priority 欄位已保留但「尚未參與計算」，
+			// 若日後要改成依優先序選規則，需同時調整 selectByPackageId 的排序與 backtrack 的選法。
 			List<DiscountPackageRule> rules = discountPackageRuleService.findByPackageId(packageId);
 
 			// 用回溯找出此 bundle 的最大折扣
@@ -96,7 +97,8 @@ public class CalculateDiscountHelper {
 				// 折扣總額
 				totalDiscount = totalDiscount.add(best.getDiscount());
 				// 應用折扣列表
-				appliedDiscounts.add(new AppliedDiscountBO(packageId, discountPackage.getName(), best.getDiscount()));
+				appliedDiscounts
+						.add(AppliedDiscountBO.ofBundle(packageId, discountPackage.getName(), best.getDiscount()));
 			}
 		}
 

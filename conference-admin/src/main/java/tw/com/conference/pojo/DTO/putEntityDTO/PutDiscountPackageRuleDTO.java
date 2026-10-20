@@ -1,6 +1,7 @@
 package tw.com.conference.pojo.DTO.putEntityDTO;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -30,7 +31,9 @@ public class PutDiscountPackageRuleDTO {
 	private Integer discountValue;
 
 	@NotNull
-	@Schema(description = "從群組中選中幾個event時觸發")
+	// 至少要 1 : 若為 0，回溯演算法會產生不需消耗任何場次的空組合而無窮遞迴
+	@Min(1)
+	@Schema(description = "從群組中選中幾個event時觸發,至少為1")
 	private Integer requiredCount;
 
 	@Schema(description = "優先級,越大優先級越高 ; 同一批event命中多個折扣時，數字大的優先")
