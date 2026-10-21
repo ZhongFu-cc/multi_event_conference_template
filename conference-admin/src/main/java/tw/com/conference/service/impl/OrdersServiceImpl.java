@@ -24,6 +24,7 @@ import tw.com.conference.service.OrdersItemService;
 import tw.com.conference.service.OrdersService;
 import tw.com.conference.service.PromoCodeRedemptionService;
 import tw.com.conference.service.PromoCodeService;
+import tw.com.conference.service.RegistrationGroupService;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +34,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 	private final OrdersItemService ordersItemService;
 	private final PromoCodeService promoCodeService;
 	private final PromoCodeRedemptionService promoCodeRedemptionService;
+	private final RegistrationGroupService registrationGroupService;
 
 	@Override
 	public List<Orders> findOrdersByMemberIdsAndStatus(Collection<Long> memberIds,
@@ -136,9 +138,11 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 			promoCodeService.releaseQuota(redemption.getPromoCodeId());
 			promoCodeRedemptionService.removeByOrdersId(ordersId);
 		}
-		// 2.刪除訂單的細項
+		// 2.若為團體訂單，刪除成員在該活動的報名紀錄，團體退回招募中
+		registrationGroupService.releaseByOrdersId(ordersId);
+		// 3.刪除訂單的細項
 		ordersItemService.deleteOrdersItemByOrderId(ordersId);
-		// 3.刪除訂單
+		// 4.刪除訂單
 		baseMapper.deleteById(ordersId);
 	}
 
