@@ -20,6 +20,7 @@ import tw.com.conference.constants.OrderConstants;
 import tw.com.conference.enums.ECpayRtnCodeEnum;
 import tw.com.conference.enums.GroupRegistrationEnum;
 import tw.com.conference.enums.OrderStatusEnum;
+import tw.com.conference.enums.RegistrationGroupStatusEnum;
 import tw.com.conference.exception.OrderPaymentException;
 import tw.com.conference.exception.RegistrationClosedException;
 import tw.com.conference.helper.AttendeeAdmissionHelper;
@@ -29,12 +30,16 @@ import tw.com.conference.pojo.entity.Member;
 import tw.com.conference.pojo.entity.Orders;
 import tw.com.conference.pojo.entity.OrdersItem;
 import tw.com.conference.pojo.entity.Payment;
+import tw.com.conference.pojo.entity.RegistrationGroup;
+import tw.com.conference.pojo.entity.RegistrationGroupMember;
 import tw.com.conference.service.AttendeeEventService;
 import tw.com.conference.service.MemberService;
 import tw.com.conference.service.OrdersItemService;
 import tw.com.conference.service.OrdersService;
 import tw.com.conference.service.PaymentService;
 import tw.com.conference.service.PromoCodeRedemptionService;
+import tw.com.conference.service.RegistrationGroupMemberService;
+import tw.com.conference.service.RegistrationGroupService;
 import tw.com.conference.service.SettingService;
 
 @Component
@@ -59,6 +64,8 @@ public class OrderPaymentManager {
 	private final PaymentService paymentService;
 	private final AttendeeEventService attendeeEventService;
 	private final PromoCodeRedemptionService promoCodeRedemptionService;
+	private final RegistrationGroupService registrationGroupService;
+	private final RegistrationGroupMemberService registrationGroupMemberService;
 	private final SettingService settingService;
 
 	private static final AtomicInteger SEQ = new AtomicInteger(0);
@@ -217,8 +224,6 @@ public class OrderPaymentManager {
 			}
 		}
 
-		// 團體報名 (master 付款後同步 slave 訂單) 待團體報名功能重新實作後再補上
-
 	}
 
 	/**
@@ -247,7 +252,8 @@ public class OrderPaymentManager {
 
 	/**
 	 * 訂單付款成功後的共用處理：<br>
-	 * 更新訂單狀態 → 更新訂單內所有活動的報名付款狀態 → 移除未付款標籤 → 成為與會者
+	 * 更新訂單狀態 → 更新訂單內所有活動的報名付款狀態 → 移除未付款標籤 → 成為與會者<br>
+	 * 團體訂單 (由負責人付款) 會對團體內所有成員做相同處理
 	 *
 	 * @param order  訂單
 	 * @param member 訂單持有者
@@ -266,16 +272,34 @@ public class OrderPaymentManager {
 		List<OrdersItem> orderItems = ordersItemService.findOrderItemsByOrderId(order.getOrdersId());
 		Set<Long> eventIds = orderItems.stream().map(OrdersItem::getEventId).collect(Collectors.toSet());
 
-		// 3.更新報名的付款狀態
-		attendeeEventService.batchConfirmPayment(order.getMemberId(), eventIds);
+		// 3.找出這張訂單涵蓋的會員; 團體訂單為所有成員 (含負責人)，個人訂單為持有者本人
+		RegistrationGroup registrationGroup = registrationGroupService.getByOrdersId(order.getOrdersId());
+		List<Member> paidMembers = List.of(member);
+		if (registrationGroup != null) {
+			List<Long> memberIds = registrationGroupMemberService
+					.findByGroupId(registrationGroup.getRegistrationGroupId())
+					.stream()
+					.map(RegistrationGroupMember::getMemberId)
+					.toList();
+			paidMembers = memberService.listByIds(memberIds);
+			registrationGroupService.transitStatus(registrationGroup.getRegistrationGroupId(),
+					RegistrationGroupStatusEnum.LOCKED, RegistrationGroupStatusEnum.PAID, order.getOrdersId());
+		}
 
-		// 4.若此訂單使用了優惠碼，將使用紀錄從 reserved 轉為 redeemed
+		// 4.更新報名的付款狀態
+		for (Member paidMember : paidMembers) {
+			attendeeEventService.batchConfirmPayment(paidMember.getMemberId(), eventIds);
+		}
+
+		// 5.若此訂單使用了優惠碼，將使用紀錄從 reserved 轉為 redeemed
 		// (付款失敗不處理，額度維持占用，因為訂單還在、折扣已寫進金額)
 		promoCodeRedemptionService.markRedeemed(order.getOrdersId());
 
-		// 5.移除未付款標籤，成為與會者 (任一活動付清即具備與會者身分)
+		// 6.移除未付款標籤，成為與會者 (任一活動付清即具備與會者身分)
 		// 這裡也會回填 attendee_event.attendee_id，場次報到要靠它關聯
-		attendeeAdmissionHelper.admitAfterPayment(member);
+		for (Member paidMember : paidMembers) {
+			attendeeAdmissionHelper.admitAfterPayment(paidMember);
+		}
 	}
 
 }

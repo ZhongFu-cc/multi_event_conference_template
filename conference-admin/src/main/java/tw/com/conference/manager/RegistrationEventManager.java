@@ -13,7 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import tw.com.conference.constants.I18nMessageKey;
 import tw.com.conference.constants.OrderConstants;
@@ -33,7 +32,6 @@ import tw.com.conference.pojo.BO.CalculateResultBO;
 import tw.com.conference.pojo.BO.EventPriceBO;
 import tw.com.conference.pojo.BO.OrderAmountsBO;
 import tw.com.conference.pojo.BO.PromoCodeResultBO;
-import tw.com.conference.pojo.DTO.GroupRegistrationDTO;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddOrderDTO;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddOrderItemDTO;
 import tw.com.conference.pojo.VO.EventOrderVO;
@@ -389,22 +387,6 @@ public class RegistrationEventManager {
 		}
 
 		return eventOrderVO;
-	}
-
-	/**
-	 * 
-	 * 團體報名活動事件<br>
-	 * 一次僅可報名 **一個** 事件<br>
-	 * 需帶上團體報名者的專屬code號 (memberId)<br>
-	 * 只能使用團體優惠組合
-	 * 
-	 * @param memberCache
-	 * @param dto
-	 * @return
-	 */
-	public EventOrderVO groupRegistration(Member memberCache, @Valid GroupRegistrationDTO dto) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }
