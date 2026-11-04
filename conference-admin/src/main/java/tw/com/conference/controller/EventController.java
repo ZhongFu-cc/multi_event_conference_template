@@ -29,7 +29,6 @@ import tw.com.conference.manager.EventPriceRuleManager;
 import tw.com.conference.manager.CheckinRecordManager;
 import tw.com.conference.manager.MemberOrderManager;
 import tw.com.conference.manager.RegistrationEventManager;
-import tw.com.conference.pojo.DTO.GroupRegistrationDTO;
 import tw.com.conference.pojo.DTO.IndividualRegistrationDTO;
 import tw.com.conference.pojo.DTO.addEntityDTO.AddEventDTO;
 import tw.com.conference.pojo.DTO.putEntityDTO.PutEventDTO;
@@ -188,15 +187,6 @@ public class EventController {
 		return R.ok(eventOrderVO);
 	}
 
-	@PostMapping("group")
-	@Operation(summary = "團體報名活動")
-	public R<EventOrderVO> groupRegistration(@Valid @RequestBody GroupRegistrationDTO dto) {
-
-		Member memberCache = memberService.getMemberInfo();
-
-		EventOrderVO eventOrderVO = registrationEventManager.groupRegistration(memberCache, dto);
-
-		return R.ok(eventOrderVO);
-	}
+	// 團體報名改為邀請碼機制，見 RegistrationGroupController (/registration-group)
 
 }

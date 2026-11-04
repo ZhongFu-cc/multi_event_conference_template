@@ -16,6 +16,9 @@ public class AddOrderItemDTO {
 
 	@Schema(description = "活動事件ID")
 	private Long eventId;
+
+	@Schema(description = "此細項所屬的會員ID; 個人訂單不填, 團體訂單為各成員")
+	private Long memberId;
 	
 	@Schema(description = "產品名稱")
 	private String productName;

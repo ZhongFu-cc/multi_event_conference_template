@@ -291,7 +291,9 @@ public class MemberOrderManager {
 	}
 
 	/**
-	 * 找出各會員對某活動的訂單細項小計 (一個會員對同一活動只會有一筆細項)
+	 * 找出各會員對某活動的訂單細項小計 (一個會員對同一活動只會有一筆細項)<br>
+	 * 團體訂單的持有者是負責人，但每位成員各有一筆細項，所以以細項上的 memberId 為準;
+	 * 個人訂單的細項沒有 memberId，退回用訂單持有者
 	 */
 	private Map<Long, BigDecimal> findEventSubtotalByMemberId(Long eventId, List<Long> memberIds) {
 		List<OrdersItem> items = ordersItemService.findOrderItemsByEventId(eventId);
@@ -305,7 +307,9 @@ public class MemberOrderManager {
 
 		return items.stream()
 				.filter(item -> orderById.containsKey(item.getOrdersId()))
-				.collect(Collectors.toMap(item -> orderById.get(item.getOrdersId()).getMemberId(),
+				.collect(Collectors.toMap(
+						item -> item.getMemberId() != null ? item.getMemberId()
+								: orderById.get(item.getOrdersId()).getMemberId(),
 						OrdersItem::getSubtotal));
 	}
 

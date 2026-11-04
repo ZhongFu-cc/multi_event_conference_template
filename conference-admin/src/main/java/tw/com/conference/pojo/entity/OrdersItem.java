@@ -43,6 +43,10 @@ public class OrdersItem implements Serializable {
 	@TableField("event_id")
 	private Long eventId;
 
+	@Schema(description = "此細項所屬的會員ID; 個人訂單為 null (即訂單持有者), 團體訂單為各成員")
+	@TableField("member_id")
+	private Long memberId;
+
 	@Schema(description = "產品類型")
 	@TableField("product_type")
 	private String productType;

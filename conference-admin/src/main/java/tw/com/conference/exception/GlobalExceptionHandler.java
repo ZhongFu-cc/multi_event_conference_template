@@ -79,6 +79,21 @@ public class GlobalExceptionHandler {
 	}
 
 	/**
+	 * 團體報名相關的業務邏輯錯誤<br>
+	 * 例如: 邀請碼無效、團體已鎖定、未達最低人數
+	 *
+	 * @param exception
+	 * @return
+	 */
+	@ResponseBody
+	@ResponseStatus(HttpStatus.CONFLICT)
+	@ExceptionHandler(value = RegistrationGroupException.class)
+	public R<Map<String, Object>> registrationGroupException(RegistrationGroupException exception) {
+		String message = exception.getMessage();
+		return R.fail(409, message);
+	}
+
+	/**
 	 * 自定義表單相關的業務邏輯錯誤
 	 * 
 	 * @param exception

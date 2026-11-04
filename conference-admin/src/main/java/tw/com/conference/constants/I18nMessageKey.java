@@ -23,6 +23,22 @@ public class I18nMessageKey {
 		// 團體註冊
 		public static final class Group {
 			public static final String CLOSED = "registration.group.closed";
+			public static final String NOT_ALLOWED = "registration.group.not-allowed";
+			public static final String NO_RULE = "registration.group.no-rule";
+			public static final String NOT_FOUND = "registration.group.not-found";
+			public static final String INVITE_CODE_INVALID = "registration.group.invite-code-invalid";
+			public static final String NOT_RECRUITING = "registration.group.not-recruiting";
+			public static final String NOT_LOCKED = "registration.group.not-locked";
+			public static final String ALREADY_PAID = "registration.group.already-paid";
+			public static final String ALREADY_JOINED = "registration.group.already-joined";
+			public static final String IN_OTHER_GROUP = "registration.group.in-other-group";
+			public static final String LEADER_ONLY = "registration.group.leader-only";
+			public static final String NOT_MEMBER = "registration.group.not-member";
+			public static final String MEMBER_NOT_FOUND = "registration.group.member-not-found";
+			public static final String LEADER_CANNOT_LEAVE = "registration.group.leader-cannot-leave";
+			public static final String BELOW_MIN_COUNT = "registration.group.below-min-count";
+			public static final String MEMBER_ALREADY_REGISTERED = "registration.group.member-already-registered";
+			public static final String STATUS_CHANGED = "registration.group.status-changed";
 		}
 		
 	    // 帳號驗證相關
